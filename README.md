@@ -45,7 +45,9 @@ The first 33 cases are textbook solids:
 - **Sweeps:** a circle along helices and arcs.
 - **Fillets:** one edge, every edge of a box (three meeting at each corner), and a cylinder's rim.
 
-Then come harder ones: NURBS surfaces in Booleans, tangent and near-tangent contact, fillets and
+Then come harder ones: NURBS surfaces in Booleans, tangent and near-tangent contact, intersection
+curves that cross themselves (Viviani's figure eight, where a cylinder touches a ball from inside,
+and Villarceau's circles, where a plane touches a torus twice), fillets and
 chamfers that consume faces, chamfers meeting at a corner mitred or cut flat, three or four to
 it, splines, and **solid sweeps**: everything a tool passes through as it moves, from a ball
 swung through a block (a closed form) to a wheel screwed along a rod, a rack rolled round a gear
