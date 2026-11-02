@@ -35,16 +35,17 @@ fn stadium(x0: f64, x1: f64, y: f64, r: f64, z: f64) -> Profile {
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];
     let rod = prism(&disc([0., 0., 0.], up, ROD_RADIUS), 0., ROD_LENGTH)?;
-    // cad-kernel has no sweep of a solid, so the torus's sweep is built by elementary geometry. A
-    // solid of revolution slid along a line in its own mid-plane passes over every point square
-    // to the line of its shadow: a point at distance ρ from the torus's axis and y from its
-    // mid-plane is inside it where (ρ − 6)² + y² ≤ 2², and as the torus slides along z every ρ
-    // from |x − 11.5| (level with the centre) up to as far as the slide reaches comes by, so a
-    // point is passed through just where |x − 11.5| ≤ 6 + √(2² − y²): the stadium of the tube's
-    // two discs in the plane y = 0 seen along z, (5.5, 0) and (17.5, 0) of radius 2, and the band
-    // between. The torus's slide is far longer than it is across, so that shadow is filled from
-    // the level of the starting centre to the last; beyond those levels the sweep is the torus,
-    // its hole filled, at each end, wholly below and above the rod, which it does not touch.
+    // cad-kernel sweeps a solid (`swept::closed`) only where every face is a plane, so the torus's
+    // sweep is built by elementary geometry. A solid of revolution slid along a line in its own
+    // mid-plane passes over every point square to the line of its shadow: a point at distance ρ
+    // from the torus's axis and y from its mid-plane is inside it where (ρ − 6)² + y² ≤ 2², and as
+    // the torus slides along z every ρ from |x − 11.5| (level with the centre) up to as far as the
+    // slide reaches comes by, so a point is passed through just where |x − 11.5| ≤ 6 + √(2² − y²):
+    // the stadium of the tube's two discs in the plane y = 0 seen along z, (5.5, 0) and (17.5, 0)
+    // of radius 2, and the band between. The torus's slide is far longer than it is across, so that
+    // shadow is filled from the level of the starting centre to the last; beyond those levels the
+    // sweep is the torus, its hole filled, at each end, wholly below and above the rod, which it
+    // does not touch.
     let reach = |s: f64| CENTRE[0] + s * MAJOR;
     let shadow = stadium(reach(-1.), reach(1.), CENTRE[1], MINOR, CENTRE[2]);
     let swept = prism(&shadow, 0., SLIDE)?;
