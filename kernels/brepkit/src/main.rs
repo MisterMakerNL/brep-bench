@@ -73,6 +73,12 @@ impl From<brepkit_math::MathError> for Refusal {
     }
 }
 
+impl From<brepkit_heal::HealError> for Refusal {
+    fn from(e: brepkit_heal::HealError) -> Self {
+        Refusal(e.to_string())
+    }
+}
+
 impl From<&str> for Refusal {
     fn from(why: &str) -> Self {
         Refusal(why.to_owned())

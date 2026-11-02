@@ -1,7 +1,7 @@
 //! Helpers for the geometry, nurbs and spline cases: NURBS curves and surfaces from the control
 //! points, weights and knots a case gives, through brepkit's own types, and loops of edges on them
 //! made into faces.
-use brepkit_math::curves::{Circle3D, Ellipse3D, Hyperbola3D, Parabola3D};
+use brepkit_math::curves::{Circle3D, Ellipse3D};
 use brepkit_math::nurbs::curve::NurbsCurve;
 use brepkit_math::nurbs::surface::NurbsSurface;
 use brepkit_math::vec::{Point3, Vec3};
@@ -260,27 +260,4 @@ pub fn bezier_knots(degree: usize) -> Vec<f64> {
     (0..2 * degree + 2)
         .map(|i| if i <= degree { 0.0 } else { 1.0 })
         .collect()
-}
-
-/// The arc of brepkit's parabola `parabola` from its parameter `t0` to `t1`, as the exact NURBS
-/// brepkit's edges can carry (they have no parabola): the quadratic Bézier from `P(t0)` to `P(t1)`
-/// whose middle control point is `P(t0) + P′(t0)·(t1 − t0)/2`, where the two end tangents meet.
-pub fn parabola_arc(parabola: &Parabola3D, t0: f64, t1: f64) -> Result<NurbsCurve, MathError> {
-    let start = parabola.evaluate(t0);
-    let middle = start + parabola.tangent(t0) * (0.5 * (t1 - t0));
-    bezier(&[start, middle, parabola.evaluate(t1)])
-}
-
-/// The arc of brepkit's hyperbola `hyperbola` from its parameter `t0` to `t1`, as the exact NURBS
-/// brepkit's edges can carry (they have no hyperbola): the rational quadratic Bézier from `H(t0)`
-/// to `H(t1)` whose middle control point, `H(t0) + H′(t0)·tanh(β)` with β = (t1 − t0)/2, is where
-/// the two end tangents meet, weighted cosh β (the conic arc of Piegl and Tiller).
-pub fn hyperbola_arc(hyperbola: &Hyperbola3D, t0: f64, t1: f64) -> Result<NurbsCurve, MathError> {
-    let half = 0.5 * (t1 - t0);
-    let start = hyperbola.evaluate(t0);
-    let middle = start + hyperbola.tangent(t0) * half.tanh();
-    rational_bezier(
-        &[start, middle, hyperbola.evaluate(t1)],
-        &[1.0, half.cosh(), 1.0],
-    )
 }
