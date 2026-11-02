@@ -100,6 +100,22 @@ no end swept straight and turned into a ring, a ball and a cone each bounded by 
 whose rows of poles collapse to a point, and a Bézier patch of degree 15. All but the last have
 closed forms, some in elliptic integrals.
 
+Then **drafts**: faces turned about a neutral plane so that they lean from the direction a part
+is pulled from its mould. They run from a box's four sides or one, and a cylinder's side drafted
+into a cone, through a neutral plane through a box's middle and a moulded plate whose outside
+leans in while its bore leans out, to a box drafted so steeply that its long sides meet below its
+top, which is left a hip roof with no top at all.
+
+Then **form features** that end on a face rather than at a length: a square pad extruded down
+until it meets a cylinder, a post extruded up inside a hollow dome until it meets the dome's
+inside, a rib turned about a hub until it meets a stop, and a hole drilled through the first wall
+it meets and no further.
+
+Then **sweeps along paths with sharp corners**, the section carried round each corner one of two
+ways: mitred, each run cut by the plane bisecting the corner (a square bar round a 60° corner, a
+round pipe along three edges of a cube, and a rebated moulding round a picture frame), or turned
+about the corner, which fills the corner's outside with a quarter ball.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
