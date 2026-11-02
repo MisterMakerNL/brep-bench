@@ -1,6 +1,18 @@
 # The cases cad-kernel builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
 
+"draft/boss-on-plate" = "no draft of a solid's faces"
+"draft/box-about-its-middle" = "no draft of a solid's faces"
+"draft/box-cross-drilled" = "no draft of a solid's faces"
+"draft/box-four-sides" = "no draft of a solid's faces"
+"draft/box-one-side" = "no draft of a solid's faces"
+"draft/box-outward" = "no draft of a solid's faces"
+"draft/cylinder-parted-both-ways" = "no draft of a solid's faces"
+"draft/hole-tapered" = "no draft of a solid's faces"
+"draft/l-block-sides" = "no draft of a solid's faces"
+"draft/pocket-walls" = "no draft of a solid's faces"
+"draft/rounded-box-sides" = "no draft of a solid's faces"
+"draft/rounded-pocket-walls" = "no draft of a solid's faces"
 "geometry/elliptic-cylinder" = "no ellipse in a profile"
 "geometry/elliptic-hole" = "no ellipse in a profile"
 "geometry/hyperboloid" = "no hyperbola in a profile"

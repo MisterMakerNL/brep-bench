@@ -1,6 +1,6 @@
-//! The solids and picks the cases share: a closed polygon as a profile, a block between two
-//! corners, the L-block, a ball cut by a level, a rounded plate, a capsule, a drilled block, a bent
-//! flange and a half pipe, and a face picked by a point inside it. Everything else a case builds
+//! The solids and picks the cases share: a closed polygon as a profile, a rounded rectangle, a
+//! block between two corners, the L-block, a ball cut by a level, a rounded plate, a capsule, a
+//! drilled block, a bent flange and a half pipe, and a face picked by a point inside it. Everything else a case builds
 //! with cad-kernel's own `build` functions.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, kept, prism, revolve, sphere, Profile, ProfileEdge};
@@ -54,22 +54,28 @@ pub fn ball_below(c: V, r: f64, h: f64) -> Result<Brep, String> {
     kept(&sphere(c, [0., 0., 1.], r)?, [c[0], c[1], h], [0., 0., -1.], 0.)
 }
 
-/// The plate whose outline is the rectangle from `lo` to `hi` in the plane z = 0, its corners
-/// rounded to `r`, `depth` high.
-pub fn rounded_plate(lo: [f64; 2], hi: [f64; 2], r: f64, depth: f64) -> Result<Brep, String> {
+/// The rectangle from `lo` to `hi` in the plane z = `z`, its corners rounded to `r`, as a profile
+/// facing +z.
+pub fn rounded_rectangle(lo: [f64; 2], hi: [f64; 2], r: f64, z: f64) -> Profile {
     let corners = [([hi[0] - r, lo[1] + r], -FRAC_PI_2), ([hi[0] - r, hi[1] - r], 0.),
                    ([lo[0] + r, hi[1] - r], FRAC_PI_2), ([lo[0] + r, lo[1] + r], PI)];
     let mut edges = Vec::new();
     for k in 0..4 {
         let (c, a) = corners[k];
-        let frame = Frame::new([c[0], c[1], 0.], [0., 0., 1.], [1., 0., 0.]);
+        let frame = Frame::new([c[0], c[1], z], [0., 0., 1.], [1., 0., 0.]);
         edges.push(ProfileEdge::Arc { frame, r, span: Some([a, a + FRAC_PI_2]) });
-        let end = [c[0] + r * (a + FRAC_PI_2).cos(), c[1] + r * (a + FRAC_PI_2).sin(), 0.];
+        let end = [c[0] + r * (a + FRAC_PI_2).cos(), c[1] + r * (a + FRAC_PI_2).sin(), z];
         let (n, b) = corners[(k + 1) % 4];
-        let start = [n[0] + r * b.cos(), n[1] + r * b.sin(), 0.];
+        let start = [n[0] + r * b.cos(), n[1] + r * b.sin(), z];
         edges.push(ProfileEdge::Line { a: end, b: start });
     }
-    prism(&Profile { origin: [0., 0., 0.], normal: [0., 0., 1.], loops: vec![edges], names: Vec::new() }, 0., depth)
+    Profile { origin: [0., 0., z], normal: [0., 0., 1.], loops: vec![edges], names: Vec::new() }
+}
+
+/// The plate whose outline is the rectangle from `lo` to `hi` in the plane z = 0, its corners
+/// rounded to `r`, `depth` high.
+pub fn rounded_plate(lo: [f64; 2], hi: [f64; 2], r: f64, depth: f64) -> Result<Brep, String> {
+    prism(&rounded_rectangle(lo, hi, r, 0.), 0., depth)
 }
 
 /// The capsule's end: the cylinder of radius `r` on the z axis from z = 0 to `h`, capped by the
