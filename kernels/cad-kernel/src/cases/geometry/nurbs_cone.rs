@@ -31,5 +31,6 @@ pub fn build() -> Result<Brep, String> {
     let names = vec!["east".to_string(), "west".to_string()];
     let side = grid_sheet(&net, &[0., 0.5, 1.], &[0., 1.], &names, [true, false])?;
     let base = face(&disc([0., 0., 0.], [0., 0., -1.], R))?;
-    Ok(sewn(&[side, base], tolerance(2. * APEX))?)
+    let tol = tolerance(side.size());
+    Ok(sewn(&[side, base], tol)?)
 }

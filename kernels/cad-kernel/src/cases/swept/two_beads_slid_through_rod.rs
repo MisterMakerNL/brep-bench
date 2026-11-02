@@ -34,18 +34,17 @@ fn stadium(x0: f64, x1: f64, y: f64, r: f64, z: f64) -> Profile {
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];
     let rod = prism(&disc([0., 0., 0.], up, ROD_RADIUS), 0., ROD_LENGTH)?;
-    // cad-kernel sweeps a solid (`swept::closed`) only where every face is a plane, so the
-    // wheel's sweep is built by elementary geometry.
-    // What a union passes through is what each of its parts passes through, so the wheel's sweep
-    // is the two beads' sweeps united. Each bead is a solid of revolution slid along a line in its
-    // own mid-plane: a point at distance ρ from the axis and h from the bead's mid-plane is inside
-    // it where (ρ − R)² + h² ≤ r², and as it slides along z every ρ from |x − 11.5| (level with
-    // the centre) up to as far as the slide reaches comes by, so a point is passed through just
-    // where |x − 11.5| ≤ R + √(r² − h²): the stadium of the tube's two discs in the bead's
-    // mid-plane seen along z, about (11.5 ∓ R, y), and the band between. Each slide is far longer
-    // than the bead is across, so its shadow is filled from the level of the starting centre to
-    // the last; beyond those levels the sweep is each bead, its hole filled, at each end, wholly
-    // below and above the rod, which it does not touch.
+    // cad-kernel sweeps a solid (`swept::closed`) only where every face is a plane, so the wheel's
+    // sweep is built by elementary geometry. What a union passes through is what each of its parts
+    // passes through, so the wheel's sweep is the two beads' sweeps united. Each bead is a solid of
+    // revolution slid along a line in its own mid-plane: a point at distance ρ from the axis and h
+    // from the bead's mid-plane is inside it where (ρ − R)² + h² ≤ r², and as it slides along z
+    // every ρ from |x − 11.5| (level with the centre) up to as far as the slide reaches comes by,
+    // so a point is passed through just where |x − 11.5| ≤ R + √(r² − h²): the stadium of the
+    // tube's two discs in the bead's mid-plane seen along z, about (11.5 ∓ R, y), and the band
+    // between. Each slide is far longer than the bead is across, so its shadow is filled from the
+    // level of the starting centre to the last; beyond those levels the sweep is each bead, its
+    // hole filled, at each end, wholly below and above the rod, which it does not touch.
     let [first, second] = BEADS.map(|(centre, major, minor)| {
         let shadow = stadium(centre[0] - major, centre[0] + major, centre[1], minor, centre[2]);
         prism(&shadow, 0., SLIDE)

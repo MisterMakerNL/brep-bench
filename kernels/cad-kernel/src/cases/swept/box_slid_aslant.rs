@@ -13,16 +13,16 @@ const SLIDE: V = [8., 5., 3.];
 
 pub fn build() -> Result<Brep, String> {
     let tool = block([0., 0., 0.], SIZE)?;
-    // the slide along (8, 5, 3) over the roll [0, 1]: a screw that does not turn, advancing its
-    // whole length a roll of τ
+    // the slide along (8, 5, 3): a screw that does not turn, advancing its whole length over a
+    // roll of τ
     let path = Trajectory::Twist(Screw {
         origin: [0., 0., 0.],
         axis: unit(SLIDE),
         ratio: 0.,
-        advance: norm(SLIDE) * TAU,
+        advance: norm(SLIDE),
     });
-    // the kernel's closed swept solid; membership read on the box meshed to a thousandth of it
+    // the kernel's closed swept solid (a box's flat faces mesh exactly, at any bar)
     let size = tool.size();
-    slid(&tool, &path, [0., 1.], 1e-3 * size, tolerance(size))
+    slid(&tool, &path, [0., TAU], size, tolerance(size))
         .map_err(|why| format!("the box's sweep not built: {why:?}"))
 }
