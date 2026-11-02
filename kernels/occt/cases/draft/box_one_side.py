@@ -1,26 +1,22 @@
-"""A box with one side drafted. A box from (0, 0, 0) to (30, 20, 10) with one side drafted: the
-face x = 30 turns 10° about its bottom edge (the solid is pulled along +z, the neutral plane is z =
-0) so that it leans in as it rises, meeting the top at x = 30 − 10·tan 10° ≈ 28.237. No other face
-is drafted.
+"""A box with one side drafted. The box from the origin to (20, 12, 10). Draft one of its sides, x =
+20, by 10°, with the pull direction +z and the neutral plane z = 0: the side turns about its bottom
+edge, the line x = 20, z = 0, until it leans 10° from the z direction, inward (toward −x) as it
+rises. No other face is drafted. The top and the sides y = 0 and y = 12 are trimmed to the drafted
+side.
 
-The faces beside it, y = 0 and y = 20, stay where they are and are trimmed by the leaning face
-into trapezoids; the top shrinks to 28.237 × 20; the base and the face x = 0 are unchanged."""
-from OCP.BRepAdaptor import BRepAdaptor_Surface
+The result is a prism along y. Its section in any plane y = const is the trapezoid through (0, 0),
+(20, 0), (20 − 10·tan 10°, 10) and (0, 10), each given as (x, z), and it runs from y = 0 to y =
+12."""
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
-from OCP.GeomAbs import GeomAbs_SurfaceType
-from OCP.gp import gp_Pnt
 
 from draft import drafted
+from bench import face_through
 
-
-def is_end(face):
-    """The face x = 30."""
-    surface = BRepAdaptor_Surface(face)
-    return (surface.GetType() == GeomAbs_SurfaceType.GeomAbs_Plane
-            and abs(surface.Plane().Location().X() - 30) < 1e-9
-            and abs(abs(surface.Plane().Axis().Direction().X()) - 1) < 1e-9)
+SIZE = (20, 12, 10)
+DRAFT = 10  # degrees, inward (toward −x) as the side rises
 
 
 def build():
-    box = BRepPrimAPI_MakeBox(gp_Pnt(0, 0, 0), gp_Pnt(30, 20, 10)).Shape()
-    return drafted(box, 10, 0, chosen=is_end)
+    box = BRepPrimAPI_MakeBox(*SIZE).Shape()
+    a, b, h = SIZE
+    return drafted(box, [face_through(box, (a, b / 2, h / 2))], DRAFT)

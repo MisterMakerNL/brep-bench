@@ -1,52 +1,79 @@
-"""What the OCCT draft cases share: drafting chosen faces of a solid with BRepOffsetAPI_DraftAngle.
+"""What the OCCT implementations of the draft cases share: drafting faces of a solid with
+BRepOffsetAPI_DraftAngle, a box with its vertical edges rounded, and a box's sides picked.
 
-A draft turns each chosen face about its line on a neutral plane, by an angle, so that it leans
-from the direction the solid is pulled in: a side of a box becomes a sloping plane, a cylinder's
-side a cone. The faces next to it are trimmed or extended to meet it.
+DraftAngle turns each face it is given about its neutral curve, where the face crosses the neutral
+plane, until it makes the given angle with the pull direction: a plane turns about a line, and a
+cylinder whose axis is the pull direction becomes a cone through the same circle. A positive angle
+leans the face toward the solid's inside as it runs along the pull direction (an outer side
+narrows, a hole's wall widens), and a negative one away from it. The faces beside the drafted ones
+are extended or trimmed to meet them.
 """
 import math
 
-from OCP.BRepAdaptor import BRepAdaptor_Surface
+from OCP.BRepAdaptor import BRepAdaptor_Curve
+from OCP.BRepFilletAPI import BRepFilletAPI_MakeFillet
 from OCP.BRepOffsetAPI import BRepOffsetAPI_DraftAngle
-from OCP.GeomAbs import GeomAbs_SurfaceType
-from OCP.TopAbs import TopAbs_FACE
+from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCP.TopAbs import TopAbs_EDGE
 from OCP.TopExp import TopExp_Explorer
 from OCP.TopoDS import TopoDS
 from OCP.gp import gp_Dir, gp_Pln, gp_Pnt
 
-from bench import Refused
-
-TOLERANCE = 1e-9
+from bench import Refused, face_through
 
 
-def faces(shape):
-    explorer = TopExp_Explorer(shape, TopAbs_FACE)
-    while explorer.More():
-        yield TopoDS.Face(explorer.Current())
-        explorer.Next()
-
-
-def is_cap(face, pull):
-    """A plane face square to the pull: the draft leaves it where it is."""
-    surface = BRepAdaptor_Surface(face)
-    if surface.GetType() != GeomAbs_SurfaceType.GeomAbs_Plane:
-        return False
-    return abs(abs(surface.Plane().Axis().Direction().Dot(pull)) - 1) < TOLERANCE
-
-
-def drafted(shape, degrees, neutral_z, chosen=None):
-    """`shape` with its faces drafted by `degrees` about the plane z = `neutral_z`, pulled along +z,
-    so that each leans in as z grows. The faces drafted are those `chosen` picks (by default
-    every face that is not a cap square to z)."""
-    pull = gp_Dir(0, 0, 1)
-    neutral = gp_Pln(gp_Pnt(0, 0, neutral_z), pull)
-    draft = BRepOffsetAPI_DraftAngle(shape)
-    for face in faces(shape):
-        if (chosen or (lambda f: not is_cap(f, pull)))(face):
-            draft.Add(face, pull, math.radians(degrees), neutral)
-            if not draft.AddDone():
-                raise Refused("BRepOffsetAPI_DraftAngle declined a face")
+def drafted(solid, faces, degrees, neutral=(0, 0, 0), pull=(0, 0, 1)):
+    """`solid` with each of `faces` drafted `degrees` about the plane through `neutral` square to
+    `pull`. Refused if OCCT declines a face or the whole."""
+    direction = gp_Dir(*pull)
+    plane = gp_Pln(gp_Pnt(*neutral), direction)
+    draft = BRepOffsetAPI_DraftAngle(solid)
+    for k, face in enumerate(faces):
+        draft.Add(face, direction, math.radians(degrees), plane)
+        if not draft.AddDone():
+            raise Refused(f"BRepOffsetAPI_DraftAngle declined face {k + 1} of {len(faces)} "
+                          f"({status(draft)})")
     draft.Build()
     if not draft.IsDone():
-        raise Refused(f"BRepOffsetAPI_DraftAngle could not draft the faces: {draft.Status()}")
+        raise Refused("BRepOffsetAPI_DraftAngle could not build the drafted solid "
+                      f"({status(draft)})")
     return draft.Shape()
+
+
+def status(draft):
+    """What DraftAngle could not recompute, from its Draft_ErrorStatus: a face, an edge or a
+    vertex (`FaceRecomputation` and the like)."""
+    return draft.Status().name.removeprefix("Draft_")
+
+
+def rounded_box(lo, hi, radius):
+    """The box from `lo` to `hi` with its four vertical edges, those whose ends differ only in z,
+    rounded to `radius`."""
+    box = BRepPrimAPI_MakeBox(gp_Pnt(*lo), gp_Pnt(*hi)).Shape()
+    rounds = BRepFilletAPI_MakeFillet(box)
+    edges = TopExp_Explorer(box, TopAbs_EDGE)
+    while edges.More():
+        edge = TopoDS.Edge(edges.Current())
+        curve = BRepAdaptor_Curve(edge)
+        a, b = curve.Value(curve.FirstParameter()), curve.Value(curve.LastParameter())
+        if abs(a.X() - b.X()) < 1e-9 and abs(a.Y() - b.Y()) < 1e-9:
+            rounds.Add(radius, edge)
+        edges.Next()
+    rounds.Build()
+    if not rounds.IsDone():
+        raise Refused("BRepFilletAPI_MakeFillet could not round the vertical edges")
+    return rounds.Shape()
+
+
+def box_sides(solid, lo, hi, radius=0):
+    """The faces of `solid` where the box from `lo` to `hi` has its four sides, picked halfway up
+    each: its planes at their middles and, where its vertical edges are rounded to `radius`, the
+    four rounds at theirs. A pocket's walls are picked by its box the same way."""
+    (x0, y0, z0), (x1, y1, z1) = lo, hi
+    xm, ym, z = (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2
+    points = [(x0, ym, z), (x1, ym, z), (xm, y0, z), (xm, y1, z)]
+    if radius:
+        k = radius * (1 - 2 ** -0.5)  # a quarter round's middle, in from the box's corner
+        points += [(x0 + k, y0 + k, z), (x1 - k, y0 + k, z),
+                   (x1 - k, y1 - k, z), (x0 + k, y1 - k, z)]
+    return [face_through(solid, p) for p in points]

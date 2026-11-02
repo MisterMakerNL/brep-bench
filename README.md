@@ -100,11 +100,14 @@ no end swept straight and turned into a ring, a ball and a cone each bounded by 
 whose rows of poles collapse to a point, and a Bézier patch of degree 15. All but the last have
 closed forms, some in elliptic integrals.
 
-Then **drafts**: faces turned about a neutral plane so that they lean from the direction a part
-is pulled from its mould. They run from a box's four sides or one, and a cylinder's side drafted
-into a cone, through a neutral plane through a box's middle and a moulded plate whose outside
-leans in while its bore leans out, to a box drafted so steeply that its long sides meet below its
-top, which is left a hip roof with no top at all.
+Then **drafts**: faces of a solid turned about a neutral plane until they lean a few degrees from
+a pull direction, as a moulded part's walls must, the faces beside them trimmed to suit. They run
+from a box's sides drafted inward, outward, about its middle or one side alone, through a boss on
+a plate, a hole and a pocket's walls drafted to widen toward their openings, an L's sides about
+its concave edge, and rounded corners drafted with the sides they are tangent to, the rounds
+becoming cones; to a cylinder parted at its middle and drafted away from the parting line both
+ways, faces drafted through the ellipses where a hole comes out of them, and a box drafted until
+its top is consumed, which leaves a hip roof. Every one has a closed form.
 
 Then **form features** that end on a face rather than at a length: a square pad extruded down
 until it meets a cylinder, a post extruded up inside a hollow dome until it meets the dome's
