@@ -162,7 +162,28 @@
       ],
       "source": "kernels/solidcraft/src/cases/{category}/{name_snake}.rs"
     },
-    {"name": "brepkit", "kernel": "https://github.com/andymai/brepkit", "license": "AGPL-3.0 or commercial", "backend": "Rust", "frontend": "Rust", "command": null},
+    {
+      "name": "brepkit",
+      "kernel": "https://github.com/andymai/brepkit",
+      "license": "AGPL-3.0 or commercial",
+      "backend": "Rust",
+      "frontend": "Rust",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/brepkit/Cargo.toml"
+      ],
+      "command": [
+        "kernels/brepkit/target/release/brep-bench-brepkit"
+      ],
+      "version": [
+        "kernels/brepkit/target/release/brep-bench-brepkit",
+        "--version"
+      ],
+      "source": "kernels/brepkit/src/cases/{category}/{name_snake}.rs"
+    },
     {
       "name": "popkern",
       "kernel": "https://github.com/popkern-dev/popkern",
