@@ -130,6 +130,10 @@ fn measured(m: &mut Model, solid: Shape, out: &str) -> String {
     let thickness = if area > 0.0 && volume > 0.0 { volume / area } else { size };
     let deflection = (1e-4 * size).min(5e-3 * thickness).max(1e-7);
     let options = MeshOptions { deflection, angle: 0.1, relative: false };
+    // Meshes left on the solid by the building (a face picked by its distance to a point meshes
+    // it coarsely) are dropped, so every face is meshed afresh to this one deflection: kentron
+    // keeps a plane's old mesh as exact while it remeshes its curved edges finer.
+    m.clear_meshes(solid);
     match triangulate(m, solid, options) {
         Ok((nodes, triangles)) => match write_stl(out, &nodes, &triangles) {
             Ok(()) => format!(
