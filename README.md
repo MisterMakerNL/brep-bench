@@ -109,6 +109,16 @@ becoming cones; to a cylinder parted at its middle and drafted away from the par
 ways, faces drafted through the ellipses where a hole comes out of them, and a box drafted until
 its top is consumed, which leaves a hip roof. Every one has a closed form.
 
+Then **form features** that end on a face rather than at a length: a square pad extruded down
+until it meets a cylinder, a post extruded up inside a hollow dome until it meets the dome's
+inside, a rib turned about a hub until it meets a stop, and a hole drilled through the first wall
+it meets and no further.
+
+Then **sweeps along paths with sharp corners**, the section carried round each corner one of two
+ways: mitred, each run cut by the plane bisecting the corner (a square bar round a 60° corner, a
+round pipe along three edges of a cube, and a rebated moulding round a picture frame), or turned
+about the corner, which fills the corner's outside with a quarter ball.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
