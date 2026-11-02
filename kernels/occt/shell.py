@@ -1,5 +1,5 @@
 """What the OCCT implementations of the shell cases share: hollowing a solid to a wall of constant
-thickness with BRepOffsetAPI_MakeThickSolid, and picking a face by a point on it.
+thickness with BRepOffsetAPI_MakeThickSolid (and `bench.face_through`, picking a face by a point).
 
 MakeThickSolid removes the faces it is given (the openings), moves every other face by the
 thickness, and joins the moved faces to the solid's own across the openings, as rims on the
@@ -13,35 +13,19 @@ the hollow. A closed hollow is made by `hollow`, the solid's shell and its offse
 two shells of one solid.
 """
 from OCP.BRep import BRep_Builder
-from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
-from OCP.BRepExtrema import BRepExtrema_DistShapeShape
 from OCP.BRepOffset import BRepOffset_Skin
 from OCP.BRepOffsetAPI import BRepOffsetAPI_MakeOffsetShape, BRepOffsetAPI_MakeThickSolid
 from OCP.GeomAbs import GeomAbs_Arc
-from OCP.TopAbs import TopAbs_FACE, TopAbs_SHELL
+from OCP.TopAbs import TopAbs_SHELL
 from OCP.TopExp import TopExp_Explorer
-from OCP.TopoDS import TopoDS, TopoDS_Solid
+from OCP.TopoDS import TopoDS_Solid
 from OCP.collections import List_TopoDS_Shape
-from OCP.gp import gp_Pnt
 
-from bench import Refused
+from bench import Refused, face_through
+
+__all__ = ["face_through", "hollow", "shell"]  # face_through, as the shell cases pick faces
 
 TOLERANCE = 1e-7
-
-
-def face_through(solid, point):
-    """The one face of `solid` that `point` lies on."""
-    vertex = BRepBuilderAPI_MakeVertex(gp_Pnt(*point)).Vertex()
-    found = []
-    faces = TopExp_Explorer(solid, TopAbs_FACE)
-    while faces.More():
-        face = TopoDS.Face(faces.Current())
-        if (BRepExtrema_DistShapeShape(vertex, face).Value() < TOLERANCE
-                and not any(face.IsSame(f) for f in found)):
-            found.append(face)
-        faces.Next()
-    assert len(found) == 1, f"{len(found)} faces through {point}"
-    return found[0]
 
 
 def shell(solid, openings, thickness, outward=False, join=GeomAbs_Arc):

@@ -16,8 +16,7 @@ from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCP.gp import gp_Pnt
 
 from bench import Refused
-from draft import drafted
-from shell import face_through
+from draft import box_sides, drafted
 
 BLOCK = (40, 30, 15)
 POCKET = ((8, 8, 5), (32, 22, 15))
@@ -33,8 +32,6 @@ def build():
     if not cut.IsDone():
         raise Refused("BRepAlgoAPI_Cut declined the pocket")
     part = cut.Shape()
-    xm, ym, zm = (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2
-    walls = [face_through(part, p)
-             for p in [(x0, ym, zm), (x1, ym, zm), (xm, y0, zm), (xm, y1, zm)]]
     # a wall facing into the pocket leans toward the block's material for a positive angle
+    walls = box_sides(part, *POCKET)
     return drafted(part, walls, DRAFT, neutral=(0, 0, z0))

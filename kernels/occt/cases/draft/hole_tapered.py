@@ -12,9 +12,8 @@ from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder
 from OCP.gp import gp, gp_Ax2, gp_Pnt
 
-from bench import Refused
+from bench import Refused, face_through
 from draft import drafted
-from shell import face_through
 
 HALF, HEIGHT = 15, 20
 RADIUS = 6

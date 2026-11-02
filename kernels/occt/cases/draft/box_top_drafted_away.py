@@ -11,16 +11,12 @@ trapezoids, from the long edges of the floor to the ridge, the line from (5, 5, 
 5√3); and two triangles, from the short edges of the floor to the ridge's ends."""
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
 
-from draft import drafted
-from shell import face_through
+from draft import box_sides, drafted
 
 SIZE = (30, 10, 10)
 DRAFT = 30  # degrees, inward as the sides rise: the long sides meet at 5√3, below the top
-NEUTRAL = (0, 0, 0)  # the floor's plane
+
 
 def build():
     box = BRepPrimAPI_MakeBox(*SIZE).Shape()
-    a, b, h = SIZE
-    sides = [face_through(box, p) for p in
-             [(0, b / 2, h / 2), (a, b / 2, h / 2), (a / 2, 0, h / 2), (a / 2, b, h / 2)]]
-    return drafted(box, sides, DRAFT, neutral=NEUTRAL)
+    return drafted(box, box_sides(box, (0, 0, 0), SIZE), DRAFT)

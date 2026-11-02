@@ -9,16 +9,13 @@ box's own rectangle, from (0, 0) to (20, 12), inset (z − 5)·tan 5° on every 
 0.437 at the floor, the box's own at z = 5, and inset as much at the top."""
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
 
-from draft import drafted
-from shell import face_through
+from draft import box_sides, drafted
 
 SIZE = (20, 12, 10)
 DRAFT = 5  # degrees, inward as the sides rise
 NEUTRAL = (0, 0, 5)  # halfway up
 
+
 def build():
     box = BRepPrimAPI_MakeBox(*SIZE).Shape()
-    a, b, h = SIZE
-    sides = [face_through(box, p) for p in
-             [(0, b / 2, h / 2), (a, b / 2, h / 2), (a / 2, 0, h / 2), (a / 2, b, h / 2)]]
-    return drafted(box, sides, DRAFT, neutral=NEUTRAL)
+    return drafted(box, box_sides(box, (0, 0, 0), SIZE), DRAFT, neutral=NEUTRAL)

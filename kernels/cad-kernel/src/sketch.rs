@@ -1,13 +1,14 @@
-//! The solids and picks the cases share: a closed polygon as a profile, a rounded rectangle, a
-//! block between two corners, the L-block, a ball cut by a level, a rounded plate, a capsule, a
-//! drilled block, a bent flange and a half pipe, and a face picked by a point inside it. Everything else a case builds
-//! with cad-kernel's own `build` functions.
+//! The solids and picks the cases share: a closed polygon as a profile, a rectangle and a rounded
+//! one, a block between two corners, the L-block, a ball cut by a level, a rounded plate, a
+//! capsule, a drilled block, a bent flange and a half pipe, a face picked by a point inside it, and
+//! drafts about a plane a profile or a face does not start on. Everything else a case builds with
+//! cad-kernel's own `build` functions.
 use cad_kernel::boolean::{combined, Op};
-use cad_kernel::build::{disc, kept, prism, revolve, sphere, Profile, ProfileEdge};
-use cad_kernel::geom::{tolerance, Frame, V};
+use cad_kernel::build::{disc, drafted, kept, offset, prism, revolve, sphere, Profile, ProfileEdge};
+use cad_kernel::geom::{tolerance, Frame, Rigid, V};
 use cad_kernel::query::{Located, Place};
 use cad_kernel::topo::Brep;
-use cad_kernel::util::space::{add, cross, distance, unit};
+use cad_kernel::util::space::{add, cross, distance, scale, unit};
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
 
 /// The closed polygon through `points` as a profile of lines, its normal by Newell's rule (so a
@@ -19,11 +20,15 @@ pub fn polygon(points: &[V]) -> Profile {
     Profile { origin: points[0], normal: unit(normal), loops: vec![edges], names: Vec::new() }
 }
 
+/// The rectangle from `lo` to `hi` (corners in x and y) in the plane z = `z`, facing +z.
+pub fn rectangle(lo: [f64; 2], hi: [f64; 2], z: f64) -> Profile {
+    polygon(&[[lo[0], lo[1], z], [hi[0], lo[1], z], [hi[0], hi[1], z], [lo[0], hi[1], z]])
+}
+
 /// The block with its least corner at `lo` and its greatest at `hi`: its floor, a rectangle,
 /// swept up.
 pub fn block(lo: V, hi: V) -> Result<Brep, String> {
-    let floor = polygon(&[lo, [hi[0], lo[1], lo[2]], [hi[0], hi[1], lo[2]], [lo[0], hi[1], lo[2]]]);
-    prism(&floor, 0., hi[2] - lo[2])
+    prism(&rectangle([lo[0], lo[1]], [hi[0], hi[1]], lo[2]), 0., hi[2] - lo[2])
 }
 
 /// The L-shaped plate through (0, 0), (20, 0), (20, 5), (5, 5), (5, 15) and (0, 15), 8 high.
@@ -123,4 +128,23 @@ pub fn drilled(x: f64) -> Result<Brep, String> {
 pub fn named(mut b: Brep) -> Brep {
     for (i, f) in b.faces.iter_mut().enumerate() { f.name = format!("face {i}"); }
     b
+}
+
+/// The profile `p`, lying in the neutral plane, swept along its normal from `below` under that
+/// plane to `above` over it, its sides tapered by `draft` and leaning the same way throughout: into
+/// its material as they go along the normal, so out of it below the plane. (cad-kernel's drafted
+/// prism leans away from its profile's plane both ways.) Its section at `−below` is `p` moved
+/// `below·tan draft` out of its material, tapered from there.
+pub fn drafted_through(p: &Profile, below: f64, above: f64, draft: f64) -> Result<Brep, String> {
+    let down = Rigid { t: scale(unit(p.normal), -below), ..Rigid::identity() };
+    drafted(&offset(p, -below * draft.tan())?.moved(&down), 0., below + above, draft)
+}
+
+/// `solid` with its upright plane face through `on`, facing `outward` (horizontal), drafted by
+/// `draft` with the pull direction +z about the neutral plane through `on`: the face turned about
+/// its line in that plane until it leans `draft` from z, inward as it rises. The solid is kept
+/// inside the turned plane, which trims the faces beside it.
+pub fn drafted_face(solid: &Brep, on: V, outward: V, draft: f64) -> Result<Brep, String> {
+    let (s, c) = draft.sin_cos();
+    kept(solid, on, [-c * outward[0], -c * outward[1], -s], 0.)
 }

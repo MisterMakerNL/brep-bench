@@ -10,7 +10,7 @@ The result is a prism along y. Its section in any plane y = const is the trapezo
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox
 
 from draft import drafted
-from shell import face_through
+from bench import face_through
 
 SIZE = (20, 12, 10)
 DRAFT = 10  # degrees, inward (toward −x) as the side rises

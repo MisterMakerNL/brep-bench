@@ -16,7 +16,7 @@ from OCP.BRepPrimAPI import BRepPrimAPI_MakePrism
 from OCP.gp import gp_Pnt, gp_Vec
 
 from draft import drafted
-from shell import face_through
+from bench import face_through
 
 OUTLINE = [(0, 0), (30, 0), (30, 10), (10, 10), (10, 25), (0, 25)]
 HEIGHT = 12
@@ -31,7 +31,6 @@ def build():
     floor = BRepBuilderAPI_MakeFace(polygon.Wire(), True).Face()
     block = BRepPrimAPI_MakePrism(floor, gp_Vec(0, 0, HEIGHT)).Shape()
     # each side, by the middle of its edge in the outline, halfway up
-    n = len(OUTLINE)
-    middles = [((x + OUTLINE[(k + 1) % n][0]) / 2, (y + OUTLINE[(k + 1) % n][1]) / 2, HEIGHT / 2)
-               for k, (x, y) in enumerate(OUTLINE)]
+    middles = [((x0 + x1) / 2, (y0 + y1) / 2, HEIGHT / 2)
+               for (x0, y0), (x1, y1) in zip(OUTLINE, OUTLINE[1:] + OUTLINE[:1])]
     return drafted(block, [face_through(block, p) for p in middles], DRAFT)

@@ -11,9 +11,8 @@ from OCP.BRepAlgoAPI import BRepAlgoAPI_Fuse
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeCylinder
 from OCP.gp import gp, gp_Ax2, gp_Pnt
 
-from bench import Refused
+from bench import Refused, face_through
 from draft import drafted
-from shell import face_through
 
 RADIUS, HEIGHT = 10, 20
 PARTING = 10  # z of the parting line

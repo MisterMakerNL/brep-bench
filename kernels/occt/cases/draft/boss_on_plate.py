@@ -12,9 +12,8 @@ from OCP.BRepAlgoAPI import BRepAlgoAPI_Fuse
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder
 from OCP.gp import gp, gp_Ax2, gp_Pnt
 
-from bench import Refused
+from bench import Refused, face_through
 from draft import drafted
-from shell import face_through
 
 HALF, THICKNESS = 20, 5
 BOSS_RADIUS, BOSS_HEIGHT = 8, 12
