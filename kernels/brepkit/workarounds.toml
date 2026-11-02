@@ -3,3 +3,8 @@
 
 "shell/box-open-top-outward" = "no shell joined by arcs"
 "shell/l-block-open-top" = "no shell joined by arcs"
+"feature/hole-through-the-upper-arm" = "no hole through to the next face"
+"feature/pad-down-to-cylinder" = "no extrusion up to a face"
+"feature/post-up-to-dome" = "no extrusion up to a face"
+"feature/rib-revolved-to-a-stop" = "no revolution up to a face"
+"parts/star-handle" = "no draft of a non-planar face"
