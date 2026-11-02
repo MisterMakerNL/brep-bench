@@ -1,0 +1,5 @@
+# The cases brepkit builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged").
+
+"shell/box-open-top-outward" = "no shell joined by arcs"
+"shell/l-block-open-top" = "no shell joined by arcs"
