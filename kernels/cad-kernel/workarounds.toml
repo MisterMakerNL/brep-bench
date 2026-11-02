@@ -22,6 +22,5 @@
 "geometry/periodic-bspline-prism" = "no periodic B-spline"
 "geometry/periodic-bspline-ring" = "no periodic B-spline"
 "swept/ball-along-spline-groove" = "no sweep of a solid along a curve"
-"swept/box-slid-aslant" = "no sweep of a solid with ends"
-"swept/torus-slid-through-rod" = "no sweep of a solid"
-"swept/two-beads-slid-through-rod" = "no sweep of a solid"
+"swept/torus-slid-through-rod" = "no sweep of a curved solid"
+"swept/two-beads-slid-through-rod" = "no sweep of a curved solid"

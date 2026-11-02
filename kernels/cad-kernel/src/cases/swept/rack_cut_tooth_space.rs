@@ -3,7 +3,8 @@
 //! 8 — whose pitch line x = 20 rolls without slipping on the pitch circle of radius 20, from 60°
 //! on one side of (20, 0, 0) to 60° on the other.
 //!
-//! Refused. cad-kernel has no sweep of a solid along a motion, and this one rolls. The tooth is a
+//! Refused. cad-kernel sweeps a solid only under a slide or a turn (`swept::closed`), and this
+//! motion rolls. The tooth is a
 //! prism square to the plane of the roll and runs through the blank, so the cut is the region the
 //! trapezoid sweeps in that plane, extruded — and `build::prism` would extrude it. But that region
 //! is bounded by the envelopes of the tooth's flanks (involutes of the base circle of radius
@@ -13,7 +14,8 @@
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel has no sweep of a solid along a rolling motion: the tooth space is the \
+    Err("cad-kernel has no sweep of a solid along a rolling motion (`swept::closed` slides or turns \
+         a polyhedral tool only): the tooth space is the \
          trapezoid's planar sweep extruded, but its flanks are the envelope of the rack's flanks \
          (involutes of the base circle) and its root the trace of the tip corners (trochoids), \
          curves cad-kernel cannot build except by fitting them outside it"

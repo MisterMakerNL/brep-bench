@@ -2,8 +2,8 @@
 //! about the vertical line through (2, 0, 0) and then by −t about the line through (0, 0.5, 0.5)
 //! along x, as t runs from −75° to 75°.
 //!
-//! Refused. cad-kernel has no sweep of a solid along a motion. Its only sweeps carry a planar
-//! section or a ball: `build::prism` along a line, `build::revolve` about one, `build::canal` a
+//! Refused. cad-kernel sweeps a solid only where it is polyhedral and moves by a slide or a turn
+//! (`swept::closed`); its other sweeps carry a planar section or a ball: `build::prism` along a line, `build::revolve` about one, `build::canal` a
 //! ball along a screw, a face family a section along a path. None of them is this solid: the two
 //! turns about skew axes keep no line of the torus fixed and are no screw, so the boundary is the
 //! envelope of the torus under the motion — at each instant the curve on it where its velocity
@@ -11,8 +11,9 @@
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel has no sweep of a solid along a motion: it sweeps only a planar section (along \
-         a line, about an axis, along a path) or a ball (along a screw or a path), and the tumbling \
+    Err("cad-kernel sweeps a solid only where it is polyhedral and slides or turns \
+         (`swept::closed`); else only a planar section (along a line, about an axis, along a path) \
+         or a ball (along a screw or a path), and the tumbling \
          torus's boundary is its envelope under two turns about skew axes, which it cannot build"
         .into())
 }

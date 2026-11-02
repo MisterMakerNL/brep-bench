@@ -34,7 +34,8 @@ fn stadium(x0: f64, x1: f64, y: f64, r: f64, z: f64) -> Profile {
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];
     let rod = prism(&disc([0., 0., 0.], up, ROD_RADIUS), 0., ROD_LENGTH)?;
-    // cad-kernel has no sweep of a solid, so the wheel's sweep is built by elementary geometry.
+    // cad-kernel sweeps a solid (`swept::closed`) only where every face is a plane, so the
+    // wheel's sweep is built by elementary geometry.
     // What a union passes through is what each of its parts passes through, so the wheel's sweep
     // is the two beads' sweeps united. Each bead is a solid of revolution slid along a line in its
     // own mid-plane: a point at distance ρ from the axis and h from the bead's mid-plane is inside

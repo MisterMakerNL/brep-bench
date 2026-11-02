@@ -35,7 +35,8 @@ fn stadium(x0: f64, x1: f64, y: f64, r: f64, z: f64) -> Profile {
 pub fn build() -> Result<Brep, String> {
     let up = [0., 0., 1.];
     let rod = prism(&disc([0., 0., 0.], up, ROD_RADIUS), 0., ROD_LENGTH)?;
-    // cad-kernel has no sweep of a solid, so the torus's sweep is built by elementary geometry. A
+    // cad-kernel sweeps a solid (`swept::closed`) only where every face is a plane, so the
+    // torus's sweep is built by elementary geometry. A
     // solid of revolution slid along a line in its own mid-plane passes over every point square
     // to the line of its shadow: a point at distance ρ from the torus's axis and y from its
     // mid-plane is inside it where (ρ − 6)² + y² ≤ 2², and as the torus slides along z every ρ
