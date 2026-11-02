@@ -15,7 +15,8 @@ use std::fs;
 use std::path::Path;
 
 fn main() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let manifest = std::env::var("CARGO_MANIFEST_DIR").expect("cargo sets CARGO_MANIFEST_DIR");
+    let root = Path::new(&manifest);
     let cases = root.join("src/cases");
     println!("cargo:rerun-if-changed={}", cases.display());
 
