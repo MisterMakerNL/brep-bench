@@ -94,7 +94,28 @@
       ],
       "source": "kernels/arris/src/cases/{category}/{name_snake}.rs"
     },
-    {"name": "kentron", "kernel": "https://github.com/rsz269/kentron", "license": "MIT OR Apache-2.0", "backend": "Rust", "frontend": "Rust", "command": null},
+    {
+      "name": "kentron",
+      "kernel": "https://github.com/rsz269/kentron",
+      "license": "MIT OR Apache-2.0",
+      "backend": "Rust",
+      "frontend": "Rust",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/kentron/Cargo.toml"
+      ],
+      "command": [
+        "kernels/kentron/target/release/brep-bench-kentron"
+      ],
+      "version": [
+        "kernels/kentron/target/release/brep-bench-kentron",
+        "--version"
+      ],
+      "source": "kernels/kentron/src/cases/{category}/{name_snake}.rs"
+    },
     {
       "name": "vcad",
       "kernel": "https://github.com/ecto/vcad",
