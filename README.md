@@ -130,15 +130,11 @@ itself turned 0.001°, whose sides cross at that angle and whose union is larger
 more than a pass allows; and a block's top rim rounded along eight edges each running on tangent
 into the next.
 
-Then **direct edits**: a finished solid changed by its faces, not by the steps that made it.
-Faces are deleted and the solid healed, the faces round the gap running on along their own
-surfaces until they close it: a plate's hole, a counterbored blind hole with its drill point, a
-boss with the round at its base, a cylinder's rounded rim and the round where a post leaves a
-ball, each edge left sharp again; a chamfer that a hole comes out through, the hole's wall running
-on up to the restored corner; and the flat of a D-shaft or a ball, the cylinder or sphere closing
-round on itself. Faces are moved too: a drilled block's top raised, the hole running on with it,
-an L's step pushed out, a hole's wall offset to widen it, and a top raised carrying its round
-along rather than stretching it. Every one has a closed form.
+Then **faces moved**: a finished solid changed by moving its faces, not by the steps that made
+it, the faces beside them extended or trimmed to meet them, as a draft turns its faces. A drilled
+block's top is raised and the hole runs on with it, an L's step is pushed out, a hole's wall is
+offset to widen it, and a top is raised carrying its round along rather than stretching it. Every
+one has a closed form.
 
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a

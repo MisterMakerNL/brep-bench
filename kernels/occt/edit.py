@@ -1,19 +1,18 @@
-"""What the OCCT implementations of the edit cases share: editing a solid's faces directly.
+"""What the OCCT implementations of the edit cases share: moving or offsetting a solid's faces.
 
-Deleting faces is BRepAlgoAPI_Defeaturing: it removes the faces and heals the solid by extending
-the faces round them, along their own surfaces, until they close the gap. Moving or offsetting
-faces is BRepOffset_MakeOffset with no offset for the solid as a whole and an offset for each face
-to move (SetOffsetOnFace). Each moves along its outward normal, and the faces beside it are
-extended or trimmed to meet it (joined by intersection, so no edge is rounded). A plane moved
+Moving faces is BRepOffset_MakeOffset with no offset for the solid as a whole and an offset for
+each face to move (SetOffsetOnFace). Each moves along its outward normal, and the faces beside it
+are extended or trimmed to meet it (joined by intersection, so no edge is rounded). A plane moved
 along its normal is the plane translated, and a cylinder offset is the cylinder about the same
-axis with its radius changed.
+axis with its radius changed. Deleting faces, which a workaround needs, is
+BRepAlgoAPI_Defeaturing: it removes them and heals the solid by extending the faces round them,
+along their own surfaces, until they close the gap.
 """
 from OCP.BRep import BRep_Tool
-from OCP.BRepAdaptor import BRepAdaptor_Curve
 from OCP.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Defeaturing
 from OCP.BRepOffset import BRepOffset_MakeOffset, BRepOffset_Skin
 from OCP.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakeCylinder
-from OCP.GeomAbs import GeomAbs_CurveType, GeomAbs_Intersection
+from OCP.GeomAbs import GeomAbs_Intersection
 from OCP.TopAbs import TopAbs_EDGE
 from OCP.TopExp import TopExp, TopExp_Explorer
 from OCP.TopoDS import TopoDS
@@ -65,22 +64,6 @@ def drilled(solid, x, y, radius, z0, z1):
 def box(lo, hi):
     """The box from the corner `lo` to the corner `hi`."""
     return BRepPrimAPI_MakeBox(gp_Pnt(*lo), gp_Pnt(*hi)).Shape()
-
-
-def circles(solid, radius, z):
-    """The edges of `solid` that are circles of `radius` in the plane at height `z`, each once."""
-    found = []
-    edges = TopExp_Explorer(solid, TopAbs_EDGE)
-    while edges.More():
-        edge = TopoDS.Edge(edges.Current())
-        curve = BRepAdaptor_Curve(edge)
-        if (curve.GetType() == GeomAbs_CurveType.GeomAbs_Circle
-                and abs(curve.Circle().Radius() - radius) < TOLERANCE
-                and abs(curve.Circle().Location().Z() - z) < TOLERANCE
-                and not any(edge.IsSame(e) for e in found)):
-            found.append(edge)
-        edges.Next()
-    return found
 
 
 def straight_edges(solid, on):
