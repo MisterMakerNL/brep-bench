@@ -12,7 +12,13 @@ const WEIGHTS: [f64; 3] = [1., 3. / 5., 1.];
 const CROWN: f64 = 16.;
 
 pub fn build() -> Result<Brep, String> {
-    // the section in the plane x = −12 (floor, sides and the weighted arch) swept to x = 12
+    // what lies on or below the plane z = 16
+    kept(&block()?, [0., 0., CROWN], [0., 0., -1.], 0.)
+}
+
+/// The block under the vault: the section in the plane x = −12 (floor, sides and the weighted
+/// arch) swept to x = 12 (what `nurbs/vault-near-crown` and `nurbs/vault-leaning-plane` cut too).
+pub fn block() -> Result<Brep, String> {
     let at = |y: f64, z: f64| [-HALF, y, z];
     let arch = BSpline::rational(2, vec![0., 0., 0., 1., 1., 1.],
                                  ARCH.iter().map(|&[y, z]| at(y, z)).collect(), WEIGHTS.to_vec())?;
@@ -29,7 +35,5 @@ pub fn build() -> Result<Brep, String> {
         ]],
         names: Vec::new(),
     };
-    let block = prism(&section, 0., 2. * HALF)?;
-    // what lies on or below the plane z = 16
-    kept(&block, [0., 0., CROWN], [0., 0., -1.], 0.)
+    prism(&section, 0., 2. * HALF)
 }
