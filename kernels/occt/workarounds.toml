@@ -2,6 +2,7 @@
 # (SPEC.md, "A workaround is flagged").
 
 "chamfer/octahedron-all-edges-mitred" = "no mitre where four chamfers meet"
+"edit/rounded-block-top-moved-up" = "no move of a face that carries its round"
 "geometry/ellipsoid" = "no ellipsoid"
 "geometry/ellipsoid-half" = "no ellipsoid"
 "loft/slab-pinched-on-four-guides" = "no loft along guides"

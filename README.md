@@ -130,6 +130,12 @@ itself turned 0.001°, whose sides cross at that angle and whose union is larger
 more than a pass allows; and a block's top rim rounded along eight edges each running on tangent
 into the next.
 
+Then **faces moved**: a finished solid changed by moving its faces, not by the steps that made
+it, the faces beside them extended or trimmed to meet them, as a draft turns its faces. A drilled
+block's top is raised and the hole runs on with it, an L's step is pushed out, a hole's wall is
+offset to widen it, and a top is raised carrying its round along rather than stretching it. Every
+one has a closed form.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
