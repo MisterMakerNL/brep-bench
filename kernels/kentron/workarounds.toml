@@ -2,6 +2,7 @@
 # (SPEC.md, "A workaround is flagged").
 
 "draft/cylinder-parted-both-ways" = "no draft of a face apart from a face tangent to it"
+"edit/rounded-block-top-moved-up" = "no move of a face that carries its round"
 "geometry/ellipsoid" = "no ellipsoid"
 "geometry/ellipsoid-half" = "no ellipsoid"
 "geometry/nurbs-cone" = "no face closed on the seam of a clamped surface"
