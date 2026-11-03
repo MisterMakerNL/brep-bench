@@ -119,6 +119,17 @@ ways: mitred, each run cut by the plane bisecting the corner (a square bar round
 round pipe along three edges of a cube, and a rebated moulding round a picture frame), or turned
 about the corner, which fills the corner's outside with a quarter ball.
 
+Then **singular points on a meeting**: a cut or an intersection that runs through the one point
+where a surface's parameters pinch, a sphere's pole or a cone's apex. A ball halved through its
+poles or cut aslant through one, two balls whose circle passes through a pole of each, a napkin
+ring whose ball has its poles on the rims, a cone halved or cut aslant through its apex, and two
+spherical sectors sharing their apex, whose cones meet in two rulings from it. Each case says where
+the poles go, since a kernel free to choose would turn them out of the way. Near them come a golf
+ball, 62 dimples whose rims pass the poles of their balls at every distance; a cube united with
+itself turned 0.001°, whose sides cross at that angle and whose union is larger than the cube by
+more than a pass allows; and a block's top rim rounded along eight edges each running on tangent
+into the next.
+
 Then come real parts, whose scenarios are taken from the example documents of
 [geomsolver](https://github.com/bmander/geomsolver) and written out in plain words: a flange, a
 pulley, a tray, a star handle, a turned shaft, ducts swept along a bend. Most have closed forms;
