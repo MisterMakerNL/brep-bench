@@ -6,7 +6,7 @@
   every case (explore.html) and a kernel's page (kernel.html?k=NAME), which read board.json;
 - a page for each case (cases/<case>.html), written here: its description, its drawing, a 3D
   viewer of every kernel's result, the results' STL files to download, and every kernel's
-  implementation of it.
+  implementation of it, its code highlighted (harness/highlight.py).
 
 Kernels are listed in kernels.json's order, everywhere: the board ranks nothing. Run
 harness/draw.py first for the drawings. Standard library only."""
@@ -20,6 +20,7 @@ import tomllib
 import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from highlight import highlight  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
@@ -306,7 +307,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
             outcome += f" · workaround: {wa}"
         out.append(f"<details open><summary>{e(r['kernel'])} <span class=muted>"
                    f"{e(outcome)} · <a href='{REPO}/blob/main/{e(rel)}'>{e(rel)}</a></span>"
-                   f"</summary><pre>{e(code)}</pre></details>")
+                   f"</summary><pre class=code>{highlight(code, src)}</pre></details>")
     out.append(f"<p class=muted><a href='{REPO}/blob/main/cases/{e(cid)}.md'>{e(cid)}.md</a>, "
                "the case as written.</p>")
     if meshes:
