@@ -1,0 +1,28 @@
++++
+title = "Two spherical sectors sharing an apex"
+tags = ["singular", "apex", "boolean", "common", "cone", "sphere", "coincident", "analytic"]
+
+[volume]
+value = 146.51640605521118
+exact = "R³Ω/3, Ω = π − 2√2·ψ the solid angle common to the two cones, ψ = arccos(1/√3), R = 10"
+tex = '\tfrac{R^3\Omega}{3},\quad \Omega = \pi - 2\sqrt{2}\,\psi,\ \psi = \arccos\tfrac{1}{\sqrt{3}},\ R = 10'
+
+[area]
+value = 179.05709358777133
+exact = "R²Ω + 2·R² sin 45°·ψ = R²(π − √2·ψ): the spherical lens, and each cone's side within the other"
+tex = 'R^2\Omega + 2R^2\sin 45^\circ\,\psi = R^2\left(\pi - \sqrt{2}\,\psi\right),\quad R = 10'
++++
+
+A spherical sector is the solid a cone of half-angle 45° with its apex at the centre of a ball of
+radius 10 cuts from the ball: the part of the ball within 45° of the cone's axis, bounded by the
+cone's side and a cap of the sphere. Make two, both with their apex at the origin: the first
+about the z axis, towards +z, and the second the first turned 60° about the y axis, so that its
+axis runs along (sin 60°, 0, cos 60°). Make the solid common to both.
+
+The two caps lie on the same sphere, and what is left of them is one lens-shaped piece of it,
+where the two caps overlap. The two cones' sides meet in two straight lines from the apex, along
+(1, ±√2, √3), each a ruling of both cones; they meet at the apex, the one point every ruling of
+either cone passes through. They reach the sphere at 10(1, ±√2, √3)/√6, the corners of the lens. The solid
+angle of the overlap follows from the spherical triangle of the two axes and a corner: its sides
+from the corner to the axes are 45° each and meet at a right angle there, and each cone's rim
+runs 2ψ about its axis inside the other, cos ψ = cot 45°·tan 30° = 1/√3.

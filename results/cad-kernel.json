@@ -2,10 +2,11 @@
  "kernel": "cad-kernel",
  "version": "cad-kernel 0.3.0 (brep-bench runner 0.3.0)",
  "measured": "exact",
- "run": "2026-11-03T06:19:20Z",
+ "run": "2026-11-03T20:08:53Z",
  "tally": {
   "pass": 203,
-  "refused": 13,
+  "wrong": 1,
+  "refused": 22,
   "built": 1
  },
  "cases": [
@@ -149,6 +150,26 @@
     "closed": true,
     "volume": 18869.833942297064,
     "area": 7304.738283158827
+   }
+  },
+  {
+   "case": "boolean/golf-ball",
+   "outcome": "wrong",
+   "why": "volume 4123.877498857963 against 4124.02810977; area 1314.7972176694623 against 1314.85018055",
+   "seconds": 0.631,
+   "measured": "exact",
+   "volume": 4123.877498857963,
+   "area": 1314.7972176694623,
+   "faces": {
+    "sphere": 76
+   },
+   "mesh": {
+    "triangles": 92042,
+    "degenerate": 0,
+    "unmatched_edges": 0,
+    "closed": true,
+    "volume": 4122.7920078331845,
+    "area": 1314.1844500167565
    }
   },
   {
@@ -1089,6 +1110,17 @@
     "volume": 615.1935370437496,
     "area": 492.9916904316378
    }
+  },
+  {
+   "case": "fillet/rounded-block-top-rim",
+   "outcome": "refused",
+   "why": "the fillet of `` with `near` turns where each face's pieces meet (as a drafted side's do at its parting plane): two canals meeting in a mitre are rung 3",
+   "seconds": 0.077,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
   },
   {
    "case": "fillet/slab-half-round",
@@ -3056,6 +3088,83 @@
    }
   },
   {
+   "case": "singular/ball-cut-aslant-through-a-pole",
+   "outcome": "refused",
+   "why": "not closed: edge 4 (circle) near [2.5, -3.5355, 2.5] used 1 times along and 2 against",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "singular/ball-halved-through-its-poles",
+   "outcome": "refused",
+   "why": "not closed: edge 0 (circle) near [0.0, -5.0, 0.0] used 0 times along and 1 against",
+   "seconds": 0.006,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "singular/balls-meeting-through-a-pole",
+   "outcome": "refused",
+   "why": "not closed: edge 5 (circle) near [2.4, 4.0, 1.8] used 1 times along and 2 against",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "singular/cone-cut-aslant-through-its-apex",
+   "outcome": "refused",
+   "why": "a cone and a plane come within 5.9e-8 of each other at [-0.0354, -0.0613, 10.1416] and no meeting was found there: whether they touch is not resolved, not built yet",
+   "seconds": 2.157,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "singular/cone-halved-through-its-apex",
+   "outcome": "refused",
+   "why": "not closed: edge 0 (circle) near [3.5355, 3.5355, 0.0] used 0 times along and 1 against",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "singular/napkin-ring-poles-on-its-rims",
+   "outcome": "refused",
+   "why": "not closed: edge 5 (circle) near [0.0, 3.0, -4.0] used 1 times along and 2 against",
+   "seconds": 0.003,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
+   "case": "singular/sectors-sharing-an-apex",
+   "outcome": "refused",
+   "why": "a cone and a cone meet at 0.00\u00b0 at [-0.0000, -0.0000, -0.0000], nearly touching: their meeting is ill-conditioned there, not built yet",
+   "seconds": 0.005,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
+  },
+  {
    "case": "spline/peanut-prism",
    "outcome": "pass",
    "why": "",
@@ -3687,6 +3796,17 @@
     "volume": 4276.146545660558,
     "area": 1781.5504663791924
    }
+  },
+  {
+   "case": "tangent/cube-turned-a-hair",
+   "outcome": "refused",
+   "why": "a plane's pieces do not close",
+   "seconds": 0.004,
+   "measured": "exact",
+   "volume": null,
+   "area": null,
+   "faces": null,
+   "mesh": null
   },
   {
    "case": "tangent/grazing-cylinders",
