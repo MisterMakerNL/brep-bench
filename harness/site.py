@@ -54,13 +54,17 @@ def load():
             with open(os.path.join(rdir, name)) as f:
                 r = json.load(f)
             r.setdefault("kernel", r.get("adapter"))
+            # a kernel taken out of kernels.json is off the board, whatever results it left
+            # (the Actions cache keeps them)
+            if r["kernel"] not in registry:
+                continue
             # each case's row by id, and what the kernel's implementations work around, read once
             r["rows"] = {c["case"]: c for c in r["cases"]}
             r["workarounds"] = workarounds(registry.get(r["kernel"], {"name": r["kernel"]}))
             results.append(r)
-    # kernels.json's order, those with results and no entry after: the board ranks nothing
+    # kernels.json's order: the board ranks nothing
     order = {name: i for i, name in enumerate(registry)}
-    results.sort(key=lambda r: (order.get(r["kernel"], len(order)), r["kernel"]))
+    results.sort(key=lambda r: order[r["kernel"]])
     cases = {c["id"]: c for c in read_cases()}
     drawings = {}
     index = os.path.join(SITE, "drawings", "index.json")
@@ -92,8 +96,8 @@ def paragraphs(text):
 def board(registry, results, cases, drawings):
     """Everything the board's pages show, as one JSON object:
 
-    - `kernels`: every kernel, in kernels.json's order (those with results and no entry after),
-      with what kernels.json says of it and, where it has results, its `version` and `run`;
+    - `kernels`: every kernel in kernels.json, in its order, with what kernels.json says of it
+      and, where it has results, its `version` and `run`;
     - `cases`: every case in id order, each `[id, title, [tag], settled, drawn]`, a tag by its
       index in `tags`, `settled` and `drawn` 1 or 0;
     - `results`: by kernel, its outcome of each case in `cases`' order, as a string of one letter
@@ -113,8 +117,8 @@ def board(registry, results, cases, drawings):
     kernels = []
     out = {}
     ran = {r["kernel"]: r for r in results}
-    for name in list(registry) + [r["kernel"] for r in results if r["kernel"] not in registry]:
-        a = registry.get(name, {})
+    for name in registry:
+        a = registry[name]
         k = {"name": name}
         for field, key in (("kernel", "home"), ("license", "license"), ("backend", "backend"),
                            ("frontend", "frontend"), ("note", "note"),
