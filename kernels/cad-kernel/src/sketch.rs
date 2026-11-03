@@ -1,14 +1,15 @@
 //! The solids and picks the cases share: a closed polygon as a profile, a rectangle and a rounded
 //! one, a block between two corners, the L-block, a ball cut by a level, a rounded plate, a
-//! capsule, a drilled block, a bent flange and a half pipe, a face picked by a point inside it, and
-//! drafts about a plane a profile or a face does not start on. Everything else a case builds with
-//! cad-kernel's own `build` functions.
+//! capsule, a drilled block, a bent flange and a half pipe, a face picked by a point inside it,
+//! drafts about a plane a profile or a face does not start on, and a section swept along a path of
+//! straight runs mitred at its corners. Everything else a case builds with cad-kernel's own `build`
+//! functions.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{disc, drafted, kept, offset, prism, revolve, sphere, Profile, ProfileEdge};
 use cad_kernel::geom::{tolerance, Frame, Rigid, V};
 use cad_kernel::query::{Located, Place};
 use cad_kernel::topo::Brep;
-use cad_kernel::util::space::{add, cross, distance, scale, unit};
+use cad_kernel::util::space::{add, cross, distance, dot, norm, scale, sub, unit};
 use std::f64::consts::{FRAC_PI_2, PI, TAU};
 
 /// The closed polygon through `points` as a profile of lines, its normal by Newell's rule (so a
@@ -147,4 +148,52 @@ pub fn drafted_through(p: &Profile, below: f64, above: f64, draft: f64) -> Resul
 pub fn drafted_face(solid: &Brep, on: V, outward: V, draft: f64) -> Result<Brep, String> {
     let (s, c) = draft.sin_cos();
     kept(solid, on, [-c * outward[0], -c * outward[1], -s], 0.)
+}
+
+/// `section`, standing square to the polyline `path` at its start, swept straight along each of its
+/// runs (and back from its last point to its first where `closed`), mitred at every corner: each
+/// run is cut by, and the runs meet in, the plane through the corner that bisects it, square to the
+/// sum of the two runs' directions. The section is carried from run to run by the least turn at
+/// each corner, about the line square to both runs. `reach` is how far the section reaches from
+/// the path. An open path's ends are flat, square to it.
+///
+/// cad-kernel has no sweep along a path with corners, so each run is the section swept along it
+/// and on past the planes at its ends (a prism), kept between them, and the runs are joined.
+pub fn mitred(section: &Profile, path: &[V], closed: bool, reach: f64) -> Result<Brep, String> {
+    let n = path.len();
+    let runs = if closed { n } else { n - 1 };
+    let direction = |k: usize| unit(sub(path[(k + 1) % n], path[k]));
+    // how far past a corner a run reaches before its mitre plane, from `a` turning to `b`: the
+    // section's reach times the tangent of half the turn, and the reach again to spare
+    let past = |a: V, b: V| reach * (1. + norm(cross(a, b)) / (1. + dot(a, b)));
+    let mut section = section.clone();
+    let mut pipe: Option<Brep> = None;
+    for k in 0..runs {
+        let d = direction(k);
+        if k > 0 {
+            // carried along the last run, then turned at the corner from its direction to this one
+            let last = direction(k - 1);
+            let carry = Rigid { t: sub(path[k], path[k - 1]), ..Rigid::identity() };
+            let turn = Rigid::turn(path[k], cross(last, d), dot(last, d).clamp(-1., 1.).acos());
+            section = section.moved(&carry.then(&turn));
+        }
+        let before = (k > 0 || closed).then(|| direction((k + runs - 1) % runs));
+        let after = (k + 1 < runs || closed).then(|| direction((k + 1) % runs));
+        let (back, on) = (before.map_or(0., |b| past(b, d)), after.map_or(0., |a| past(d, a)));
+        let length = distance(path[k], path[(k + 1) % n]);
+        // the prism's heights run along the section's normal, which may face back along the run
+        let sense = dot(unit(section.normal), d).signum();
+        let mut run = prism(&section, -sense * back, sense * (length + on))?;
+        if let Some(b) = before {
+            run = kept(&run, path[k], unit(add(b, d)), 0.)?;
+        }
+        if let Some(a) = after {
+            run = kept(&run, path[(k + 1) % n], scale(unit(add(d, a)), -1.), 0.)?;
+        }
+        pipe = Some(match pipe {
+            None => run,
+            Some(p) => combined(&p, &run, Op::Union, 0.)?,
+        });
+    }
+    pipe.ok_or_else(|| "a path of no runs".into())
 }
