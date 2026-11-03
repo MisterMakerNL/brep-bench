@@ -141,7 +141,7 @@ An implementation builds the described solid the way a user of its kernel would:
   result was reached. A refusal is never flagged, and nor is composition the case itself describes
   (a hole cut from a block), nor a choice between operations the kernel has.
 - **A case the kernel cannot do** still has a file. The file refuses, saying precisely why (for
-  example, "truck has no helical curve, and sweeps only by translation and rotation"). That result
+  example, "the kernel has no helical curve, and sweeps only by translation and rotation"). That result
   is graded as *refused*.
 - **A case with no file is missing.** Nobody has written it yet. That says nothing about the kernel.
 

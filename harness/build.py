@@ -2,7 +2,7 @@
 """Build every kernel's runner in kernels.json that has a `build` command (or those named).
 
     python3 harness/build.py                 # all
-    python3 harness/build.py truck arris     # these
+    python3 harness/build.py arris vcad      # these
 
 A runner that fails to build is reported and left out; the others still build. Standard library
 only.

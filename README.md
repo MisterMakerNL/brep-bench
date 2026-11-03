@@ -188,7 +188,6 @@ The whole suite runs nightly, and when the harness's running or grading changes.
 | [Open CASCADE](https://github.com/Open-Cascade-SAS/OCCT) | `kernels/occt` (Python, through OCP), the reference |
 | [arris](https://github.com/arris-labs/arris) | `kernels/arris` (Rust) |
 | [cad-kernel](https://crates.io/crates/cad-kernel) | `kernels/cad-kernel` (Rust, on a release pinned in its `Cargo.toml`) |
-| [truck](https://github.com/ricosjp/truck) | `kernels/truck` (Rust); measured from its mesh; frozen at the first 46 cases |
 | [vcad](https://github.com/ecto/vcad) | `kernels/vcad` (Rust); measured from its mesh |
 | [popkern](https://github.com/popkern-dev/popkern) | `kernels/popkern` (Rhai, popkern's scripts, run by a Rust runner) |
 | [SolidCraft](https://solidcraft.io) | `kernels/solidcraft` (Rust, on SolidCraft's kernel crate, solidcraft-kernel); measured from its mesh |
