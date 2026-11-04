@@ -72,6 +72,8 @@ fn kind(s: &Surface) -> &'static str {
     match s {
         Surface::Plane { .. } | Surface::PlaneThrough { .. } => "plane",
         Surface::Cylinder { .. } => "cylinder",
+        // a round is recorded as a cone of no angle: a cylinder
+        Surface::Cone { half_angle, .. } if *half_angle == 0.0 => "cylinder",
         Surface::Cone { .. } => "cone",
         Surface::Sphere { .. } | Surface::BallPatch { .. } => "sphere",
         Surface::Torus { .. } => "torus",
