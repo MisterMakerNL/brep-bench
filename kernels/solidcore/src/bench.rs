@@ -112,6 +112,17 @@ pub fn order(body: &Body) -> Result<Order, Refusal> {
     Ok(body.to_record()?.1)
 }
 
+/// `body` read back from its own record, with that record's order: the body whose kernel lists
+/// are in record order. ops's blends (`blend`, `chamfer_sides`, `fillet_variable`,
+/// `edge_faces_along`, `tangent_chain`) still take their edge and vertex indices in the
+/// kernel's own list order ("until the record's canonical order takes its place",
+/// solidcore-ops `blend.rs`), which after a boolean or a sweep is not the record's; on the body
+/// read back they are the same, so the edges picked on it are the ones blended.
+pub fn reloaded(body: &Body) -> Result<(Body, Order), Refusal> {
+    let (record, _) = body.to_record()?;
+    Ok(Body::from_record(&record, true)?)
+}
+
 /// The record indices of the edges of `body` that `point` lies on.
 pub fn edges_through(body: &Body, order: &Order, point: [f64; 3]) -> Result<Vec<usize>, Refusal> {
     let mut found = Vec::new();

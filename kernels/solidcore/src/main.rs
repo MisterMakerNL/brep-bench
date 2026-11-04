@@ -181,6 +181,12 @@ fn main() -> ExitCode {
         eprintln!("no implementation of `{case}`");
         return ExitCode::from(2);
     };
+    // every fix solidcore makes to the upstream it was ported from: off by default, so that the
+    // default path matches SMLib, and on in an application that wants the correct result
+    if let Err(e) = solidcore_ops::session::set_fixes(solidcore::kernel::UpstreamFixes::NAMES.iter().copied()) {
+        eprintln!("the fixes are not set: {e:?}");
+        return ExitCode::from(2);
+    }
     let reply = match build().and_then(|body| measured(&body, out)) {
         Ok(reply) => reply,
         Err(why) => refused(&why.to_string()),
