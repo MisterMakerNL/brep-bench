@@ -118,24 +118,37 @@ fn write_stl(path: &str, mesh: &solidcore_tess::Mesh) -> std::io::Result<()> {
     std::fs::write(path, out)
 }
 
-/// How finely the body is integrated: the kernel's finest relative accuracy.
-const ACCURACY: f64 = 1e-8;
+/// The relative accuracies the body is integrated at, finest first: the kernel's finest, 1e-8,
+/// does not always converge (a ball's volume), and each measure is taken at the finest that does.
+const ACCURACIES: [f64; 5] = [1e-8, 3e-8, 1e-7, 3e-7, 1e-6];
+
+/// A measure at the finest of [`ACCURACIES`] the kernel converges at, or the last error.
+fn finest(measure: impl Fn(f64) -> solidcore_ops::Result<f64>) -> solidcore_ops::Result<f64> {
+    let mut last = Err(solidcore_ops::Error::Argument);
+    for a in ACCURACIES {
+        last = measure(a);
+        if last.is_ok() {
+            break;
+        }
+    }
+    last
+}
 
 /// The reply for a body built: its measures, once its triangles are written. The mesh keeps
 /// within a ten-thousandth of the body's size, or 1/200 of its thickness (its volume over its
 /// area) where that is less: the reference runner's rule (`kernels/occt/run.py`).
 fn measured(body: &Body, out: &str) -> Result<String, Refusal> {
-    let volume = body.volume(ACCURACY)?;
-    let area = body.area(ACCURACY)?;
+    let volume = finest(|a| body.volume(a)).map_err(|e| format!("volume not measured: {e}"))?;
+    let area = finest(|a| body.area(a)).map_err(|e| format!("area not measured: {e}"))?;
     let valid = body.check(CheckLevel::Geometry).is_ok_and(|r| r.is_valid());
-    let (record, _) = body.to_record()?;
+    let (record, _) = body.to_record().map_err(|e| format!("no record: {e}"))?;
     let mut faces = BTreeMap::new();
     for f in &record.faces {
         *faces.entry(kind(&f.surface)).or_insert(0) += 1;
     }
     let faces = faces.iter().map(|(k, n)| format!("\"{k}\":{n}")).collect::<Vec<_>>().join(",");
 
-    let (lo, hi) = body.bounds()?;
+    let (lo, hi) = body.bounds().map_err(|e| format!("no bounds: {e}"))?;
     let size = ((hi[0] - lo[0]).powi(2) + (hi[1] - lo[1]).powi(2) + (hi[2] - lo[2]).powi(2)).sqrt();
     let thickness = if area > 0.0 && volume > 0.0 { volume / area } else { size };
     let chord = (1e-4 * size).min(5e-3 * thickness).max(1e-7);

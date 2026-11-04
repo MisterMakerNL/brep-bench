@@ -5,13 +5,14 @@
 //! solidcore-ops names faces and edges by their index in the body's record
 //! ([`Body::to_record`]), and its operations take those indices with the record's [`Order`]. A
 //! pick is the kernel's: an edge is the one whose closest point to the given point
-//! ([`Body::edge_closest_point`]) is on it, and a face is the kernel's `SmApiFindFaces` of the
-//! point.
+//! ([`Body::edge_closest_point`]) is on it, and a face the one whose surface's closest point is
+//! the given point, inside its trim ([`faces_through`]).
 use crate::Refusal;
 use solidcore::kernel::Kernel;
-use solidcore::query::api_queries::find_faces;
-use solidcore::topology::brep_cache::arena_identity;
-use solidcore::{BrepId, Point3};
+use solidcore::intersect::point_class::PointClassType;
+use solidcore::query::api_queries::{face_classify_uv, surface_closest_point};
+use solidcore::topology::face::surface as face_surface;
+use solidcore::Point3;
 use solidcore_ops::sweep::Curve;
 use solidcore_ops::{boolean::boolean, Body, BooleanOp, Order};
 use std::f64::consts::TAU;
@@ -140,17 +141,40 @@ pub fn all_edges(order: &Order) -> Vec<usize> {
     (0..order.edges.len()).collect()
 }
 
-/// The record index of the face of `body` that `point` lies on (the kernel's `SmApiFindFaces`,
-/// on the body's record made the kernel's again, whose order is the record's).
-pub fn face_through(body: &Body, point: [f64; 3]) -> Result<usize, Refusal> {
+/// The record indices of the faces of `body` that `point` lies on: each face whose surface the
+/// kernel finds within [`PICK_TOLERANCE`] of the point (`SmApiSurfaceClosestPoint`), at a
+/// (u, v) the kernel classifies on the face, its edges or its vertices (`SmApiFaceClassifyUV`).
+/// The kernel works on the body's record made its own again, whose order is the record's.
+pub fn faces_through(body: &Body, point: [f64; 3]) -> Result<Vec<usize>, Refusal> {
     let (record, _) = body.to_record()?;
     let mut k = Kernel::default();
     let (mut brep, order) = solidcore_convert::brep::to_kernel(&mut k, &record, true)
         .map_err(|e| format!("the record does not convert: {e:?}"))?;
     let p = Point3::new(point[0], point[1], point[2]);
-    let face = find_faces(&k, &mut brep, BrepId::from_index(0), p, &arena_identity, &|_| None)
-        .map_err(|e| format!("no face through {point:?}: {e}"))?;
-    order.faces.iter().position(|&f| f == face).ok_or_else(|| format!("no face through {point:?}").into())
+    let mut found = Vec::new();
+    for (i, &f) in order.faces.iter().enumerate() {
+        let Some(surface) = face_surface(&brep, f)?.cloned() else { continue };
+        let Ok(near) = surface_closest_point(&k, &surface, p) else { continue };
+        if near.closest.distance >= PICK_TOLERANCE {
+            continue;
+        }
+        for uv in near.uvs {
+            let on = face_classify_uv(&k, &mut brep, f, uv)?;
+            if matches!(on, PointClassType::Face | PointClassType::Edge | PointClassType::Vertex) {
+                found.push(i);
+                break;
+            }
+        }
+    }
+    Ok(found)
+}
+
+/// The record index of the one face of `body` that `point` lies on.
+pub fn face_through(body: &Body, point: [f64; 3]) -> Result<usize, Refusal> {
+    match faces_through(body, point)?[..] {
+        [f] => Ok(f),
+        ref found => Err(format!("{} faces through {point:?}", found.len()).into()),
+    }
 }
 
 /// The record indices of the faces of `body` through each of `points`, one face each.
