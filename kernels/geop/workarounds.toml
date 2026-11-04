@@ -4,6 +4,15 @@
 # construction; a ball, a cone or a torus turned from its section is flagged, as for other kernels.
 
 "boolean/napkin-ring" = "no sphere primitive"
+"chamfer/cube-all-edges" = "no corner face for chamfers"
+"chamfer/octahedron-all-edges" = "no corner face for chamfers"
+"draft/boss-on-plate" = "no draft of non-planar faces"
+"draft/cylinder-parted-both-ways" = "no draft of non-planar faces"
+"draft/hole-tapered" = "no draft of non-planar faces"
+"draft/rounded-box-sides" = "no draft of non-planar or tangent faces"
+"draft/rounded-pocket-walls" = "no draft of non-planar or tangent faces"
+"feature/post-up-to-dome" = "no sphere primitive"
+"fillet/ball-and-post" = "no sphere primitive"
 "primitives/cone-frustum" = "no cone primitive"
 "primitives/sphere" = "no sphere primitive"
 "primitives/torus" = "no torus primitive"

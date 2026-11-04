@@ -170,3 +170,4 @@ pub fn sketch_axis(sketch: &str, line: CurveId) -> RevolveAxis {
 pub fn made(kind: &str, id: &str) -> String {
     format!("{kind}({id})")
 }
+pub mod blends;
