@@ -9,3 +9,8 @@
 "loft/square-to-octagon" = "no loft pairing a corner with a side"
 "loft/square-to-round" = "no loft pairing a corner with an arc"
 "loft/twisted-tapering-square" = "no loft along guides, no conical spiral"
+"chamfer/cube-all-edges" = "no chamfer corner cut flat"
+"feature/hole-through-the-upper-arm" = "no hole through to the next face"
+"feature/pad-down-to-cylinder" = "no extrusion up to a face"
+"feature/post-up-to-dome" = "no extrusion up to a face"
+"feature/rib-revolved-to-a-stop" = "no revolution up to a face"
