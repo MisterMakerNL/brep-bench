@@ -173,3 +173,4 @@ pub fn made(kind: &str, id: &str) -> String {
 pub mod blends;
 pub mod paths;
 pub mod hollow;
+pub mod booleans;
