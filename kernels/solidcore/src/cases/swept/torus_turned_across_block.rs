@@ -3,21 +3,33 @@
 //! with radii 2.5 and 2, its axis leaning from z towards +y by 25°, turned rigidly about the z
 //! axis from -140° to +140°. Everything the cutter passes through, cut from the block.
 //!
-//! Refused. The turn is about one axis, and the kernel does sweep a whole body about an axis
-//! (`SmApiNonManifoldRotationalSweep`, `shared::swept::swung`, which builds
-//! `swept/ball-swung-groove`); but the leaning torus's wall folds over itself as it turns, its
-//! sweep bounded by an envelope that is none of its own curves, and the kernel's sweep of it
-//! fails after more than a minute (`boolean::merge::p2::make_faceuse: upstream status 1001`, in
-//! the merge of what it swept). Ops has no other sweep of a solid, and the envelope would be
-//! geometry computed outside the kernel.
+//! The groove is the kernel's own sweep of the whole torus about the z axis
+//! (`SmApiNonManifoldRotationalSweep`, `shared::swept::swung`). The leaning torus's wall folds
+//! over itself as it turns, so its sweep is bounded by an envelope that is none of its own
+//! curves.
+use crate::bench::{arc, cut, line, rotated, translated};
+use crate::shared::swept::swung;
 use crate::Refusal;
+use solidcore_ops::sweep::revolve;
 use solidcore_ops::Body;
+use std::f64::consts::{PI, TAU};
 
 pub fn build() -> Result<Body, Refusal> {
-    Err("solidcore's sweep of a whole body about an axis (SmApiNonManifoldRotationalSweep) fails \
-         on the leaning torus, whose turning wall folds over itself into an envelope that is none \
-         of its own curves (boolean::merge::p2::make_faceuse: upstream status 1001, after more \
-         than a minute); ops has no other sweep of a solid, and the envelope would be computed \
-         outside the kernel"
-        .into())
+    let section = [
+        line([8.0, 0.0, -1.0], [12.0, 0.0, -1.0]),
+        line([12.0, 0.0, -1.0], [12.0, 0.0, 1.0]),
+        line([12.0, 0.0, 1.0], [8.0, 0.0, 1.0]),
+        line([8.0, 0.0, 1.0], [8.0, 0.0, -1.0]),
+    ];
+    let block = revolve(&section, [0.0; 3], [0.0, 0.0, 1.0], PI / 3.0, true)?;
+    // the torus about the z axis through the origin: its tube's circle revolved a whole turn
+    let tube = [arc([2.5, 0.0, 0.0], [0.0, -1.0, 0.0], [1.0, 0.0, 0.0], 2.0, 0.0, TAU)];
+    let torus = revolve(&tube, [0.0; 3], [0.0, 0.0, 1.0], TAU, true)?;
+    // its axis leaned from z towards +y (a turn of -25° about x), moved to (5, 0, 0), and set at
+    // the start of its turn, -140° about z
+    let torus = rotated(torus, [0.0; 3], [1.0, 0.0, 0.0], -25.0)?;
+    let torus = translated(torus, [5.0, 0.0, 0.0])?;
+    let torus = rotated(torus, [0.0; 3], [0.0, 0.0, 1.0], -140.0)?;
+    let groove = swung(&torus, [0.0; 3], [0.0, 0.0, 1.0], 280.0)?;
+    cut(block, groove)
 }
