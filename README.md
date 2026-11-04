@@ -201,6 +201,7 @@ The whole suite runs nightly, and when the harness's running or grading changes.
 | [next.BREP](https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL) | `kernels/next.BREP` (Rust, on its kernel crate, `BREP_kernel` from crates.io, pinned in its `Cargo.toml`) |
 | [kentron](https://github.com/rsz269/kentron) | `kernels/kentron` (Rust, on its crate, `kentron` from crates.io, pinned in its `Cargo.toml`) |
 | [brepkit](https://github.com/andymai/brepkit) | `kernels/brepkit` (Rust, on the `brepkit-*` crates from crates.io, pinned in its `Cargo.toml`) |
+| [geop](https://github.com/geop-cad/geop) | `kernels/geop` (Rust programs of geop's operations, on its crates from its repository at a release tag pinned in its `Cargo.toml`) |
 | [monstertruck](https://github.com/virtualritz/monstertruck) | wanted |
 
 ## Contributing

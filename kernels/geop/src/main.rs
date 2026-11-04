@@ -21,6 +21,7 @@ use geop_core_rasterize::rasterize;
 use geop_core_topology::validation::{ValidationParameters, validate};
 use geop_core_topology::{Model, SolidId};
 use geop_ops_model::{NamedModel, STL_QUALITY};
+use std::collections::HashMap;
 use std::process::ExitCode;
 
 #[allow(dead_code)]
@@ -60,29 +61,50 @@ fn refused(why: &str) -> String {
     format!("{{\"status\":\"refused\",\"reason\":{}}}", quoted(why))
 }
 
-/// `triangles` as an ASCII STL file: each as the rasterizer wound it, which is outward (geop's
-/// faces all face along their surface's normal, `S_u × S_v`, out of the solid, and each face is
-/// triangulated counter-clockwise in its `(u, v)`), and each corner at its full `f64`
-/// coordinates. The mesh is closed where geop meets two faces along an edge at exactly the same
-/// points, bit for bit; the `f32` corners of a binary STL would merge points of a finely meshed
-/// edge that the mesh keeps apart, and leave it open where geop's is not.
+/// `triangles` as an STL file, each as the rasterizer wound it, which is outward (geop's faces
+/// all face along their surface's normal, `S_u × S_v`, out of the solid, and each face is
+/// triangulated counter-clockwise in its `(u, v)`).
 ///
-/// geop's own STL writer (`geop_ops_model::stl_bytes`) is not used: it is binary, and it winds
-/// each triangle again by the surface's normals at its corners (`stl::outward`), which turns some
-/// of a fillet's triangles inside out.
-fn stl(triangles: &[&TriangleFace]) -> String {
-    let mut text = String::with_capacity(160 * triangles.len() + 32);
+/// The mesh is closed where geop meets two faces along an edge at exactly the same points, bit
+/// for bit. Binary STL keeps each corner as `f32`, which is exact for the mesh's topology as long
+/// as no two of its distinct points round to the same `f32` point. Where some do (a finely meshed
+/// edge, whose samples lie closer than an `f32` tells apart), it is written as ASCII at full
+/// `f64` precision instead, so that the file is the mesh geop made, not one merged by rounding.
+///
+/// geop's own STL writer (`geop_ops_model::stl_bytes`) is not used: it is binary only, and it
+/// winds each triangle again by the surface's normals at its corners (`stl::outward`), which turns
+/// some of a fillet's triangles inside out.
+fn stl(triangles: &[&TriangleFace]) -> Vec<u8> {
+    let corners = |t: &TriangleFace| [&t.a, &t.b, &t.c].map(|v| [0, 1, 2].map(|i| v[i].to_f64()));
+    let mut rounded: HashMap<[u32; 3], [u64; 3]> = HashMap::new();
+    let lossless = triangles.iter().flat_map(|t| corners(t)).all(|p| {
+        let bits = p.map(f64::to_bits);
+        *rounded.entry(p.map(|x| (x as f32).to_bits())).or_insert(bits) == bits
+    });
+    if lossless {
+        let mut out = Vec::with_capacity(84 + 50 * triangles.len());
+        out.extend_from_slice(&[0u8; 80]);
+        out.extend_from_slice(&(triangles.len() as u32).to_le_bytes());
+        for t in triangles {
+            let n = &t.normal;
+            for x in [0, 1, 2].map(|i| n[i].to_f64()).into_iter().chain(corners(t).into_iter().flatten()) {
+                out.extend_from_slice(&(x as f32).to_le_bytes());
+            }
+            out.extend_from_slice(&[0u8; 2]);
+        }
+        return out;
+    }
+    let mut text = String::with_capacity(200 * triangles.len() + 32);
     text.push_str("solid geop\n");
     for t in triangles {
         text.push_str("facet normal 0 0 0\nouter loop\n");
-        for v in [&t.a, &t.b, &t.c] {
-            let [x, y, z] = [0, 1, 2].map(|i| v[i].to_f64());
+        for [x, y, z] in corners(t) {
             text.push_str(&format!("vertex {x} {y} {z}\n"));
         }
         text.push_str("endloop\nendfacet\n");
     }
     text.push_str("endsolid geop\n");
-    text
+    text.into_bytes()
 }
 
 /// The volume and area of `solid`, and whether both integrals converged.
