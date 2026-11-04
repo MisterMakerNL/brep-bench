@@ -91,7 +91,7 @@ impl Bench {
         let mut found = Vec::new();
         for (&id, edge) in model.edges.iter() {
             let d = closest_points(&at, &Feature::Curve(edge.curve.clone()))?;
-            if d.distance.lower().to_f64() < PICK_TOLERANCE {
+            if apart(&d) < PICK_TOLERANCE {
                 found.push(name(&part, id)?);
             }
         }
@@ -120,7 +120,7 @@ impl Bench {
         for &id in model.faces.keys() {
             let face = Feature::Face(PlacedFace::new(model, id, None)?);
             let d = closest_points(&at, &face)?;
-            if d.distance.lower().to_f64() < PICK_TOLERANCE {
+            if apart(&d) < PICK_TOLERANCE {
                 found.push(face_name(&part, id)?);
             }
         }
@@ -146,6 +146,13 @@ impl Bench {
             found => Err(format!("{} solids: {found:?}", found.len()).into()),
         }
     }
+}
+
+/// How far apart the two points the search attained are: the distance itself, as nearly as it
+/// was found (the enclosure's upper end). Its lower end, what the search proved no two points are
+/// nearer than, can be far looser on a curved face, and would pick faces the point is not on.
+fn apart(d: &geop_core_topology::distance::Closest) -> f64 {
+    d.distance.upper().to_f64()
 }
 
 fn name(part: &NamedModel, edge: EdgeId) -> Result<String, Refusal> {
