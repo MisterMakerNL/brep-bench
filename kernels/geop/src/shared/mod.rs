@@ -174,3 +174,4 @@ pub mod blends;
 pub mod paths;
 pub mod hollow;
 pub mod booleans;
+pub mod surfaces;
