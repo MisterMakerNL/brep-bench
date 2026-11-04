@@ -247,6 +247,28 @@
         "--version"
       ],
       "source": "kernels/solidcore/src/cases/{category}/{name_snake}.rs"
+    },
+    {
+      "name": "geop",
+      "kernel": "https://github.com/geop-cad/geop",
+      "license": "MIT OR Apache-2.0",
+      "backend": "Rust",
+      "frontend": "Rust (programs of geop's operations)",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/geop/Cargo.toml"
+      ],
+      "command": [
+        "kernels/geop/target/release/brep-bench-geop"
+      ],
+      "version": [
+        "kernels/geop/target/release/brep-bench-geop",
+        "--version"
+      ],
+      "source": "kernels/geop/src/cases/{category}/{name_snake}.rs"
     }
   ]
 }

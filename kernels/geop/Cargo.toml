@@ -1,0 +1,35 @@
+[package]
+name = "brep-bench-geop"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "The brep-bench runner for geop, and its implementation of every case."
+publish = false
+
+# geop is not on crates.io: its crates come from its repository, at a release tag, exactly. The
+# board says which, and moving to another is a change made here (and in build.rs's GEOP_TAG).
+[dependencies]
+geop-cad-base = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-core-math = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-core-geometry = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-core-topology = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-core-program = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-core-sketch = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-core-rasterize = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-lib-sweep = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-model = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-sketch = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-sketch3d = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-reference-geometry = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-extrude-revolve = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-boolean = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-fillet = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-shell = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-plastic = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-surface = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-edit = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-pattern = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+geop-ops-hole = { git = "https://github.com/geop-cad/geop", tag = "v0.14.0" }
+
+[profile.release]
+debug = 0
