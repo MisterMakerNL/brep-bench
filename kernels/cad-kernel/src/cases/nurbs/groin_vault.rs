@@ -1,6 +1,10 @@
 //! The common part of two barrel-vaulted blocks on the square |x|, |y| ≤ 12, the second the
 //! first turned a quarter turn about z. Each vault's top is the rational quadratic arc through
 //! (y, z) = (−12, 10), (0, 26), (12, 10) with weights 1, 3/5, 1, carried straight along x.
+//!
+//! The two vaults are swept splines, so cad-kernel traces where they meet: the groins, which cross
+//! at the crown (0, 0, 16), where the vaults are tangent. A march steps across the crown there, and
+//! ends at it (geomsolver #715): the four half-groins share the crown as a vertex.
 use cad_kernel::boolean::{combined, Op};
 use cad_kernel::build::{prism, Profile, ProfileEdge};
 use cad_kernel::geom::Rigid;
