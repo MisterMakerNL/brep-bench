@@ -1,7 +1,7 @@
 // A kernel's page (kernel.html?k=NAME): what it is, its outcomes by category, its refusals by
 // reason, what it got wrong, what it worked around, and how long it took.
 import { load, tally, bar, legend, esc, casePage, kernelPage, OUTCOMES,
-         failed } from './board.js';
+         failed, secondsText, megabytesText } from './board.js';
 
 const main = document.getElementById('kernel');
 load().then(draw, (e) => failed(main, e));
@@ -97,18 +97,31 @@ function draw(b) {
         k.outcomes[i]}</span></li>`).join('')}</ul></details>`).join('')}`
     : '<p class=muted>None.</p>';
 
-  // times
+  // times, CPU time and memory
   const timed = all.filter((i) => k.outcomes[i] !== 'missing' && k.seconds[i] != null);
   if (timed.length) {
-    const secs = timed.map((i) => k.seconds[i]).sort((x, y) => x - y);
-    const total = secs.reduce((s, x) => s + x, 0);
-    const median = secs[Math.floor(secs.length / 2)];
+    const median = (list) => list.sort((x, y) => x - y)[Math.floor(list.length / 2)];
+    const total = timed.reduce((s, i) => s + k.seconds[i], 0);
+    const cpu = timed.filter((i) => k.cpu[i] != null);
+    const mb = timed.filter((i) => k.mb[i] != null).map((i) => k.mb[i]);
     const slowest = [...timed].sort((x, y) => k.seconds[y] - k.seconds[x]).slice(0, 10);
-    out += `<h2>Times</h2><p class=muted>${total.toFixed(1)} s over ${timed.length} cases;
-      the median ${median} s. Times include starting the runner's process, and are not graded.</p>
-      <div class=scroll><table><tr><th>slowest</th><th class=num>seconds</th><th>outcome</th></tr>
-      ${slowest.map((i) => `<tr><td class=case>${link(i)}</td><td class=num>${k.seconds[i]}</td>
-        <td class='cell ${k.outcomes[i]}'>${k.outcomes[i]}</td></tr>`).join('')}</table></div>`;
+    out += `<h2>Times and memory</h2><p class=muted>${total.toFixed(1)} s over ${timed.length}
+      cases; the median ${secondsText(median(timed.map((i) => k.seconds[i])))}. Starting its runner,
+      with nothing to build, takes ${secondsText(k.start.seconds)}${k.start.measured ? ''
+        : ' (its fastest run: not measured yet)'} of each.${cpu.length
+        ? ` ${cpu.reduce((s, i) => s + k.cpu[i], 0).toFixed(1)} s of CPU time.` : ''}${mb.length
+        ? ` The median peak memory ${megabytesText(median([...mb]))}, the most ${
+          megabytesText(Math.max(...mb))}.` : ''} Times include starting the runner's process, and
+      none of it is graded.${k.binary ? ` Its binary is ${megabytesText(k.binary.bytes / 1e6)} in
+      ${k.binary.files} file${k.binary.files === 1 ? '' : 's'}.` : ''}
+      <a href='performance.html'>Performance</a> sets them beside the other kernels', the start
+      left out.</p>
+      <div class=scroll><table><tr><th>slowest</th><th class=num>time</th>
+      <th class=num>CPU time</th><th class=num>memory</th><th>outcome</th></tr>
+      ${slowest.map((i) => `<tr><td class=case>${link(i)}</td><td class=num>${
+        secondsText(k.seconds[i])}</td><td class=num>${secondsText(k.cpu[i])}</td>
+        <td class=num>${megabytesText(k.mb[i])}</td><td class='cell ${k.outcomes[i]}'>${
+        k.outcomes[i]}</td></tr>`).join('')}</table></div>`;
   }
   main.innerHTML = out;
 }

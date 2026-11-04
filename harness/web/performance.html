@@ -1,0 +1,18 @@
+<!doctype html><html lang=en><head><meta charset=utf-8>
+<meta name=viewport content='width=device-width, initial-scale=1'>
+<title>Performance · brep-bench</title>
+<meta name=description content="What each kernel's runs cost over the brep-bench cases, starting its runner left out: every case's time, CPU time and memory, kernel against kernel on the cases both pass, by category, and on many cores.">
+<link rel=stylesheet href='style.css'>
+<link rel=preload href='board.json' as=fetch crossorigin>
+</head><body>
+<nav class=top><a href='index.html'>brep-bench</a><a href='explore.html'>Cases</a><a href='performance.html' aria-current=page>Performance</a><a href='https://github.com/bmander/brep-bench'>Source</a></nav>
+<h1>Performance</h1>
+<p class=lede>What each kernel's runs cost over the cases: their time, CPU time and memory,
+and how well they use many cores. A time here is the kernel's own, building the solid, measuring
+it and writing its triangles: what starting its runner costs is left out, which is far more for
+a Python or .NET runner than a Rust one, and is shown on its own. None of it is graded, and all
+of it depends on the machine of the last run.</p>
+<main id=performance><p class=muted>Reading the board…</p></main>
+<noscript><p>This page is drawn by JavaScript from <a href='board.json'>board.json</a>.</p></noscript>
+<script type=module src='performance.js'></script>
+</body></html>

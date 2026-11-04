@@ -47,7 +47,8 @@ def head(title, description, depth):
         f"<link rel=icon href='{up}favicon.svg' type='image/svg+xml'>",
         f"<link rel=apple-touch-icon href='{up}apple-touch-icon.png'></head><body>",
         f"<nav class=top><a href='{up}index.html'>brep-bench</a>"
-        f"<a href='{up}explore.html'>Cases</a><a href='{REPO}'>Source</a></nav>",
+        f"<a href='{up}explore.html'>Cases</a><a href='{up}performance.html'>Performance</a>"
+        f"<a href='{REPO}'>Source</a></nav>",
     ]
 
 
@@ -107,8 +108,14 @@ def board(registry, results, cases, drawings):
     - `cases`: every case in id order, each `[id, title, [tag], settled, drawn]`, a tag by its
       index in `tags`, `settled` and `drawn` 1 or 0;
     - `results`: by kernel, its outcome of each case in `cases`' order, as a string of one letter
-      a case (`codes`), with lists in the same order of its `seconds` (null where it has no row),
-      its `why` and its `workaround` (indices in `reasons` and `workarounds`, -1 for none).
+      a case (`codes`), with lists in the same order of what each run cost (null where it has no
+      row, or the run was not measured so): its wall-clock `seconds`, its `cpu` seconds, its
+      peak memory in megabytes (`mb`) and its wall-clock seconds on one core alone (`one`); and
+      of its `why` and its `workaround` (indices in `reasons` and `workarounds`, -1 for none).
+      A kernel's `host` is the machine its last run was made on, and its `startup` what starting
+      its runner cost there, building nothing (`seconds`, `cpu`, `mb`, and `one` on one core);
+      its `binary` is the size of its binary (`bytes`, `files`), and `of` what kernels.json counts
+      in it.
     """
     ids = sorted(cases)
     tags = sorted({t for c in cases.values() for t in c["tags"]})
@@ -136,21 +143,38 @@ def board(registry, results, cases, drawings):
             k["version"] = r.get("version") or ""
             k["run"] = r.get("run") or ""
             k["measured"] = r.get("measured") or a.get("measured") or "exact"
-            codes, seconds, why, worked = [], [], [], []
+            if r.get("host"):
+                k["host"] = r["host"]
+            if r.get("binary"):
+                # each a path or pattern, or a Python distribution's name ({"distribution"})
+                k["binary"] = {**r["binary"], "of": [
+                    {"distribution": e["distribution"]} if isinstance(e, dict) else e
+                    for e in a.get("binary") or []]}
+            start = r.get("startup")
+            if start:
+                k["startup"] = {key: start.get(field) for key, field in (
+                    ("seconds", "seconds"), ("cpu", "cpu_seconds"), ("mb", "peak_mb"),
+                    ("one", "one_core_seconds"))}
+            codes, why, worked = [], [], []
+            # what each run cost: the board's list, and the row's field it is read from
+            costs = {"seconds": "seconds", "cpu": "cpu_seconds", "mb": "peak_mb",
+                     "one": "one_core_seconds"}
+            spent = {key: [] for key in costs}
             for cid in ids:
                 row = r["rows"].get(cid)
                 if row is None:
                     codes.append(CODES["missing"])
-                    seconds.append(None)
+                    for key in costs:
+                        spent[key].append(None)
                     why.append(-1)
                     worked.append(-1)
                     continue
                 codes.append(CODES[row["outcome"]])
-                seconds.append(row.get("seconds"))
+                for key, field in costs.items():
+                    spent[key].append(row.get(field))
                 why.append(intern("reasons", row.get("why")))
                 worked.append(intern("workarounds", r["workarounds"].get(cid)))
-            out[name] = {"codes": "".join(codes), "seconds": seconds, "why": why,
-                         "workaround": worked}
+            out[name] = {"codes": "".join(codes), **spent, "why": why, "workaround": worked}
         elif not a.get("command"):
             k["awaiting"] = True
         kernels.append(k)
@@ -165,6 +189,11 @@ def board(registry, results, cases, drawings):
         "reasons": list(strings["reasons"]),
         "workarounds": list(strings["workarounds"]),
     }
+
+
+def cost(x, unit):
+    """A run's measure for a table cell, or a dash where it was not measured."""
+    return "<span class=muted>–</span>" if x is None else f"{x:g}{unit}"
 
 
 def relative(got, want):
@@ -288,6 +317,10 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
              else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1)),
             ("<th scope=row>time</th>", "td", None,
              lambda en: f"{en['row']['seconds']} s" if en["row"] else ""),
+            ("<th scope=row title='user and system time, over every thread'>CPU time</th>", "td",
+             None, lambda en: cost(en["row"].get("cpu_seconds"), " s") if en["row"] else ""),
+            ("<th scope=row title='the most memory the runner held resident at once'>memory</th>",
+             "td", None, lambda en: cost(en["row"].get("peak_mb"), " MB") if en["row"] else ""),
             ("<th scope=row title='lines of code, comments and blank lines left out'>LOC</th>",
              "td", None, lambda en: "" if en["loc"] is None else str(en["loc"])),
         ]
@@ -374,7 +407,9 @@ def entry(en, exp):
         out.append(f"<div class='muted nomesh'>{e(name)} left no triangles to show.</div>")
 
     out.append("<h3>Time</h3>")
-    out.append(f"<p>{row['seconds']} s</p>" if row else "<p class=muted>It has not run.</p>")
+    out.append(f"<p>{row['seconds']} s; CPU time {cost(row.get('cpu_seconds'), ' s')}; peak "
+               f"memory {cost(row.get('peak_mb'), ' MB')}</p>" if row
+               else "<p class=muted>It has not run.</p>")
 
     out.append("<h3>Notes</h3>")
     why = row.get("why") if row else ""

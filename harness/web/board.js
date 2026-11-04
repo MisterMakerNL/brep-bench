@@ -27,9 +27,21 @@ export const thumbOf = (id) => `drawings/${id}/iso.png`;
 export const kernelPage = (name) => `kernel.html?k=${encodeURIComponent(name)}`;
 export const categoryOf = (id) => id.slice(0, id.lastIndexOf('/'));
 
+// Below this many seconds a run is mostly the starting of its runner, so how many cores it kept
+// busy, and what they bought it, are not reckoned from it.
+export const PARALLEL_FROM = 0.1;
+
 /** board.json, read: `cases` (in id order, each with its index `i`), `categories` (in order,
  * each with its cases' indices), `kernels` (every one; those with results carry `outcomes`,
- * `seconds`, `why` and `workaround`, one entry a case) and `ran` (those with results). */
+ * `seconds`, `cpu`, `mb`, `one`, `built`, `builtCpu`, `cores`, `speedup`, `why` and
+ * `workaround`, one entry a case, and `start`) and `ran` (those with results).
+ *
+ * `start` is what starting the kernel's runner costs, building nothing: as the harness measured
+ * it (`measured`), or for results from before it did, the kernel's fastest run standing in for
+ * it.  `built` and `builtCpu` are a run's time and CPU time less the start's: the kernel's own.
+ * `cores` is how many cores a run kept busy on average while building (its CPU time over its
+ * time, the start's left out of both) and `speedup` its time on one core over its time on all of
+ * them (likewise), both null for a run shorter than PARALLEL_FROM so reckoned. */
 export async function load() {
   const response = await fetch('board.json');
   if (!response.ok) throw new Error(`board.json: ${response.status}`);
@@ -48,16 +60,58 @@ export async function load() {
   const kernels = b.kernels.map((k) => {
     const r = b.results[k.name];
     if (!r) return k;
+    const outcomes = Array.from(r.codes, (c) => names[c]);
+    // a missing case has no run, whatever its row says
+    const ran = (list) => (list || r.seconds.map(() => null))
+      .map((x, i) => (outcomes[i] === 'missing' ? null : x));
+    const seconds = ran(r.seconds);
+    const cpu = ran(r.cpu);
+    const one = ran(r.one);
+    const least = (list) => {
+      const xs = list.filter((x) => x != null);
+      return xs.length ? Math.min(...xs) : null;
+    };
+    const start = k.startup ? { ...k.startup, measured: true }
+      : { seconds: least(seconds), cpu: least(cpu), mb: least(ran(r.mb)), one: null,
+          measured: false };
+    const less = (list, by) => list.map((x) => (x == null ? null : Math.max(0, x - (by || 0))));
+    const built = less(seconds, start.seconds);
+    const builtCpu = less(cpu, start.cpu);
+    const builtOne = less(one, start.one ?? start.seconds);
+    const long = (i) => built[i] != null && built[i] >= PARALLEL_FROM;
     return {
       ...k,
-      outcomes: Array.from(r.codes, (c) => names[c]),
-      seconds: r.seconds,
+      outcomes,
+      seconds,
+      cpu,
+      mb: ran(r.mb),
+      one,
+      start,
+      built,
+      builtCpu,
+      cores: builtCpu.map((c, i) => (c != null && long(i) ? c / built[i] : null)),
+      speedup: builtOne.map((t, i) => (t != null && long(i) ? t / built[i] : null)),
       why: r.why.map((i) => (i < 0 ? '' : b.reasons[i])),
       workaround: r.workaround.map((i) => (i < 0 ? '' : b.workarounds[i])),
     };
   });
   return { repo: b.repo, cases, categories, kernels, ran: kernels.filter((k) => k.outcomes),
            tags: b.tags };
+}
+
+/** A time in seconds, as a table shows it: 3 ms, 420 ms, 4.21 s, 12.3 s. */
+export function secondsText(x) {
+  if (x == null) return '–';
+  if (x < 0.001) return '<1 ms';
+  if (x < 1) return `${Math.round(x * 1000)} ms`;
+  return x < 10 ? `${x.toFixed(2)} s` : `${x.toFixed(1)} s`;
+}
+
+/** Megabytes, as a table shows them: 12 MB, 245 MB, 1.24 GB. */
+export function megabytesText(x) {
+  if (x == null) return '–';
+  if (x < 10) return `${x.toFixed(1)} MB`;
+  return x < 1000 ? `${Math.round(x)} MB` : `${(x / 1000).toFixed(2)} GB`;
 }
 
 /** How many of the cases at `indices` (every case if omitted) kernel `k` has of each outcome. */
