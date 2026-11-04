@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.7
+# brep-bench specification, version 1.8
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -176,7 +176,9 @@ The reply's fields:
 - **`valid`** is the kernel's own validity check.
 
 `faces` and `valid` are reported but not graded, because kernels split and check faces differently.
-A runner must also answer `--version` with one line naming the kernel and its version.
+A runner must also answer `--version` with one line naming the kernel and its version, and,
+given a case id it has no implementation of, exit without building anything (with an error, or
+refusing): the harness times that, as what starting the runner costs.
 
 **Welding.** The harness joins only vertices whose coordinates are exactly equal. A runner may weld
 its triangles with its own kernel's tools, but no further: a gap the kernel leaves is the kernel's
@@ -209,8 +211,31 @@ The harness checks the triangles itself. They are what a kernel's solid looks li
 downstream of it, and checking them keeps a runner's word about its own solid from being the only
 evidence.
 
-Times are reported as wall-clock time, including starting the runner's process. They are not
-graded.
+**What a run costs** is measured by the harness as well, the same way for every kernel, from the
+operating system's account of the runner's process; none of it is graded:
+
+- its **time**, wall-clock, from starting the runner's process to its exit;
+- its **CPU time**, user and system, over every thread of the runner and of the children it
+  waited for: more than its time where it kept more than one core busy;
+- its **peak memory**, the most the runner held resident at once. The harness starts every
+  runner from a process of its own that holds next to nothing, since a process's peak starts at
+  that of the process that started it; no run reads under what that process holds;
+- with `run.py --one-core`, its **time on one core**: a case the kernel built (passed, built or
+  answered wrong) is run a second time pinned to a single core, and only that run's time is
+  kept. Its time on one core over its time on all of them is what the machine's other cores
+  bought it.
+
+- the size of the kernel's **binary**, on disk, as `binary` in `kernels.json` names its files
+  (once a run, not a case);
+- what **starting the runner** costs, building nothing: the harness gives the runner a case id
+  that no case has, `harness/start`, five times, and keeps the median of their time, CPU time
+  and peak memory (and of their time on one core, with `--one-core`).
+
+Every run includes starting the runner, which costs a Python or .NET runtime more time and memory
+than a Rust binary; the board's times and CPU times leave that start out, a run's less its
+runner's, so that they are the kernel's own (and shows it beside them). They are measures of the machine the run was made on, which a kernel's
+results name (its processor, how many cores the run could use, its system, and the least peak
+memory a run can read there).
 
 ## `kernels.json`
 
@@ -227,11 +252,17 @@ One entry per kernel:
 | `version` | the command that prints the kernel's version |
 | `source` | the pattern of an implementation's path |
 | `measured` | `"mesh"` for a kernel with no exact measures |
+| `binary` | the files of the kernel's binary, whose size the harness measures after the build: paths or glob patterns relative to the repository (a directory counts every file under it), or a Python distribution, `{"python": "python3", "distribution": NAME}`; beside the language runtime its runner runs on and the system's libraries |
 | `note` | shown beside the kernel on the board (e.g. that no new implementations are being written) |
 | `reference` | `true` for the kernel whose results the drawings are made from where it passes (else the first kernel that does) |
 
 ## Versions
 
+- **1.8:** the harness measures each run's CPU time and peak memory beside its time, and, asked,
+  its time on one core alone; and what starting each runner costs, which the board's times leave
+  out; and the size of each kernel's binary, which `kernels.json` names. A runner given a case id
+  it has no implementation of exits without building anything. A kernel's results name the
+  machine they were made on. Grading is unchanged.
 - **1.7:** a shell's description says what its wall's inside is where moved faces part, cross or
   meet an opening, and states the result exactly, as the solid less its cavity. Grading is
   unchanged.

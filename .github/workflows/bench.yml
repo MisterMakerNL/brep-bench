@@ -113,8 +113,9 @@ jobs:
         env:
           BUILD: ${{ steps.plan.outputs.build }}
         run: python harness/build.py $BUILD
+      # each case a kernel builds is run again pinned to one core, for what its other cores buy it
       - name: Run the cases
-        run: python harness/run.py --plan plan.json --timeout 120
+        run: python harness/run.py --plan plan.json --timeout 120 --one-core
       - name: Draw the cases
         if: steps.plan.outputs.draw != ''
         env:

@@ -16,8 +16,8 @@ changed decides it:
 - a kernel's entry in kernels.json, added or changed in how it is built or run: that kernel runs
   every case again. A change to which kernel is the reference draws every case again; a change to
   what the board only shows (its licence, languages, note) runs nothing;
-- how a run is made or graded (harness/run.py, stl.py, suite.py, build.py): the whole suite runs
-  again;
+- how a run is made, measured or graded (harness/run.py, measure.py, stl.py, suite.py, build.py):
+  the whole suite runs again;
 - anything else (the site, the drawings' code, the docs): nothing runs, the site is only made
   again. A change to harness/draw.py draws every case again.
 
@@ -36,13 +36,13 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from suite import ROOT, cases, kernels  # noqa: E402
 
-WHOLE_SUITE = {"harness/run.py", "harness/stl.py", "harness/suite.py",
+WHOLE_SUITE = {"harness/run.py", "harness/measure.py", "harness/stl.py", "harness/suite.py",
                "harness/build.py"}
 REDRAW = {"harness/draw.py", "harness/stl.py"}
 # a kernel's flags of its workarounds, which the site reads and no run depends on
 FLAGS = "workarounds.toml"
 # the fields of a kernel's entry in kernels.json that a run depends on
-RUN_FIELDS = ("build", "command", "version", "source", "measured")
+RUN_FIELDS = ("build", "command", "version", "source", "measured", "binary")
 
 
 def git(*args):
