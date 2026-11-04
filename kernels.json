@@ -227,6 +227,28 @@
       "source": "kernels/next.BREP/src/cases/{category}/{name_snake}.rs"
     },
     {
+      "name": "solidcore",
+      "kernel": "https://github.com/tangency-labs/solidcore",
+      "license": "Apache-2.0",
+      "backend": "Rust",
+      "frontend": "Rust (solidcore-ops, the operations applications call)",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/solidcore/Cargo.toml"
+      ],
+      "command": [
+        "kernels/solidcore/target/release/brep-bench-solidcore"
+      ],
+      "version": [
+        "kernels/solidcore/target/release/brep-bench-solidcore",
+        "--version"
+      ],
+      "source": "kernels/solidcore/src/cases/{category}/{name_snake}.rs"
+    },
+    {
       "name": "geop",
       "kernel": "https://github.com/geop-cad/geop",
       "license": "MIT OR Apache-2.0",
