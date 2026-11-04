@@ -5,7 +5,7 @@ use geop_core_math::{geop_error::GeopError, vector::Vector3, scalars::Scalar};
 use geop_core_program::{operation::StepArgs, part::Part, program::Program, runner::Runner};
 use geop_core_topology::{
     EdgeId, FaceId,
-    distance::{Feature, PlacedFace, closest_points},
+    distance::{Closest, Feature, PlacedFace, closest_points},
 };
 use geop_ops_model::{NamedModel, read_model};
 
@@ -91,11 +91,9 @@ impl Bench {
         let mut found = Vec::new();
         for (&id, edge) in model.edges.iter() {
             let d = closest_points(&at, &Feature::Curve(edge.curve.clone()))?;
-            if apart(&d) < PICK_TOLERANCE {
-                found.push(name(&part, id)?);
-            }
+            found.push((name(&part, id)?, d));
         }
-        Ok(found)
+        Ok(nearest(found))
     }
 
     /// The name of the one edge of the part through `point`, as a designer picks it.
@@ -119,12 +117,9 @@ impl Bench {
         let mut found = Vec::new();
         for &id in model.faces.keys() {
             let face = Feature::Face(PlacedFace::new(model, id, None)?);
-            let d = closest_points(&at, &face)?;
-            if apart(&d) < PICK_TOLERANCE {
-                found.push(face_name(&part, id)?);
-            }
+            found.push((face_name(&part, id)?, closest_points(&at, &face)?));
         }
-        match &found[..] {
+        match &nearest(found)[..] {
             [f] => Ok(f.clone()),
             found => Err(format!("{} faces through {point:?}: {found:?}", found.len()).into()),
         }
@@ -148,11 +143,23 @@ impl Bench {
     }
 }
 
-/// How far apart the two points the search attained are: the distance itself, as nearly as it
-/// was found (the enclosure's upper end). Its lower end, what the search proved no two points are
-/// nearer than, can be far looser on a curved face, and would pick faces the point is not on.
-fn apart(d: &geop_core_topology::distance::Closest) -> f64 {
-    d.distance.upper().to_f64()
+/// Of the entities and their distances from a point, those the point lies on. The search
+/// encloses each distance: its lower end is what it proved no two points are nearer than, its
+/// upper end the distance between the two points it attained. An entity is on the point when the
+/// lower end is within the tolerance. On a curved face that end can be loose and admit a
+/// neighbour the point is not on, so where several are admitted only those whose attained points
+/// are within the tolerance are kept — unless that keeps none, the attained points not refined
+/// that close.
+fn nearest(found: Vec<(String, Closest)>) -> Vec<String> {
+    let admitted: Vec<_> =
+        found.into_iter().filter(|(_, d)| d.distance.lower().to_f64() < PICK_TOLERANCE).collect();
+    let attained: Vec<_> =
+        admitted.iter().filter(|(_, d)| d.distance.upper().to_f64() < PICK_TOLERANCE).collect();
+    if admitted.len() > 1 && !attained.is_empty() {
+        attained.into_iter().map(|(n, _)| n.clone()).collect()
+    } else {
+        admitted.into_iter().map(|(n, _)| n).collect()
+    }
 }
 
 fn name(part: &NamedModel, edge: EdgeId) -> Result<String, Refusal> {
