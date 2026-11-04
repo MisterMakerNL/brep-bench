@@ -1,0 +1,9 @@
+# The cases geop builds by working around a feature it lacks, and what that is
+# (SPEC.md, "A workaround is flagged"). geop has no primitive solids: every solid starts from a
+# sketch, extruded, revolved, swept or lofted. A prism or a cylinder is an extrusion, the natural
+# construction; a ball, a cone or a torus turned from its section is flagged, as for other kernels.
+
+"boolean/napkin-ring" = "no sphere primitive"
+"primitives/cone-frustum" = "no cone primitive"
+"primitives/sphere" = "no sphere primitive"
+"primitives/torus" = "no torus primitive"
