@@ -1,0 +1,20 @@
+[package]
+name = "brep-bench-solidcore"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "The brep-bench runner for solidcore, and its implementation of every case."
+publish = false
+
+# solidcore's modelling layer (solidcore-ops, the operations applications call) and its mesher
+# (solidcore-tess) are not on crates.io, so they come from the repository at one commit: the board
+# says which, and moving to another is a change made here.
+[dependencies]
+solidcore = { git = "https://github.com/tangency-labs/solidcore", rev = "8d74f1f19fdf4b61be99c462a2e41c979d2a7f63" }
+solidcore-ops = { git = "https://github.com/tangency-labs/solidcore", rev = "8d74f1f19fdf4b61be99c462a2e41c979d2a7f63" }
+solidcore-tess = { git = "https://github.com/tangency-labs/solidcore", rev = "8d74f1f19fdf4b61be99c462a2e41c979d2a7f63" }
+solidcore-record = { git = "https://github.com/tangency-labs/solidcore", rev = "8d74f1f19fdf4b61be99c462a2e41c979d2a7f63" }
+solidcore-convert = { git = "https://github.com/tangency-labs/solidcore", rev = "8d74f1f19fdf4b61be99c462a2e41c979d2a7f63" }
+
+[profile.release]
+debug = 0

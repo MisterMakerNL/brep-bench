@@ -1,0 +1,177 @@
+//! The brep-bench runner for solidcore (https://github.com/tangency-labs/solidcore).
+//!
+//!     brep-bench-solidcore CASE OUT.stl
+//!     brep-bench-solidcore --version
+//!
+//! Builds the case `CASE` (`boolean/napkin-ring`) with its implementation,
+//! `src/cases/boolean/napkin_ring.rs`, through solidcore-ops, the modelling operations the
+//! applications built on solidcore call, then measures the body with the kernel's own tools: its
+//! volume and area integrated over the exact B-rep (`Body::volume`, `Body::area`), its faces by
+//! surface kind as its record names them, and the kernel's validity check (`Body::check`). It
+//! meshes the body with solidcore-tess, solidcore's one mesher, into OUT.stl and prints one line
+//! of JSON. An operation's error is a refusal: the kernel declined, saying why. A case may also
+//! refuse in its own words, where solidcore has no operation for what it describes. The runner
+//! never reads the case's description.
+use solidcore_ops::{Body, CheckLevel};
+use solidcore_record::brep::Surface;
+use solidcore_tess::{plan, MeshTolerance};
+use std::collections::BTreeMap;
+use std::process::ExitCode;
+
+#[allow(dead_code)]
+mod bench;
+#[allow(dead_code, unused_imports)]
+mod shared;
+
+/// A case's implementation: the body it builds, or why it was not built.
+type Build = fn() -> Result<Body, Refusal>;
+
+/// Why a case was not built: solidcore's error, in its own words, or a case that refuses in its
+/// own because solidcore has no operation for what it describes.
+#[derive(Debug)]
+pub struct Refusal(String);
+
+impl From<solidcore_ops::Error> for Refusal {
+    fn from(e: solidcore_ops::Error) -> Self {
+        Refusal(e.to_string())
+    }
+}
+
+impl From<solidcore::SolidError> for Refusal {
+    fn from(e: solidcore::SolidError) -> Self {
+        Refusal(e.to_string())
+    }
+}
+
+impl From<&str> for Refusal {
+    fn from(why: &str) -> Self {
+        Refusal(why.to_owned())
+    }
+}
+
+impl From<String> for Refusal {
+    fn from(why: String) -> Self {
+        Refusal(why)
+    }
+}
+
+impl std::fmt::Display for Refusal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+/// One module per case file, and `CASES`, written by `build.rs`.
+mod cases {
+    use super::{Build, Refusal};
+    include!(concat!(env!("OUT_DIR"), "/cases.rs"));
+}
+
+/// A face's surface as the reply counts it.
+fn kind(s: &Surface) -> &'static str {
+    match s {
+        Surface::Plane { .. } | Surface::PlaneThrough { .. } => "plane",
+        Surface::Cylinder { .. } => "cylinder",
+        Surface::Cone { .. } => "cone",
+        Surface::Sphere { .. } | Surface::BallPatch { .. } => "sphere",
+        Surface::Torus { .. } => "torus",
+        Surface::Spline { .. } | Surface::RationalSpline { .. } => "bspline",
+        _ => "other",
+    }
+}
+
+/// A JSON string.
+fn quoted(s: &str) -> String {
+    let mut out = String::from("\"");
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
+fn refused(why: &str) -> String {
+    format!("{{\"status\":\"refused\",\"reason\":{}}}", quoted(why))
+}
+
+/// The triangles written as binary STL.
+fn write_stl(path: &str, mesh: &solidcore_tess::Mesh) -> std::io::Result<()> {
+    let mut out = Vec::with_capacity(84 + 50 * mesh.triangles.len());
+    out.extend_from_slice(&[0u8; 80]);
+    out.extend_from_slice(&(mesh.triangles.len() as u32).to_le_bytes());
+    for t in &mesh.triangles {
+        let [a, b, c] = t.map(|i| mesh.positions[i as usize]);
+        let (u, v) = ([b.x - a.x, b.y - a.y, b.z - a.z], [c.x - a.x, c.y - a.y, c.z - a.z]);
+        let n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+        let l = (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]).sqrt();
+        let n = if l > 0.0 { n.map(|x| x / l) } else { n };
+        for x in [n[0], n[1], n[2], a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z] {
+            out.extend_from_slice(&(x as f32).to_le_bytes());
+        }
+        out.extend_from_slice(&[0u8; 2]);
+    }
+    std::fs::write(path, out)
+}
+
+/// How finely the body is integrated: the kernel's finest relative accuracy.
+const ACCURACY: f64 = 1e-8;
+
+/// The reply for a body built: its measures, once its triangles are written. The mesh keeps
+/// within a ten-thousandth of the body's size, or 1/200 of its thickness (its volume over its
+/// area) where that is less: the reference runner's rule (`kernels/occt/run.py`).
+fn measured(body: &Body, out: &str) -> Result<String, Refusal> {
+    let volume = body.volume(ACCURACY)?;
+    let area = body.area(ACCURACY)?;
+    let valid = body.check(CheckLevel::Geometry).is_ok_and(|r| r.is_valid());
+    let (record, _) = body.to_record()?;
+    let mut faces = BTreeMap::new();
+    for f in &record.faces {
+        *faces.entry(kind(&f.surface)).or_insert(0) += 1;
+    }
+    let faces = faces.iter().map(|(k, n)| format!("\"{k}\":{n}")).collect::<Vec<_>>().join(",");
+
+    let (lo, hi) = body.bounds()?;
+    let size = ((hi[0] - lo[0]).powi(2) + (hi[1] - lo[1]).powi(2) + (hi[2] - lo[2]).powi(2)).sqrt();
+    let thickness = if area > 0.0 && volume > 0.0 { volume / area } else { size };
+    let chord = (1e-4 * size).min(5e-3 * thickness).max(1e-7);
+    let (tess, stats) =
+        plan(&record, &MeshTolerance::chord(chord), size).map_err(|e| format!("not meshed: {e}"))?;
+    if let Some(f) = stats.unmeshed.first() {
+        return Err(format!("not meshed: face {}: {}", f.face, f.reason).into());
+    }
+    let (mesh, left_out) = tess.evaluate();
+    if let Some(f) = left_out.first() {
+        return Err(format!("not meshed: face {}: {}", f.face, f.reason).into());
+    }
+    write_stl(out, &mesh).map_err(|e| format!("{out} not written: {e}"))?;
+    Ok(format!(
+        "{{\"status\":\"ok\",\"volume\":{volume:e},\"area\":{area:e},\"faces\":{{{faces}}},\"valid\":{valid}}}"
+    ))
+}
+
+fn main() -> ExitCode {
+    let args: Vec<String> = std::env::args().collect();
+    if args.get(1).map(String::as_str) == Some("--version") {
+        println!("solidcore {} (brep-bench runner {})", env!("KERNEL_VERSION"), env!("CARGO_PKG_VERSION"));
+        return ExitCode::SUCCESS;
+    }
+    let [_, case, out] = &args[..] else {
+        eprintln!("usage: brep-bench-solidcore CASE OUT.stl");
+        return ExitCode::from(2);
+    };
+    let Some(&(_, build)) = cases::CASES.iter().find(|(id, _)| id == case) else {
+        eprintln!("no implementation of `{case}`");
+        return ExitCode::from(2);
+    };
+    let reply = match build().and_then(|body| measured(&body, out)) {
+        Ok(reply) => reply,
+        Err(why) => refused(&why.to_string()),
+    };
+    println!("{reply}");
+    ExitCode::SUCCESS
+}
