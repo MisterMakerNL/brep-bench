@@ -171,3 +171,4 @@ pub fn made(kind: &str, id: &str) -> String {
     format!("{kind}({id})")
 }
 pub mod blends;
+pub mod paths;
