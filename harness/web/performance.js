@@ -15,7 +15,8 @@ load().then(start, (e) => failed(main, e));
 // asks for it counted (`raw`); `start` names the field of a kernel's start-up to show beside it.
 // `floor` is the least value the logarithmic axis and the ratios take (a time of 0 is under the
 // clock's resolution); `additive` says whether a total means anything, `compare` whether a ratio
-// of two kernels' does; `least` and `most` head the summary's ends, `top` the runs that cost most.
+// of two kernels' does; `least` and `most` head the summary's ends, `top` the runs that cost most;
+// `higher` says more is better (else less is), for the summary's shading.
 const timeTick = (x) => (x < 1 ? `${Math.round(x * 1000)} ms` : `${Math.round(x)} s`);
 const mbTick = (x) => (x < 1000 ? `${x} MB` : `${x / 1000} GB`);
 const ratioText = (x) => (x == null ? '–' : `${x.toFixed(x < 10 ? 2 : 1)}`);
@@ -51,14 +52,14 @@ const METRICS = [
       a Rust binary does, which the table's start-up column says.`,
   },
   {
-    key: 'cores', label: 'cores busy', text: ratioText, tick: (x) => `${x}`, floor: 0.1,
+    key: 'cores', label: 'cores busy', text: ratioText, tick: (x) => `${x}`, floor: 0.1, higher: true,
     additive: false, compare: false, least: 'least', most: 'most',
     top: 'The runs that kept the most cores busy',
     about: () => `Each dot is how many cores one case kept busy on average, its CPU time over its
       time: 1 for a run on one core throughout. ${short}`,
   },
   {
-    key: 'speedup', label: 'speedup on every core', text: speedupText,
+    key: 'speedup', label: 'speedup on every core', text: speedupText, higher: true,
     tick: (x) => `${x}×`, floor: 0.1, additive: false, compare: false, least: 'least',
     most: 'most', top: 'The runs that more cores sped up most',
     about: () => `Each dot is how many times faster one case ran free on every core than pinned to
@@ -183,33 +184,61 @@ function start(b) {
   update();
 }
 
+// A cell's wash for a value `t` of the way from its column's best (0) to its worst (1): green
+// through amber to red.
+function heat(t) {
+  const [from, to, s] = t < 0.5 ? ['--m-built', '--m-refused', t * 2] : ['--m-refused', '--m-failed', t * 2 - 1];
+  return `background: color-mix(in srgb, color-mix(in srgb, var(${to}) ${Math.round(100 * s)}%,
+    var(${from})) 35%, transparent)`;
+}
+
 // The table beside the strip, which says in numbers what it draws, and what starting each
 // kernel's runner costs of the measure: left out of the strip's times (unless counted), only
-// said of its memory.
+// said of its memory.  Each column but the count of cases is washed from green at its best
+// value to red at its worst, on the strip's logarithmic scale.
 function summary(rows, m) {
-  const cell = (x) => `<td class=num>${m.text(x)}</td>`;
-  const start = (k) => {
-    const x = k.start[m.start];
-    if (x == null) return '<td class=num><span class=muted>–</span></td>';
-    return `<td class=num${k.start.measured ? '' : ` title='not measured: the kernel&#39;s fastest run
-      stands in for it'`}>${m.text(x)}${k.start.measured ? '' : '<sup>*</sup>'}</td>`;
+  // the columns washed, each a value a row
+  const columns = [
+    m.start && ((k) => k.start[m.start]),
+    m.additive && ((k, sorted) => sorted.reduce((s, x) => s + x, 0)),
+    (k, sorted) => sorted[0],
+    (k, sorted) => quantile(sorted, 0.5),
+    (k, sorted) => quantile(sorted, 0.9),
+    (k, sorted) => sorted[sorted.length - 1],
+  ].filter(Boolean).map((value) => {
+    const values = rows.map(({ k, sorted }) => value(k, sorted));
+    const logs = values.filter((x) => x != null).map((x) => Math.log10(Math.max(x, m.floor)));
+    const [lo, hi] = [Math.min(...logs), Math.max(...logs)];
+    const style = (x) => {
+      if (x == null || !(hi > lo)) return '';
+      const t = (Math.log10(Math.max(x, m.floor)) - lo) / (hi - lo);
+      return ` style='${heat(m.higher ? 1 - t : t)}'`;
+    };
+    return { values, style };
+  });
+  const cell = (col, r, extra = '') => {
+    const x = col.values[r];
+    return x == null ? '<td class=num><span class=muted>–</span></td>'
+      : `<td class=num${col.style(x)}${extra}>${m.text(x)}${extra ? '<sup>*</sup>' : ''}</td>`;
   };
+  const notMeasured = ` title='not measured: the kernel&#39;s fastest run stands in for it'`;
   const estimated = m.start && rows.some(({ k }) => !k.start.measured);
   return `<div class=scroll><table><tr><th>kernel</th>${m.start ? `<th class=num
     title='starting the runner, building nothing'>start-up</th>` : ''}<th class=num>cases</th>
     ${m.additive ? '<th class=num>total</th>' : ''}<th class=num>${m.least}</th>
     <th class=num>median</th><th class=num title='nine cases in ten have no more'>90th
-    percentile</th><th class=num>${m.most}</th></tr>${rows.map(({ k, sorted }) => `<tr>
-      <td><a href='${kernelPage(k.name)}'>${esc(k.name)}</a>${k.measured === 'mesh'
-        ? ' <span class=muted>(mesh)</span>' : ''}</td>${m.start ? start(k) : ''}
-      <td class=num>${sorted.length}</td>
-      ${m.additive ? cell(sorted.reduce((s, x) => s + x, 0)) : ''}${cell(sorted[0])}
-      ${cell(quantile(sorted, 0.5))}${cell(quantile(sorted, 0.9))}
-      ${cell(sorted[sorted.length - 1])}</tr>`).join('')}</table></div>
+    percentile</th><th class=num>${m.most}</th></tr>${rows.map(({ k, sorted }, r) => {
+      const [start, ...rest] = m.start ? columns : [null, ...columns];
+      return `<tr><td><a href='${kernelPage(k.name)}'>${esc(k.name)}</a>${k.measured === 'mesh'
+        ? ' <span class=muted>(mesh)</span>' : ''}</td>${start
+        ? cell(start, r, k.start.measured ? '' : notMeasured) : ''}
+        <td class=num>${sorted.length}</td>${rest.map((col) => cell(col, r)).join('')}</tr>`;
+    }).join('')}</table></div>
     <p class=muted><em>Start-up</em> is what starting the kernel's runner costs with nothing to
       build: the harness gives it a case id no case has and takes the median of five starts.${
       estimated ? ` <sup>*</sup> Not measured yet (the kernel's last run was made before the
-      harness did): its fastest run stands in for it.` : ''}</p>`;
+      harness did): its fastest run stands in for it.` : ''} Each column is shaded from green at
+      its best value to red at its worst, on a logarithmic scale.</p>`;
 }
 
 // The ticks of a logarithmic axis from 10^lo to 10^hi: each power of ten, and 2 and 5 times it
