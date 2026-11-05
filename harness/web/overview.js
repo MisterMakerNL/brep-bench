@@ -1,6 +1,6 @@
 // The overview: the kernels, the categories by kernels, and a strip of every case.
 import { load, tally, words, bar, legend, esc, casePage, kernelPage, groupOf, markColours,
-         failed } from './board.js';
+         failed, placeTip } from './board.js';
 
 const main = document.getElementById('board');
 load().then(draw, (e) => failed(main, e));
@@ -187,12 +187,7 @@ function strip(b, canvas, tip) {
     }).join('');
     tip.innerHTML = `<b>${esc(c.title)}</b><span class=muted>${esc(c.id)}</span>${lines}`;
     tip.hidden = false;
-    const pad = 14;
-    const w = tip.offsetWidth;
-    const hgt = tip.offsetHeight;
-    tip.style.left = `${Math.min(event.clientX + pad, innerWidth - w - 8)}px`;
-    tip.style.top = `${event.clientY + pad + hgt > innerHeight ? event.clientY - hgt - pad
-                                                             : event.clientY + pad}px`;
+    placeTip(tip, event);
   });
   canvas.addEventListener('mouseleave', () => { tip.hidden = true; });
   canvas.addEventListener('click', (event) => {

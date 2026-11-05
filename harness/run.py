@@ -21,6 +21,7 @@ cores bought it; that run is timed and nothing else. Standard library
 only (where there is no wait4, only the time is kept; pinning to one core needs Linux).
 """
 import argparse
+import functools
 import glob
 import json
 import os
@@ -222,7 +223,7 @@ def startup(k, timeout, one_core=None):
             return None
         out = {"seconds": round(median(r.seconds for r in runs), 4),
                "cpu_seconds": rounded(median(r.cpu for r in runs), 4),
-               "peak_mb": rounded(median(r.peak_mb for r in runs), 1), "runs": STARTS}
+               "peak_mb": rounded(median(r.peak_mb for r in runs), 1)}
         if one_core is not None:
             pinned = [execute(argv, min(timeout, 60), one_core) for _ in range(STARTS)]
             out["one_core_seconds"] = round(median(r.seconds for r in pinned), 4)
@@ -239,7 +240,8 @@ def binary(k):
     language runtime its runner runs on and the system's own libraries. Each is a path or a glob
     pattern, relative to the repository (a directory counts every file under it), or a Python
     distribution, {"python": INTERPRETER, "distribution": NAME}, its files as that interpreter
-    installed them. {"bytes", "files"}, or None where it names nothing there is (not built)."""
+    installed them. {"bytes", "files", "of"}, `of` the entries counted, or None where they name
+    nothing there is (not built)."""
     found = set()
     for entry in k.get("binary") or []:
         if isinstance(entry, dict):
@@ -260,7 +262,8 @@ def binary(k):
     files = {os.path.realpath(f) for f in found}
     if not files:
         return None
-    return {"bytes": sum(os.path.getsize(f) for f in files), "files": len(files)}
+    return {"bytes": sum(os.path.getsize(f) for f in files), "files": len(files),
+            "of": k["binary"]}
 
 
 def implemented(k, c):
@@ -295,7 +298,7 @@ def run_kernel(k, chosen, timeout, one_core=None):
             outcome, why, reply, mesh, ran = run_one(k["command"], c, timeout, keep)
         row = {
             "case": c["id"], "outcome": outcome, "why": why,
-            "seconds": round(ran.seconds, 3) if ran else 0.0,
+            "seconds": rounded(ran and ran.seconds, 3),
             "cpu_seconds": rounded(ran and ran.cpu, 3), "peak_mb": rounded(ran and ran.peak_mb, 1),
             "measured": (reply or {}).get("measured", "exact"),
             "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
@@ -340,6 +343,7 @@ def spent(rows):
     return out
 
 
+@functools.cache
 def host():
     """The machine a run is made on, since its times and memory are of that machine: its processor,
     how many cores the runs may use, its system, and the least peak memory a run can read there."""
@@ -397,8 +401,10 @@ def run_plan(plan, timeout, one_core=None):
             mesh = os.path.join(ROOT, "results", "meshes", name, cid + ".stl")
             if os.path.exists(mesh):
                 os.remove(mesh)
-        # measured again only when the runner is to build something; else the last are kept
-        if any(implemented(k, c) for c in wanted):
+        # measured again when the kernel's whole suite runs (its runner changed) or they never
+        # were, and the runner is to build something; a plan of a few cases keeps the last
+        if (any(implemented(k, c) for c in wanted)
+                and (len(wanted) == len(current) or not last.get("startup"))):
             start, size = overhead(k, timeout, one_core)
         else:
             start, size = last.get("startup"), last.get("binary")

@@ -20,7 +20,7 @@ beside its outcome; none of them is graded. Runners are started by `harness/meas
 small process that holds almost no memory, because on Linux a child's peak resident set starts
 at its parent's. Before its cases, each runner is given the case id `harness/start`, which names
 no case, five times; the median is the kernel's start-up, which the board subtracts from its
-times. `--one-core` runs each case a kernel builds a second time, pinned to one core, for its
+times. A CI run of only some of a kernel's cases keeps its last start-up and binary size. `--one-core` runs each case a kernel builds a second time, pinned to one core, for its
 speedup on all of them (Linux only). Each result file also records its machine and the size of
 the kernel's binary, as `binary` in `kernels.json` names it.
 

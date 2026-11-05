@@ -69,23 +69,30 @@ def run(req):
         for fd in (out, err, null):
             os.close(fd)
 
-    killed = []
+    killed, reaped = [], None
 
     def ran_out(signum, frame):
         killed.append(True)
-        os.kill(pid, signal.SIGKILL)
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
 
     signal.signal(signal.SIGALRM, ran_out)
     signal.setitimer(signal.ITIMER_REAL, req["timeout"])
     try:
         # wait for it to exit without reaping it: until it is reaped its pid is not reused, so a
-        # timer that fires late kills only the exited process, which is harmless
-        os.waitid(os.P_PID, pid, os.WEXITED | os.WNOWAIT)
+        # timer that fires late kills only the exited process, which is harmless (no waitid on
+        # macOS before Python 3.13: there wait4 reaps it at once)
+        if hasattr(os, "waitid"):
+            os.waitid(os.P_PID, pid, os.WEXITED | os.WNOWAIT)
+        else:
+            reaped = os.wait4(pid, 0)
         seconds = time.monotonic() - start
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
         signal.signal(signal.SIGALRM, signal.SIG_IGN)
-    _, status, usage = os.wait4(pid, 0)
+    _, status, usage = reaped or os.wait4(pid, 0)
     # ran out of time only if the timer's kill is what ended it, not an exit just before it
     timed_out = (killed and os.WIFSIGNALED(status)
                  and os.WTERMSIG(status) == signal.SIGKILL)

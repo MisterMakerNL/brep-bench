@@ -1,7 +1,7 @@
 // A kernel's page (kernel.html?k=NAME): what it is, its outcomes by category, its refusals by
 // reason, what it got wrong, what it worked around, and how long it took.
 import { load, tally, bar, legend, esc, casePage, kernelPage, OUTCOMES,
-         failed, secondsText, megabytesText } from './board.js';
+         failed, secondsText, megabytesText, quantile } from './board.js';
 
 const main = document.getElementById('kernel');
 load().then(draw, (e) => failed(main, e));
@@ -98,9 +98,9 @@ function draw(b) {
     : '<p class=muted>None.</p>';
 
   // times, CPU time and memory
-  const timed = all.filter((i) => k.outcomes[i] !== 'missing' && k.seconds[i] != null);
+  const timed = all.filter((i) => k.seconds[i] != null);
   if (timed.length) {
-    const median = (list) => list.sort((x, y) => x - y)[Math.floor(list.length / 2)];
+    const median = (list) => quantile(list.sort((x, y) => x - y), 0.5);
     const total = timed.reduce((s, i) => s + k.seconds[i], 0);
     const cpu = timed.filter((i) => k.cpu[i] != null);
     const mb = timed.filter((i) => k.mb[i] != null).map((i) => k.mb[i]);

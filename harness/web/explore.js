@@ -2,7 +2,7 @@
 // category, tag, whether it is settled, a view, and each kernel's outcome.  What it shows is in
 // the address, so a view can be linked to.  Only the rows in sight are in the page.
 import { load, tally, words, bar, legend, esc, casePage, kernelPage, thumbOf,
-         failed, secondsText, megabytesText } from './board.js';
+         failed, secondsText, megabytesText, solved, option } from './board.js';
 
 const main = document.getElementById('explore');
 load().then(start, (e) => failed(main, e));
@@ -22,11 +22,10 @@ const FILTERS = [
   ['missing', 'missing'],
 ];
 const FILTER_LABEL = Object.fromEntries(FILTERS);
-const succeeded = (o) => o === 'pass' || o === 'built';
 function admits(filter, o) {
   switch (filter) {
     case '': return true;
-    case 'not-pass': return !succeeded(o) && o !== 'missing';
+    case 'not-pass': return !solved(o) && o !== 'missing';
     case 'failed': return o === 'wrong' || o === 'crashed' || o === 'timeout';
     case 'implemented': return o !== 'missing';
     default: return o === filter;
@@ -82,8 +81,6 @@ function start(b) {
     history.replaceState(null, '', s ? `?${s}` : location.pathname);
   }
 
-  const option = (value, label, chosen) =>
-    `<option value='${esc(value)}'${value === chosen ? ' selected' : ''}>${esc(label)}</option>`;
   main.innerHTML = `
     <div class=controls>
       <input type=search placeholder='Search titles, ids and tags' aria-label='Search'
@@ -141,8 +138,8 @@ function start(b) {
       for (const w of terms) if (!hay[i].includes(w)) return false;
       for (const [k, f] of kernelFilters) if (!admits(f, k.outcomes[i])) return false;
       switch (state.view) {
-        case 'nopass': return !b.ran.some((k) => succeeded(k.outcomes[i]));
-        case 'onepass': return b.ran.filter((k) => succeeded(k.outcomes[i])).length === 1;
+        case 'nopass': return !b.ran.some((k) => solved(k.outcomes[i]));
+        case 'onepass': return b.ran.filter((k) => solved(k.outcomes[i])).length === 1;
         case 'differ': {
           const seen = new Set(shown.map((k) => k.outcomes[i]).filter((o) => o !== 'missing'));
           return seen.size > 1;
@@ -218,8 +215,8 @@ function start(b) {
       const tip = [`${k.name}: ${o}`, wa && `workaround: ${wa}`, k.why[c.i],
                    seconds != null && secondsText(seconds),
                    mb != null && megabytesText(mb)].filter(Boolean).join(' · ');
-      const shows = { time: () => secondsText(seconds), memory: () => megabytesText(mb) }[
-        state.cells]?.() ?? o;
+      const shows = state.cells === 'time' ? secondsText(seconds)
+        : state.cells === 'memory' ? megabytesText(mb) : o;
       return `<td class='cell ${o}' title='${esc(tip)}'><a href='${casePage(c.id, k.name)}'>${shows}${
         wa ? ' <span class=wa>†</span>' : ''}</a></td>`;
     }).join('');

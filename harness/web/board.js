@@ -26,6 +26,25 @@ export const casePage = (id, kernel) => `cases/${id}.html${
 export const thumbOf = (id) => `drawings/${id}/iso.png`;
 export const kernelPage = (name) => `kernel.html?k=${encodeURIComponent(name)}`;
 export const categoryOf = (id) => id.slice(0, id.lastIndexOf('/'));
+// whether an outcome is a sound solid: passed, or built where no answer is settled
+export const solved = (o) => o === 'pass' || o === 'built';
+
+/** The value a fraction `q` of the way up `sorted` (ascending), or null for an empty list. */
+export function quantile(sorted, q) {
+  return sorted.length ? sorted[Math.max(0, Math.ceil(q * sorted.length) - 1)] : null;
+}
+
+/** A select's option, picked when its value is `chosen`. */
+export const option = (value, label, chosen) =>
+  `<option value='${esc(value)}'${value === chosen ? ' selected' : ''}>${esc(label)}</option>`;
+
+/** Places a shown tooltip beside the pointer, kept inside the window. */
+export function placeTip(tip, event) {
+  const pad = 14;
+  tip.style.left = `${Math.min(event.clientX + pad, innerWidth - tip.offsetWidth - 8)}px`;
+  tip.style.top = `${event.clientY + pad + tip.offsetHeight > innerHeight
+    ? event.clientY - tip.offsetHeight - pad : event.clientY + pad}px`;
+}
 
 // Below this many seconds a run is mostly the starting of its runner, so how many cores it kept
 // busy, and what they bought it, are not reckoned from it.
@@ -33,8 +52,9 @@ export const PARALLEL_FROM = 0.1;
 
 /** board.json, read: `cases` (in id order, each with its index `i`), `categories` (in order,
  * each with its cases' indices), `kernels` (every one; those with results carry `outcomes`,
- * `seconds`, `cpu`, `mb`, `one`, `built`, `builtCpu`, `builtOne`, `cores`, `speedup`, `why` and
- * `workaround`, one entry a case, and `start`) and `ran` (those with results).
+ * `seconds`, `cpu`, `mb`, `built`, `builtCpu`, `builtOne`, `cores`, `speedup`, `why` and
+ * `workaround`, one entry a case (a measure null where there was no run), and `start`) and
+ * `ran` (those with results).
  *
  * `start` is what starting the kernel's runner costs, building nothing: as the harness measured
  * it (`measured`), or for results from before it did, the kernel's fastest run standing in for
@@ -62,31 +82,25 @@ export async function load() {
     const r = b.results[k.name];
     if (!r) return k;
     const outcomes = Array.from(r.codes, (c) => names[c]);
-    // a missing case has no run, whatever its row says
-    const ran = (list) => (list || r.seconds.map(() => null))
-      .map((x, i) => (outcomes[i] === 'missing' ? null : x));
-    const seconds = ran(r.seconds);
-    const cpu = ran(r.cpu);
-    const one = ran(r.one);
+    const { seconds, cpu, mb } = r;
     const least = (list) => {
       const xs = list.filter((x) => x != null);
       return xs.length ? Math.min(...xs) : null;
     };
     const start = k.startup ? { ...k.startup, measured: true }
-      : { seconds: least(seconds), cpu: least(cpu), mb: least(ran(r.mb)), one: null,
+      : { seconds: least(seconds), cpu: least(cpu), mb: least(mb), one: null,
           measured: false };
     const less = (list, by) => list.map((x) => (x == null ? null : Math.max(0, x - (by || 0))));
     const built = less(seconds, start.seconds);
     const builtCpu = less(cpu, start.cpu);
-    const builtOne = less(one, start.one ?? start.seconds);
+    const builtOne = less(r.one, start.one ?? start.seconds);
     const long = (i) => built[i] != null && built[i] >= PARALLEL_FROM;
     return {
       ...k,
       outcomes,
       seconds,
       cpu,
-      mb: ran(r.mb),
-      one,
+      mb,
       start,
       built,
       builtCpu,

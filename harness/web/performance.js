@@ -4,13 +4,11 @@
 // on the cases both pass, the medians by category, the runs that cost most, and how well each
 // kernel uses many cores.  One row of filters above scopes them all, and is kept in the address.
 // Kernels keep kernels.json's order: the board ranks nothing.
-import { load, esc, casePage, kernelPage, failed, secondsText, megabytesText,
-         PARALLEL_FROM } from './board.js';
+import { load, esc, casePage, kernelPage, failed, secondsText, megabytesText, solved, quantile,
+         option, placeTip, PARALLEL_FROM } from './board.js';
 
 const main = document.getElementById('performance');
 load().then(start, (e) => failed(main, e));
-
-const solved = (o) => o === 'pass' || o === 'built';
 
 // What can be measured of a run: each reads one of a kernel's lists (board.js), a value a case.
 // A time is the kernel's own, what starting its runner costs left out (`key`), unless the reader
@@ -19,7 +17,9 @@ const solved = (o) => o === 'pass' || o === 'built';
 // clock's resolution); `additive` says whether a total means anything, `compare` whether a ratio
 // of two kernels' does; `least` and `most` head the summary's ends, `top` the runs that cost most.
 const timeTick = (x) => (x < 1 ? `${Math.round(x * 1000)} ms` : `${Math.round(x)} s`);
+const mbTick = (x) => (x < 1000 ? `${x} MB` : `${x / 1000} GB`);
 const ratioText = (x) => (x == null ? '–' : `${x.toFixed(x < 10 ? 2 : 1)}`);
+const speedupText = (x) => (x == null ? '–' : `${ratioText(x)}×`);
 const short = `What starting the runner costs is left out of both, and so are runs whose own time
   is under ${PARALLEL_FROM} s, too short to say.`;
 const METRICS = [
@@ -43,7 +43,7 @@ const METRICS = [
   },
   {
     key: 'mb', start: 'mb', label: 'peak memory', text: megabytesText, floor: 1,
-    tick: (x) => (x < 1000 ? `${x} MB` : `${x / 1000} GB`),
+    tick: mbTick,
     additive: false, compare: true, least: 'least', most: 'most',
     top: 'The runs that held the most memory',
     about: () => `Each dot is the most memory one case's runner held resident at once, with the
@@ -58,7 +58,7 @@ const METRICS = [
       time: 1 for a run on one core throughout. ${short}`,
   },
   {
-    key: 'speedup', label: 'speedup on every core', text: (x) => (x == null ? '–' : `${ratioText(x)}×`),
+    key: 'speedup', label: 'speedup on every core', text: speedupText,
     tick: (x) => `${x}×`, floor: 0.1, additive: false, compare: false, least: 'least',
     most: 'most', top: 'The runs that more cores sped up most',
     about: () => `Each dot is how many times faster one case ran free on every core than pinned to
@@ -71,13 +71,9 @@ const WHICH = [
   ['solved', 'the cases it passes or builds'],
 ];
 
-function quantile(sorted, q) {
-  return sorted.length ? sorted[Math.max(0, Math.ceil(q * sorted.length) - 1)] : null;
-}
-
 function start(b) {
   // only the measures some kernel's runs have
-  const metrics = METRICS.filter((m) => b.ran.some((k) => k[m.key] && k[m.key].some((x) => x != null)));
+  const metrics = METRICS.filter((m) => b.ran.some((k) => k[m.key].some((x) => x != null)));
   if (!metrics.length) {
     main.innerHTML = '<p class=muted>No kernel has measured runs yet.</p>';
     return;
@@ -90,8 +86,6 @@ function start(b) {
     start: params.get('start') === 'counted' ? 'counted' : '',
     cat: b.categories.some((c) => c.name === params.get('cat')) ? params.get('cat') : '',
   };
-  const option = (value, label, chosen) =>
-    `<option value='${esc(value)}'${value === chosen ? ' selected' : ''}>${esc(label)}</option>`;
   main.innerHTML = `
     <div class=controls>
       <select name=metric aria-label='Measure'${metrics.length > 1 ? '' : ' hidden'}>
@@ -111,9 +105,15 @@ function start(b) {
   const figures = main.querySelector('#figures');
   const tip = main.querySelector('.tip');
 
-  // the strip is drawn to the page's width, and again when that changes
+  // the strip is drawn to the page's width, and again when that changes (not its height, which
+  // each drawing changes)
   let redraw = null;
-  new ResizeObserver(() => redraw && redraw()).observe(figures);
+  let width = null;
+  new ResizeObserver(([entry]) => {
+    if (entry.contentRect.width === width) return;
+    width = entry.contentRect.width;
+    if (redraw) redraw();
+  }).observe(figures);
 
   function address() {
     const p = new URLSearchParams();
@@ -134,22 +134,22 @@ function start(b) {
     main.querySelector('select[name=start]').hidden = !state.metric.raw;
     const indices = state.cat ? b.categories.find((c) => c.name === state.cat).cases
       : b.cases.map((c) => c.i);
-    const value = (k, i) => (k[m.key] ? k[m.key][i] : null);
-    // each kernel's cases in the filter that it ran and has a measure of
-    const rows = b.ran.map((k) => {
-      const at = indices.filter((i) => k.outcomes[i] !== 'missing' && value(k, i) != null &&
+    // each kernel's cases in the filter that it has a measure of; the kernels with none at all
+    // made their last runs before the harness measured this
+    const measured = (k) => k[m.key].some((x) => x != null);
+    const rows = b.ran.filter(measured).map((k) => {
+      const at = indices.filter((i) => k[m.key][i] != null &&
                                        (!state.which || solved(k.outcomes[i])));
-      const sorted = at.map((i) => value(k, i)).sort((x, y) => x - y);
+      const sorted = at.map((i) => k[m.key][i]).sort((x, y) => x - y);
       return { k, at, sorted };
-    }).filter((r) => r.k[m.key].some((x) => x != null));
-    // the kernels whose last runs were made before the harness measured this
-    const unmeasured = b.ran.filter((k) => !k[m.key].some((x) => x != null));
+    });
+    const unmeasured = b.ran.filter((k) => !measured(k));
     const some = rows.some((r) => r.at.length);
     figures.innerHTML = some ? `
       <h2>By kernel</h2>
       <p class=muted>${m.about} The scale is logarithmic; the bar is the kernel's median. Point at
         a dot for its case, or open it.</p>
-      <p class=legend><span class=key><span class=dot style='background:var(--m-pass)'></span>
+      <p class=legend><span class=key><span class='pass dot'></span>
         passed or built</span><span class=key><span class=dot style='background:var(--muted)'>
         </span>refused, wrong, crashed or timed out</span><span class=key><span class=tick></span>
         median</span></p>
@@ -159,7 +159,7 @@ function start(b) {
         .join(', ')}, whose last runs were made before the harness measured their
         ${esc(m.label)}.</p>` : ''}
       ${m.compare && rows.length > 1
-        ? `<h2>Kernel against kernel</h2>${versus(b, rows, indices, m)}` : ''}
+        ? `<h2>Kernel against kernel</h2>${versus(rows, indices, m)}` : ''}
       <h2>By category</h2>
       ${byCategory(b, rows, m)}
       <h2>${esc(m.top)}</h2>
@@ -226,6 +226,20 @@ function logTicks(lo, hi) {
   return out;
 }
 
+// How far in from the left a strip's axis starts: past the widest kernel name, as drawn.
+function labelWidth(names) {
+  const measure = document.createElement('canvas').getContext('2d');
+  measure.font = '13px system-ui, sans-serif';
+  return Math.ceil(Math.max(...names.map((n) => measure.measureText(n).width))) + 14;
+}
+
+// A logarithmic axis's grid lines, from `top` down to its labels at the foot of `height`.
+function grid(lo, hi, x, top, height, tick) {
+  return logTicks(lo, hi).flatMap((v) => [
+    `<line class=grid x1=${x(v)} x2=${x(v)} y1=${top} y2=${height - 22} />`,
+    `<text class=axis x=${x(v)} y=${height - 6} text-anchor=middle>${tick(v)}</text>`]);
+}
+
 // Every case a dot, a row a kernel, on one logarithmic axis that does not move with the filters.
 function strip(b, rows, m, holder, tip) {
   const all = [];
@@ -234,9 +248,7 @@ function strip(b, rows, m, holder, tip) {
   const lo = Math.log10(Math.min(...all)) - 0.08;
   const hi = Math.max(lo + 0.5, Math.log10(Math.max(...all)) + 0.08);
   const width = Math.max(holder.clientWidth, 360);
-  const measure = document.createElement('canvas').getContext('2d');
-  measure.font = '13px system-ui, sans-serif';
-  const left = Math.ceil(Math.max(...rows.map((r) => measure.measureText(r.k.name).width))) + 14;
+  const left = labelWidth(rows.map((r) => r.k.name));
   const right = 16;
   const rowHeight = 34;
   const top = 4;
@@ -245,12 +257,7 @@ function strip(b, rows, m, holder, tip) {
   // a dot's place across its row: the same for a case in every row, so a case lines up
   const jitter = (i) => ((Math.imul(i + 1, 2654435761) >>> 0) / 2 ** 32) * 2 - 1;
   const dots = [];
-  const out = [];
-  for (const v of logTicks(lo, hi)) {
-    const at = x(v);
-    out.push(`<line class=grid x1=${at} x2=${at} y1=${top} y2=${height - 22} />`,
-             `<text class=axis x=${at} y=${height - 6} text-anchor=middle>${m.tick(v)}</text>`);
-  }
+  const out = grid(lo, hi, x, top, height, m.tick);
   rows.forEach(({ k, at, sorted }, r) => {
     const mid = top + r * rowHeight + rowHeight / 2;
     out.push(`<a href='${kernelPage(k.name)}'><text class=name x=${left - 10} y=${mid}
@@ -310,10 +317,7 @@ function strip(b, rows, m, holder, tip) {
       esc(hit.k.outcomes[hit.i])}</span><div>${esc(c.title)}</div><span class=muted>${
       esc(c.id)}</span>`;
     tip.hidden = false;
-    const pad = 14;
-    tip.style.left = `${Math.min(event.clientX + pad, innerWidth - tip.offsetWidth - 8)}px`;
-    tip.style.top = `${event.clientY + pad + tip.offsetHeight > innerHeight
-      ? event.clientY - tip.offsetHeight - pad : event.clientY + pad}px`;
+    placeTip(tip, event);
   });
   svg.addEventListener('pointerleave', () => {
     ring.setAttribute('visibility', 'hidden');
@@ -342,7 +346,7 @@ function diverging(t) {
 // Each kernel against each other, over the cases both pass or build: the geometric mean of the
 // row kernel's measure over the column kernel's.  Comparing on the same cases is what makes the
 // numbers comparable at all: each kernel passes different ones.
-function versus(b, rows, indices, m) {
+function versus(rows, indices, m) {
   const ks = rows.map((r) => r.k);
   const cells = ks.map((a) => ks.map((c) => {
     if (a === c) return '<td class="muted empty">·</td>';
@@ -460,7 +464,7 @@ function multicore(b, indices, which) {
       ${rows.map((r) => `<tr><td><a href='${kernelPage(r.k.name)}'>${esc(r.k.name)}</a></td>
         ${num(r.cores, String)}<td class=num>${r.at.length}</td>${num(r.busy, ratioText)}
         ${num(r.median, ratioText)}${num(r.most, ratioText)}${anySpeedup
-          ? `<td class=num>${r.both.length}</td>${num(r.speedup, (x) => `${ratioText(x)}×`)}
+          ? `<td class=num>${r.both.length}</td>${num(r.speedup, speedupText)}
              ${num(r.speedup != null && r.cores ? r.speedup / r.cores : null,
                    (x) => `${Math.round(100 * x)}%`)}` : ''}</tr>`).join('')}</table></div>`;
 }
@@ -474,20 +478,13 @@ function sizes(b) {
   const mb = (k) => k.binary.bytes / 1e6;
   const lo = Math.log10(Math.min(...rows.map(mb))) - 0.15;
   const hi = Math.max(lo + 1, Math.log10(Math.max(...rows.map(mb))) + 0.15);
-  const measure = document.createElement('canvas').getContext('2d');
-  measure.font = '13px system-ui, sans-serif';
-  const left = Math.ceil(Math.max(...rows.map((k) => measure.measureText(k.name).width))) + 14;
+  const left = labelWidth(rows.map((k) => k.name));
   const width = 720;
   const right = 90;
   const rowHeight = 28;
   const height = rows.length * rowHeight + 26;
   const x = (v) => left + (Math.log10(v) - lo) / (hi - lo) * (width - left - right);
-  const out = [];
-  for (const v of logTicks(lo, hi)) {
-    out.push(`<line class=grid x1=${x(v)} x2=${x(v)} y1=0 y2=${height - 22} />`,
-             `<text class=axis x=${x(v)} y=${height - 6} text-anchor=middle>${
-               v < 1000 ? `${v} MB` : `${v / 1000} GB`}</text>`);
-  }
+  const out = grid(lo, hi, x, 0, height, mbTick);
   rows.forEach((k, r) => {
     const mid = r * rowHeight + rowHeight / 2;
     out.push(`<text class=name x=${left - 10} y=${mid} text-anchor=end

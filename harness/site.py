@@ -146,32 +146,25 @@ def board(registry, results, cases, drawings):
             if r.get("host"):
                 k["host"] = r["host"]
             if r.get("binary"):
-                # each a path or pattern, or a Python distribution's name ({"distribution"})
-                k["binary"] = {**r["binary"], "of": [
-                    {"distribution": e["distribution"]} if isinstance(e, dict) else e
-                    for e in a.get("binary") or []]}
+                k["binary"] = r["binary"]
             start = r.get("startup")
             if start:
-                k["startup"] = {key: start.get(field) for key, field in (
-                    ("seconds", "seconds"), ("cpu", "cpu_seconds"), ("mb", "peak_mb"),
-                    ("one", "one_core_seconds"))}
+                k["startup"] = {key: start.get(field) for key, field in COSTS.items()}
             codes, why, worked = [], [], []
-            # what each run cost: the board's list, and the row's field it is read from
-            costs = {"seconds": "seconds", "cpu": "cpu_seconds", "mb": "peak_mb",
-                     "one": "one_core_seconds"}
-            spent = {key: [] for key in costs}
+            spent = {key: [] for key in COSTS}
             for cid in ids:
                 row = r["rows"].get(cid)
                 if row is None:
                     codes.append(CODES["missing"])
-                    for key in costs:
+                    for key in COSTS:
                         spent[key].append(None)
                     why.append(-1)
                     worked.append(-1)
                     continue
                 codes.append(CODES[row["outcome"]])
-                for key, field in costs.items():
-                    spent[key].append(row.get(field))
+                # a missing case has no run, whatever an older row says of its time
+                for key, field in COSTS.items():
+                    spent[key].append(None if row["outcome"] == "missing" else row.get(field))
                 why.append(intern("reasons", row.get("why")))
                 worked.append(intern("workarounds", r["workarounds"].get(cid)))
             out[name] = {"codes": "".join(codes), **spent, "why": why, "workaround": worked}
@@ -191,9 +184,18 @@ def board(registry, results, cases, drawings):
     }
 
 
+# what a run cost: each measure's name on the board, and the field of a result's row it is read from
+COSTS = {"seconds": "seconds", "cpu": "cpu_seconds", "mb": "peak_mb", "one": "one_core_seconds"}
+
+
 def cost(x, unit):
     """A run's measure for a table cell, or a dash where it was not measured."""
     return "<span class=muted>–</span>" if x is None else f"{x:g}{unit}"
+
+
+def spent(en, field, unit):
+    """An entry's measure of its run for the case page, or nothing where it has not run."""
+    return "" if en["outcome"] == "missing" else cost(en["row"].get(field), unit)
 
 
 def relative(got, want):
@@ -315,12 +317,11 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
              else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0)),
             ("<th scope=row title='relative error'>area err.</th>" if exp
              else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1)),
-            ("<th scope=row>time</th>", "td", None,
-             lambda en: f"{en['row']['seconds']} s" if en["row"] else ""),
+            ("<th scope=row>time</th>", "td", None, lambda en: spent(en, "seconds", " s")),
             ("<th scope=row title='user and system time, over every thread'>CPU time</th>", "td",
-             None, lambda en: cost(en["row"].get("cpu_seconds"), " s") if en["row"] else ""),
+             None, lambda en: spent(en, "cpu_seconds", " s")),
             ("<th scope=row title='the most memory the runner held resident at once'>memory</th>",
-             "td", None, lambda en: cost(en["row"].get("peak_mb"), " MB") if en["row"] else ""),
+             "td", None, lambda en: spent(en, "peak_mb", " MB")),
             ("<th scope=row title='lines of code, comments and blank lines left out'>LOC</th>",
              "td", None, lambda en: "" if en["loc"] is None else str(en["loc"])),
         ]
@@ -407,8 +408,8 @@ def entry(en, exp):
         out.append(f"<div class='muted nomesh'>{e(name)} left no triangles to show.</div>")
 
     out.append("<h3>Time</h3>")
-    out.append(f"<p>{row['seconds']} s; CPU time {cost(row.get('cpu_seconds'), ' s')}; peak "
-               f"memory {cost(row.get('peak_mb'), ' MB')}</p>" if row
+    out.append(f"<p>{spent(en, 'seconds', ' s')}; CPU time {spent(en, 'cpu_seconds', ' s')}; "
+               f"peak memory {spent(en, 'peak_mb', ' MB')}</p>" if o != "missing"
                else "<p class=muted>It has not run.</p>")
 
     out.append("<h3>Notes</h3>")
