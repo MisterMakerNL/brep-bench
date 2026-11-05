@@ -20,7 +20,9 @@ export const groupOf = (outcome) => GROUP[outcome];
 export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => (
   { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-export const casePage = (id) => `cases/${id}.html`;
+// a case's page, showing `kernel`'s entry if one is named
+export const casePage = (id, kernel) => `cases/${id}.html${
+  kernel ? `#k=${encodeURIComponent(kernel)}` : ''}`;
 export const thumbOf = (id) => `drawings/${id}/iso.png`;
 export const kernelPage = (name) => `kernel.html?k=${encodeURIComponent(name)}`;
 export const categoryOf = (id) => id.slice(0, id.lastIndexOf('/'));

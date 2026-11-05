@@ -15,10 +15,13 @@ kernel above another and lists them in the order of `kernels.json`. It has:
   answers, crashes and timeouts, its workarounds grouped by the missing feature, and its times.
 - **A page for each case:** the description; its expected volume and area with their closed
   forms (or, for an unsettled case, a note that it has none yet); a drawing of the expected solid
-  (three views and an isometric); a table of every kernel's outcome, its error or measures, which
-  other kernels it agrees with, its time and why it failed; a 3D viewer of every kernel's result,
-  with any open edges of its mesh marked in red; each result's STL to download; and every kernel's
-  code for it, side by side.
+  (three views and an isometric); a table of every kernel's entry at a glance, a column each (its
+  outcome, its errors or measures and its time); and the entry picked, by a click on that table or
+  on the buttons under it: its result in a 3D viewer, with any open edges of its mesh marked in red;
+  its time; its notes (why it failed, what it works around); its data (its measures against the
+  expected ones, which other kernels it agrees with, its faces, its mesh and its STL to download);
+  and its code. `#k=NAME` in the address picks a kernel's entry, as the explorer's and the kernel
+  pages' links do.
 - **`board.json`:** every outcome of every case in one file, which the pages read.
 
 The pages are built by `harness/site.py` from `harness/web/`; see [running the bench](running.md).

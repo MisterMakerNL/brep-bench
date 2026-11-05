@@ -52,7 +52,7 @@ function draw(b) {
           `<td class=num>${counted(o, ct[o], { cat: c.name })}</td>`).join('')}</tr>`;
     }).join('')}</table></div>`;
 
-  const link = (i) => `<a href='${casePage(b.cases[i].id)}'>${esc(b.cases[i].title)}</a>
+  const link = (i) => `<a href='${casePage(b.cases[i].id, k.name)}'>${esc(b.cases[i].title)}</a>
     <small class=muted>${esc(b.cases[i].id)}</small>`;
   const all = b.cases.map((c) => c.i);
 

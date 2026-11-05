@@ -197,7 +197,7 @@ function strip(b, canvas, tip) {
   canvas.addEventListener('mouseleave', () => { tip.hidden = true; });
   canvas.addEventListener('click', (event) => {
     const h = hit(event);
-    if (h) location.href = casePage(b.cases[h.i].id);
+    if (h) location.href = casePage(b.cases[h.i].id, ran[h.row].name);
   });
   new ResizeObserver(paint).observe(canvas);
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint);
