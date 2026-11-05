@@ -3,8 +3,9 @@
 //! turned about the axis through (14, 0, 0) along (0, cos h, −sin h), h = atan(2π·4.5 / 30) —
 //! screwed about z, rising 30 a turn, from a turn of −144° to +384°.
 //!
-//! Refused. cad-kernel sweeps a solid (`swept::closed`) only where it is polyhedral and slides or
-//! turns, and this tool is curved and screws. What it offers, and why none of it builds this:
+//! Refused. cad-kernel sweeps a solid (`swept::closed`) only where it is polyhedral and slides,
+//! turns or screws, and this tool is curved and screws. What it offers, and why none of it builds
+//! this:
 //!
 //! - `build::canal` sweeps only a ball along a screw; the wheel is a ring of two cones and a
 //!   cylinder.
@@ -17,9 +18,9 @@
 use cad_kernel::topo::Brep;
 
 pub fn build() -> Result<Brep, String> {
-    Err("cad-kernel sweeps a solid (`swept::closed`) only where it is polyhedral and slides or \
-         turns; its canal screws only a ball, and the V groove's flanks are the envelope of the \
-         wheel's conical flanks under the screw (the section a face family could screw along z is \
-         bounded by their characteristic curves), which it cannot build"
+    Err("cad-kernel sweeps a solid (`swept::closed`) only where it is polyhedral and slides, turns \
+         or screws; its canal screws only a ball, and the V groove's flanks are the envelope of \
+         the wheel's conical flanks under the screw (the section a face family could screw along z \
+         is bounded by their characteristic curves), which it cannot build"
         .into())
 }
