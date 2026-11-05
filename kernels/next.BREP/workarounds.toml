@@ -1,6 +1,19 @@
 # The cases next.BREP builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
 
+"draft/boss-on-plate" = "no draft (a drafted extrusion of the boss)"
+"draft/box-about-its-middle" = "no draft (each side turned about its neutral line)"
+"draft/box-cross-drilled" = "no draft (each face turned about its neutral line)"
+"draft/box-four-sides" = "no draft (each side turned about its neutral line)"
+"draft/box-one-side" = "no draft (the side turned about its neutral line)"
+"draft/box-outward" = "no draft (each side turned about its neutral line)"
+"draft/box-top-drafted-away" = "no draft (the box cut by the drafted planes)"
+"draft/cylinder-parted-both-ways" = "no draft (two drafted extrusions from the parting line)"
+"draft/hole-tapered" = "no draft (the hole cut by a drafted extrusion)"
+"draft/l-block-sides" = "no draft (each side turned about its neutral line)"
+"draft/pocket-walls" = "no draft (each wall turned about its neutral line)"
+"draft/rounded-box-sides" = "no draft (a drafted extrusion of the rounded floor)"
+"draft/rounded-pocket-walls" = "no draft (the pocket cut by a drafted extrusion)"
 "geometry/ellipsoid" = "no ellipsoid"
 "geometry/ellipsoid-half" = "no ellipsoid"
 "geometry/elliptic-cylinder" = "no ellipse"
