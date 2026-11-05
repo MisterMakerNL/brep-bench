@@ -41,3 +41,7 @@
 "tangent/viviani-common" = "no sphere primitive"
 "tangent/viviani-cut" = "no sphere primitive"
 "tangent/viviani-union" = "no sphere primitive"
+"chamfer/cube-all-edges" = "no corner face for chamfers"
+"chamfer/octahedron-all-edges" = "no corner face for chamfers"
+"feature/post-up-to-dome" = "no sphere primitive"
+"fillet/ball-and-post" = "no sphere primitive"
