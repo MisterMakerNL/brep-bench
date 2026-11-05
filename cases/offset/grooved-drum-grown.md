@@ -13,7 +13,7 @@ exact = "2π(2·50 + 2(5π + 1) + 11(10 − 2a) + 2(10 asin a + a)), a = 0.8"
 tex = '2\pi\left(2\cdot 50 + 2(5\pi + 1) + 11(10 - 2a) + 2(10\arcsin a + a)\right),\quad a = 0.8'
 +++
 
-A drum: the cylinder of radius 10 on the z axis from z = 0 to z = 10, with a groove round its side
+A drum: the cylinder of radius 10 on the z axis from z = 0 to z = 10, with a groove around its side
 from z = 4.2 to z = 5.8, 1.6 wide, cut 3 deep (to radius 7). Grow it by 1: the solid of every
 point within 1 of the grooved drum.
 

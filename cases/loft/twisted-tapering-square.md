@@ -18,13 +18,13 @@ small one at its top, turning half a turn on the way, its four corners running a
 guides.
 
 The solid runs from z = 0 to z = 40. Its section at every height z is a square in the plane at
-that height, centred on the z axis, of side 30 − z/2, and turned about the z axis, right-handed
-(from +x towards +y), by 4.5° for every unit of height. So it begins as the square
+that height, centered on the z axis, of side 30 − z/2, and turned about the z axis, right-handed
+(from +x toward +y), by 4.5° for every unit of height. So it begins as the square
 −15 ≤ x ≤ 15, −15 ≤ y ≤ 15 at z = 0; at z = 10 it is 25 across and has turned 45°, its corners on
 the axes; and it ends at z = 40 as the square −5 ≤ x ≤ 5, −5 ≤ y ≤ 5, having turned 180°.
 
 Each corner of the square runs along a conical spiral, the four guides: the corner that starts at
 (15, 15, 0) is, at height z, (15 − z/4)√2 from the z axis, at 45° + 4.5°·z from the +x direction.
 Each of the four walls is swept by one side of the square, a straight horizontal segment between
-two neighbouring guides, so the walls are twisted ruled surfaces. The ends are flat: the square of
+two neighboring guides, so the walls are twisted ruled surfaces. The ends are flat: the square of
 side 30 at z = 0 and the square of side 10 at z = 40.

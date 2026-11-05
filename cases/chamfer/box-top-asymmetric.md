@@ -19,7 +19,7 @@ of the edge at y = 10, z = 6 is the plane through the lines y = 9, z = 6 and y =
 the other three likewise.
 
 The solid is the box cut by those four planes. Its top face is the rectangle from (1, 1, 6) to
-(19, 9, 6); its four vertical edges end at z = 4, and the chamfers of two neighbouring edges meet
+(19, 9, 6); its four vertical edges end at z = 4, and the chamfers of two neighboring edges meet
 along a slanting line from the box's corner at z = 4 to the top face's corner, from (20, 10, 4)
 to (19, 9, 6) and so on. Each chamfer face is a trapezoid; four faces meet at each of the points
 such as (20, 10, 4).

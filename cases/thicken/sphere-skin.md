@@ -14,8 +14,8 @@ tex = '4\pi\left((R + t)^2 + R^2\right)'
 +++
 
 A sheet with no boundary: the sphere of radius 5 about the origin as a surface alone, one closed
-face with no solid inside it. Thicken it by 1 outward, away from its centre.
+face with no solid inside it. Thicken it by 1 outward, away from its center.
 
 The thickened sheet is the hollow ball between the spheres of radius 5 and 6 about the origin. Its
 boundary is two closed shells: the sphere of radius 6 outside, and the sphere of radius 5, which
-bounds the void at its middle and faces inward, toward the centre.
+bounds the void at its middle and faces inward, toward the center.

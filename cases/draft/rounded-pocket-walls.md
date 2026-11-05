@@ -28,4 +28,4 @@ meet the drafted walls.
 
 The result is the block less the pocket, whose section at height z is its floor's outline, the
 rounded rectangle, moved (z − 5)·tan 5° outward: its straight sides outset by that and its
-corners' radii 4 + (z − 5)·tan 5° about the same centres.
+corners' radii 4 + (z − 5)·tan 5° about the same centers.

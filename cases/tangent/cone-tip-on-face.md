@@ -14,7 +14,7 @@ tex = '1600 - \pi a^2 + \pi(a + b)\sqrt{5^2 + (b - a)^2} + \pi b^2 = 1600 + \tfr
 +++
 
 A block from (−10, −10, 0) to (10, 10, 10), united with a solid cone on the z axis whose apex is
-at the origin, the middle of the block's bottom face, and whose flat base is the disc of radius 5
+at the origin, the middle of the block's bottom face, and whose flat base is the disk of radius 5
 in the plane z = 15.
 
 The cone's tip touches the block's bottom face from inside, at a single point. Below z = 10 the

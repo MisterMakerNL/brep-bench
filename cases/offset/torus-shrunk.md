@@ -13,7 +13,7 @@ exact = "4π²R(r − d)"
 tex = '4\pi^2 R (r - d)'
 +++
 
-A solid torus about the z axis, centred on the origin, whose tube has radius 3 about a middle
+A solid torus about the z axis, centered on the origin, whose tube has radius 3 about a middle
 circle of radius 10. Shrink it by 1.5: the solid of every point at least 1.5 from the torus's
 outside.
 

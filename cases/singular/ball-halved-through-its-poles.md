@@ -13,8 +13,8 @@ exact = "2πR² + πR² = 3πR², R = 5"
 tex = '2\pi R^2 + \pi R^2 = 3\pi R^2,\quad R = 5'
 +++
 
-A ball of radius 5 centred on the origin, with everything on the side x < 0 of the yz plane cut
-away. What is left is the half ball on the side of +x: half the sphere and the disc of radius 5
+A ball of radius 5 centered on the origin, with everything on the side x < 0 of the yz plane cut
+away. What is left is the half ball on the side of +x: half the sphere and the disk of radius 5
 in the yz plane.
 
 This case is about a cut through a sphere's poles. If the ball you make has poles, put them on

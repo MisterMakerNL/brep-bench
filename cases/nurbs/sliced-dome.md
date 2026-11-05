@@ -35,5 +35,5 @@ meets the sides x = 0 and y = 0: the dome's height there is 4, its control point
 corner the line where the plane meets the dome runs out across the top, leaving the corner along
 (3, 2) in plan, to the side y = 20, which it reaches near x = 4.23. On the side x = 0 the plane
 cuts the side down to the rectangle 0 ≤ z ≤ 4, touching the dome's edge there only at the
-corner. Beyond the line, towards larger x, the dome lies below the plane and is kept; between
+corner. Beyond the line, toward larger x, the dome lies below the plane and is kept; between
 the line and the side x = 0 the top is the flat cut.

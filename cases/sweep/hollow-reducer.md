@@ -16,8 +16,8 @@ tex = '\left(24^2 - 20^2\right) + \left(12^2 - 8^2\right) + 4\left(\tfrac{24 + 1
 
 A hollow square tube that tapers along the y axis, from y = 0 to y = 40.
 
-Its sections are squares centred on the y axis, with sides parallel to the x and z axes, each with
-a square hole at its centre leaving a wall 2 thick. At y = 0 the outside is 24 × 24 (x and z from
+Its sections are squares centered on the y axis, with sides parallel to the x and z axes, each with
+a square hole at its center leaving a wall 2 thick. At y = 0 the outside is 24 × 24 (x and z from
 −12 to 12) and the hole 20 × 20; at y = 40 the outside is 12 × 12 and the hole 8 × 8. In
 between, the sizes run linearly with y, so each corner, outside and in, runs in a straight line
 from one end to the other and the eight long faces are flat trapezoids. The two ends are flat.

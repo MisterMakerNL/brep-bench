@@ -13,7 +13,7 @@ exact = "πr√(r² + h²)/2 + πr²/2 + rh: half the side, half the base, and t
 tex = '\tfrac{\pi r\sqrt{r^2 + h^2}}{2} + \tfrac{\pi r^2}{2} + r h,\quad r = 5,\ h = 10'
 +++
 
-A solid cone on the z axis: its base the disc of radius 5 in the xy plane centred on the origin,
+A solid cone on the z axis: its base the disk of radius 5 in the xy plane centered on the origin,
 its apex at (0, 0, 10). Cut away everything on the side x < 0 of the yz plane. What is left is
 the half cone on the side of +x: half its side, half its base, and the triangle with corners
 (0, −5, 0), (0, 5, 0) and (0, 0, 10) where it was cut.

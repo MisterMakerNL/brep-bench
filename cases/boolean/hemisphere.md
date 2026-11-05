@@ -13,4 +13,4 @@ exact = "2πr² + πr²"
 tex = '2\pi r^2 + \pi r^2'
 +++
 
-A ball of radius 5 centred on the origin, with everything below the xy plane cut away.
+A ball of radius 5 centered on the origin, with everything below the xy plane cut away.

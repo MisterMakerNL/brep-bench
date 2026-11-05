@@ -17,11 +17,11 @@ tex = '\begin{array}{l} 2\pi\left(12^2 - 6^2\right) + 2\cdot 2\pi\cdot 12\cdot 5
 A pulley turned about the z axis, symmetric about the plane z = 0:
 
 - a hub, a cylinder of radius 12 from z = −14 to z = 14;
-- a rim, a disc of radius 28 from z = −9 to z = 9, so the hub stands 5 proud of the rim on each
+- a rim, a disk of radius 28 from z = −9 to z = 9, so the hub stands 5 proud of the rim on each
   side;
 - a bore of radius 6 on the z axis, right through, from z = −14 to z = 14.
 
-A V-shaped belt groove runs all the way round the rim. In the xz plane (the first number is x and
+A V-shaped belt groove runs all the way around the rim. In the xz plane (the first number is x and
 the second z) the groove is the part of the triangle with corners (22, 0), (29, −5) and (29, 5)
 that lies inside the pulley, turned a full turn about the z axis and taken away. So the groove's
 root is the circle of radius 22 at z = 0, 6 deep below the rim's face, and its two flanks are cones

@@ -18,6 +18,6 @@ radius 3: the rectangle with its corners rounded to radius 3, extruded 5 up the 
 rim of its top face to radius 1.
 
 The rim is eight edges, four straight and four quarter circles, each running on tangent into the
-next, and the round runs round all eight unbroken: along the straight edges it is a quarter of a
-cylinder of radius 1, and round the corners a quarter of the section of a torus, whose tube runs
-round the corner's axis at radius 2. Nowhere do three edges meet, and nowhere does the round end.
+next, and the round runs around all eight unbroken: along the straight edges it is a quarter of a
+cylinder of radius 1, and around the corners a quarter of the section of a torus, whose tube runs
+around the corner's axis at radius 2. Nowhere do three edges meet, and nowhere does the round end.

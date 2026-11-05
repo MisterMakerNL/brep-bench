@@ -13,18 +13,18 @@ exact = "2πR² + 8R² = 200π + 800: the sphere outside the cylinder, 4πR² �
 tex = '\left(4\pi R^2 - 2R^2(\pi - 2)\right) + 4R^2 = 2\pi R^2 + 8R^2 = 200\pi + 800,\quad R = 10'
 +++
 
-A ball of radius 10 centred on the origin, bored by a solid cylinder of radius 5 whose axis is the
+A ball of radius 10 centered on the origin, bored by a solid cylinder of radius 5 whose axis is the
 line x = 5, y = 0, parallel to the z axis, running from z = −12 to z = 12. Cut the cylinder from
 the ball.
 
-The cylinder's radius is half the ball's and its wall passes through the ball's centre, so it
+The cylinder's radius is half the ball's and its wall passes through the ball's center, so it
 touches the ball's sphere from inside at one point, (10, 0, 0), where the two surfaces are
 tangent. The hole runs through the ball from top to bottom, and at z = 0 it reaches the sphere at
 that point: there the ball's section is a crescent whose horns close on it.
 
 The sphere and the wall meet in Viviani's curve, (10 cos²t, 10 cos t sin t, 10 sin t): a figure
 eight on the sphere that crosses itself at (10, 0, 0), and passes through (0, 0, 10) and
-(0, 0, −10). Round the crossing point what is left is two slivers, one towards +y and one towards
+(0, 0, −10). Around the crossing point what is left is two slivers, one toward +y and one toward
 −y, each between the wall and the sphere, thinning to nothing as they reach it; above and below
 it nothing is left. The result is one solid, pinched to that point: the slivers touch there and
 nowhere else, and its surface is not a manifold at that point.

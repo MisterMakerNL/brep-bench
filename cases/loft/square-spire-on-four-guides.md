@@ -17,7 +17,7 @@ A square spire, swelling and then closing to a point: a solid lofted from a squa
 a single point at its top, its shape set by four guide curves, its ridges.
 
 Every section of the solid at a height z from 0 to 24 is a square in the plane at that height,
-centred on the z axis, with its sides parallel to the x and y axes, and its four corners lie on
+centered on the z axis, with its sides parallel to the x and y axes, and its four corners lie on
 the four ridges. The ridge through the corner with x and y positive is the cubic Bézier curve with
 control points (9, 9, 0), (15, 15, 8), (12, 12, 19) and (0, 0, 24), in the vertical plane x = y;
 the other three are its mirror images in the xz plane, the yz plane and both (its control points
@@ -29,6 +29,6 @@ t = 1/3), and then narrows to nothing: the four ridges meet at the apex (0, 0, 2
 at a slant, so the spire comes to a sharp point.
 
 Each of the four walls is swept by one side of the square, a straight horizontal segment between
-two neighbouring ridges: the wall facing +x is made of the segments parallel to the y axis from
+two neighboring ridges: the wall facing +x is made of the segments parallel to the y axis from
 each point (g, −g, z) of one ridge to the point (g, g, z) of the other. The four walls meet only
 along the ridges and at the apex. The floor is flat.

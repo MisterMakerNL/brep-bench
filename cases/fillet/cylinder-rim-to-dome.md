@@ -16,7 +16,7 @@ tex = '\pi\cdot 5^2 + 2\pi\cdot 5\cdot 5 + 2\pi\cdot 5^2 = 125\pi'
 A cylinder of radius 5 on the z axis, from z = 0 to z = 10. Round the circular edge around its
 top face to radius 5, the cylinder's own radius.
 
-The ball rolling round the rim has its centre on the axis, at (0, 0, 5), so the top face shrinks
-to nothing and the round is a hemisphere of radius 5 centred there, tangent to the cylinder's
+The ball rolling around the rim has its center on the axis, at (0, 0, 5), so the top face shrinks
+to nothing and the round is a hemisphere of radius 5 centered there, tangent to the cylinder's
 side along the circle at z = 5. The solid is a cylinder from z = 0 to z = 5 under that dome, its
 top the point (0, 0, 10).

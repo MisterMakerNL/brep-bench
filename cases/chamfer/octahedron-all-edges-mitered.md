@@ -1,6 +1,6 @@
 +++
-title = "An octahedron with every edge chamfered, its corners mitred"
-tags = ["chamfer", "corner", "mitre"]
+title = "An octahedron with every edge chamfered, its corners mitered"
+tags = ["chamfer", "corner", "miter"]
 
 [volume]
 value = 981.3333333333334
@@ -19,7 +19,7 @@ x + y + z = 10. Chamfer all twelve of its edges, each with the same distance √
 faces, measured across the face square to the edge: the chamfer of the edge from (10, 0, 0) to
 (0, 10, 0) is the plane x + y = 8, through the two lines, one on each of its faces, at distance √6
 from the edge (on the face x + y + z = 10, the line z = 2). No face closes a corner: each chamfer
-runs on until it meets the others, so the four at each corner meet in a point, the corner mitred.
+runs on until it meets the others, so the four at each corner meet in a point, the corner mitered.
 
 The solid is the octahedron cut by the twelve chamfer planes, |x| + |y| ≤ 8, |y| + |z| ≤ 8 and
 |z| + |x| ≤ 8; `chamfer/octahedron-all-edges` is this solid cut again by a plane at each corner.

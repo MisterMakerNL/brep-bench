@@ -20,8 +20,8 @@ its axis raised to the line x = 0, z = 2. Make the solid common to both.
 The tops of both cylinders are at z = 5, so the second's surface touches the first's from inside
 at one point, (0, 0, 5), where the two surfaces are tangent; the second's bottom, at z = −1, is
 inside the first. The common part is the stretch of the second cylinder inside the first, from
-z = −1 up to z = 5, trimmed by the first's wall towards each end. The curves where the two walls
-meet cross each other at (0, 0, 5), and round that point the surface is four wedges,
-alternating: the first's wall towards +y and towards −y (two faces, one at each end of the
-piece) and the second's wall towards +x and towards −x (one face, a strip running round under
+z = −1 up to z = 5, trimmed by the first's wall toward each end. The curves where the two walls
+meet cross each other at (0, 0, 5), and around that point the surface is four wedges,
+alternating: the first's wall toward +y and toward −y (two faces, one at each end of the
+piece) and the second's wall toward +x and toward −x (one face, a strip running around under
 the piece from one side of the point to the other). The solid's surface is a manifold there.

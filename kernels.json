@@ -187,7 +187,7 @@
       "kernel": "https://github.com/yuechen-li-dev/Aetheris",
       "license": "AGPL-3.0",
       "backend": "C#",
-      "frontend": "Firmament (Aetheris's modelling language)",
+      "frontend": "Firmament (Aetheris's modeling language)",
       "build": [
         "python3",
         "kernels/aetheris/build.py"

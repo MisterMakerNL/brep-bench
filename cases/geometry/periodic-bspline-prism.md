@@ -23,5 +23,5 @@ it has no end: it is one smooth curve, continuous in its tangent everywhere, mad
 parabolic arcs, each running from the middle of one side to the middle of the next, (10, 0) to
 (0, 10) and so on, tangent to the sides there, with the square's corner as its control point.
 
-The prism's side is that curve swept straight up: a periodic B-spline surface, closed round on
+The prism's side is that curve swept straight up: a periodic B-spline surface, closed around on
 itself with no seam a kernel must place anywhere in particular. Its ends are flat.

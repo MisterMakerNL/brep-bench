@@ -13,4 +13,4 @@ exact = "4πr²"
 tex = '4\pi r^2'
 +++
 
-A solid ball of radius 5 centred on the origin.
+A solid ball of radius 5 centered on the origin.

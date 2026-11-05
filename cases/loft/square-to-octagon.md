@@ -17,15 +17,15 @@ A transition piece, as a sheet-metal hood is made, from a square at its foot to 
 top: a loft between two sections with different numbers of corners.
 
 The square is −20 ≤ x ≤ 20, −20 ≤ y ≤ 20 in the plane z = 0. The octagon lies in the plane
-z = 30, centred on the z axis: it is the square 28 × 28 with its corners cut off, its eight
+z = 30, centered on the z axis: it is the square 28 × 28 with its corners cut off, its eight
 corners (6, −14), (14, −6), (14, 6), (6, 14), (−6, 14), (−14, 6), (−14, −6) and (−6, −14). Its
 four sides facing ±x and ±y are 12 long, each parallel to a side of the square below it; its four
 cut sides are 8√2 long, each facing a corner of the square.
 
 Each side of the square is joined to the side of the octagon parallel to it by a flat trapezoid:
 the square's side from (−20, −20, 0) to (20, −20, 0) to the octagon's from (−6, −14, 30) to
-(6, −14, 30), and so on round. Each corner of the square is joined to the cut side of the octagon
+(6, −14, 30), and so on around. Each corner of the square is joined to the cut side of the octagon
 facing it by a flat triangle: the corner (20, −20, 0) to the side from (6, −14, 30) to
-(14, −6, 30), and so on round. So the loft pairs each of the square's four corners with a whole
+(14, −6, 30), and so on around. So the loft pairs each of the square's four corners with a whole
 side of the octagon, and its eight walls are flat: four trapezoids and four triangles, alternating
-round. The solid is the convex hull of the square and the octagon; its floor and top are flat.
+around. The solid is the convex hull of the square and the octagon; its floor and top are flat.

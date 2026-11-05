@@ -4,7 +4,7 @@ tags = ["fillet", "concave", "vanishing-face"]
 
 [volume]
 value = 615.1548999352503
-exact = "10·(10² − πr²/4), r = 7: the section is the 10 × 10 square less a quarter disc of radius 7"
+exact = "10·(10² − πr²/4), r = 7: the section is the 10 × 10 square less a quarter disk of radius 7"
 tex = '10\left(10^2 - \tfrac{\pi r^2}{4}\right),\quad r = 7'
 
 [area]
@@ -23,4 +23,4 @@ face z = 3 at x = 10 and the face x = 3 at z = 10, the far edges of both faces, 
 consumes both faces entirely: the round is a quarter of the cylinder of radius 7 on the line
 x = 10, z = 10, and it meets the faces x = 10 and z = 10 at right angles along the lines
 (10, y, 3) and (3, y, 10). The section becomes the square from (0, 0) to (10, 10) less the
-quarter disc of radius 7 centred at its corner (10, 10).
+quarter disk of radius 7 centered at its corner (10, 10).

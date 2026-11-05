@@ -16,7 +16,7 @@ tex = '\tfrac{32\pi}{3}\left(5\sqrt 5 - 1\right) + 64\pi'
 A solid paraboloid of revolution about the z axis, its vertex at the origin, filled up to the
 plane z = 8: every point with x² + y² ≤ 8z and z ≤ 8. Its curved side is the paraboloid
 x² + y² = 8z, of focal length 2, which is smooth at its vertex and widens to a circle of radius 8 at
-z = 8, where a flat disc closes it.
+z = 8, where a flat disk closes it.
 
 It is the parabola x² = 8z of the xz plane (from its vertex to x = 8) turned a whole turn about the
 z axis, which it meets at its vertex.

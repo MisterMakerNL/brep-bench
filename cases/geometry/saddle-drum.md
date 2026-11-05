@@ -4,12 +4,12 @@ tags = ["geometry", "nurbs", "bspline", "trimmed", "saddle", "boolean"]
 
 [volume]
 value = 2010.6192982974676
-exact = "∫∫(10 + xy/8) over the disc of radius 8 = 640π (xy integrates to 0)"
+exact = "∫∫(10 + xy/8) over the disk of radius 8 = 640π (xy integrates to 0)"
 tex = '\iint_{\rho \le 8}\left(10 + \tfrac{xy}{8}\right)dA = 640\pi'
 
 [area]
 value = 948.8014785737964
-exact = "the floor 64π + the side 2π·8·10 = 160π (the saddle's rise and fall cancel round it) + the top ∫∫√(1 + ρ²/64) dA = (128π/3)(2√2 − 1)"
+exact = "the floor 64π + the side 2π·8·10 = 160π (the saddle's rise and fall cancel around it) + the top ∫∫√(1 + ρ²/64) dA = (128π/3)(2√2 − 1)"
 tex = '64\pi + 160\pi + \tfrac{128\pi}{3}\left(2\sqrt 2 - 1\right)'
 +++
 

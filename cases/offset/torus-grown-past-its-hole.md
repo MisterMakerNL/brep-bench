@@ -13,7 +13,7 @@ exact = "2π(2Rs(π − φ) + 2sc)"
 tex = '2\pi\bigl(2Rs\,(\pi - \varphi) + 2sc\bigr)'
 +++
 
-A solid torus about the z axis, centred on the origin, whose tube has radius 2 about a middle
+A solid torus about the z axis, centered on the origin, whose tube has radius 2 about a middle
 circle of radius 4. Grow it by 3: the solid of every point within 3 of the torus.
 
 That is every point within 5 of the middle circle. The grown tube's radius, 5, is more than the
@@ -24,5 +24,5 @@ self-crossing torus of radius 5 about the circle of radius 4, which meets the z 
 (0, 0, 3) and (0, 0, −3) in two dimples, each a point where the face comes to the axis at an
 angle, as a cone does at its apex.
 
-Its section through the axis, on one side of it, is the disc of radius 5 about (4, 0) less the
-part of that disc beyond the axis.
+Its section through the axis, on one side of it, is the disk of radius 5 about (4, 0) less the
+part of that disk beyond the axis.

@@ -13,11 +13,11 @@ exact = "4πr²"
 tex = '4\pi r^2'
 +++
 
-A ball of radius 5 centred on the origin, its whole surface one rational B-spline surface (a
+A ball of radius 5 centered on the origin, its whole surface one rational B-spline surface (a
 NURBS), the standard biquadratic sphere: a 9 × 5 net whose first and last rows each collapse to a
 single point, a pole.
 
-The surface is the tensor product of two rational quadratic curves. Round the axis (u), the unit
+The surface is the tensor product of two rational quadratic curves. Around the axis (u), the unit
 circle of nine control points cᵢ = (1, 0), (1, 1), (0, 1), (−1, 1), (−1, 0), (−1, −1), (0, −1),
 (1, −1), (1, 0), with weights wᵢ = 1, √2/2, 1, √2/2, 1, √2/2, 1, √2/2, 1, on the knots
 (0, 0, 0, ¼, ¼, ½, ½, ¾, ¾, 1, 1, 1). Along the meridian (v), the semicircle from the south pole to

@@ -16,7 +16,7 @@ tex = 'ab + (a + 2tH)(b + 2tH) + \frac{2(a + b)H + 4tH^2}{\cos 5^\circ}'
 The box from the origin to (20, 12, 10). Draft its four sides by 5° the other way, with the
 pull direction +z and the neutral plane z = 0, the plane of its floor: each side turns about the
 line where it meets z = 0 until it leans 5° from the z direction, outward as it rises (a negative
-draft, as on the walls of a part that must come out of its mould downward). The floor and the top
+draft, as on the walls of a part that must come out of its mold downward). The floor and the top
 are not drafted; the top grows to meet the drafted sides.
 
 The result is an upside-down frustum of a rectangular pyramid, with six faces. Its floor is the

@@ -13,4 +13,4 @@ exact = "2·2πr(r − d/2)"
 tex = '2\cdot 2\pi r\left(r - \tfrac{d}{2}\right)'
 +++
 
-Two balls of radius 5, one centred on the origin and one at (6, 0, 0). Make the lens common to both.
+Two balls of radius 5, one centered on the origin and one at (6, 0, 0). Make the lens common to both.

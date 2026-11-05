@@ -26,5 +26,5 @@ sides.
 
 The result has ten faces. Its section at height z is the floor's outline, the rounded rectangle,
 moved z·tan 5° inward: its straight sides inset z·tan 5° and its corners' radii 4 − z·tan 5°
-about the same centres. At the top they are inset 10·tan 5° ≈ 0.875, the corners of radius
+about the same centers. At the top they are inset 10·tan 5° ≈ 0.875, the corners of radius
 about 3.125.

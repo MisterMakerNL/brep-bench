@@ -23,4 +23,4 @@ about the corner that lies between those.
 
 The thickened sheet is the slabs 1 thick outside the floor and the walls, the eight quarter
 cylinders, each 10 long, and the four eighth balls. Its rim at z = 10 is flat: the four walls'
-strips 10 by 1 and, at each upright edge's top, a quarter disc of radius 1.
+strips 10 by 1 and, at each upright edge's top, a quarter disk of radius 1.

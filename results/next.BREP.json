@@ -504,7 +504,7 @@
    }
   },
   {
-   "case": "chamfer/cube-all-edges-mitred",
+   "case": "chamfer/cube-all-edges-mitered",
    "outcome": "pass",
    "why": "",
    "seconds": 0.258,
@@ -575,7 +575,7 @@
    }
   },
   {
-   "case": "chamfer/octahedron-all-edges-mitred",
+   "case": "chamfer/octahedron-all-edges-mitered",
    "outcome": "wrong",
    "why": "volume 984.000000000001 against 981.333333333; area 529.4584661468447 against 518.144757648",
    "seconds": 0.399,
@@ -3523,7 +3523,7 @@
    }
   },
   {
-   "case": "thicken/hemisphere-to-its-centre",
+   "case": "thicken/hemisphere-to-its-center",
    "outcome": "refused",
    "why": "thickenSheet: offset by -5.000000 self-intersects \u2014 inside the selected trim the sheet's concave curvature radius 5.000000 at (u=0.960938, v=0.978516) \u2014 3D (0.148800, -0.034926, 4.997663) is not larger than the offset distance (fold factor -2.281e-8)",
    "seconds": 0.005,

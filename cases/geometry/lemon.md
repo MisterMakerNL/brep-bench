@@ -14,7 +14,7 @@ tex = '20\pi\left(4 - 3\theta\right),\quad \theta = \arccos\tfrac35'
 +++
 
 The inner part of a spindle torus: a lemon, pointed at both ends. In the xz plane take the circle
-of radius 5 centred at (−3, 0, 0), and the part of its disc with x ≥ 0: a circular segment, cut
+of radius 5 centered at (−3, 0, 0), and the part of its disk with x ≥ 0: a circular segment, cut
 off by the z axis as its chord, from (0, 0, −4) to (0, 0, 4), and reaching out to (2, 0, 0). Turn
 it a whole turn about the z axis.
 

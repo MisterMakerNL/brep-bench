@@ -28,5 +28,5 @@ x + y + z = 26.
 
 The solid is the cube cut by the twelve chamfer planes, x + y ≤ 18 for the edge from (10, 10, 0)
 to (10, 10, 10) and the others likewise, and by the eight corner planes, x + y + z ≤ 26 at the
-corner (10, 10, 10) and the others likewise. Without the corner planes the chamfers mitre, the
-three at each corner meeting in a point: that is `chamfer/cube-all-edges-mitred`.
+corner (10, 10, 10) and the others likewise. Without the corner planes the chamfers miter, the
+three at each corner meeting in a point: that is `chamfer/cube-all-edges-mitered`.

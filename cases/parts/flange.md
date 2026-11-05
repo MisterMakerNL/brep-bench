@@ -16,7 +16,7 @@ tex = '\begin{array}{l} \pi\left(32^2 - 8^2\right) + \pi\left(32^2 - 15^2\right)
 
 A round mounting flange on the z axis, its base on the plane z = 0:
 
-- a plate, a disc of radius 32 from z = 0 to z = 6;
+- a plate, a disk of radius 32 from z = 0 to z = 6;
 - a hub, a cylinder of radius 15 standing on the plate from z = 6 to z = 16;
 - a bore of radius 8 on the z axis, right through the plate and the hub from z = 0 to z = 16.
 

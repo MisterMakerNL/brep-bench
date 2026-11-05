@@ -14,7 +14,7 @@ tex = '2\pi r_1^2 + \frac{2\pi(r_0 + r_1)h}{\cos 3^\circ}'
 +++
 
 A cylinder of radius 10 about the z axis, from z = 0 to z = 20. Split its side at the parting
-line, its circle at z = 10, as a part made in a two-piece mould is, and draft each half by 3° away
+line, its circle at z = 10, as a part made in a two-piece mold is, and draft each half by 3° away
 from the parting line, about the neutral plane z = 10: the upper half with the pull direction +z,
 so that it leans inward as it rises, and the lower half with the pull direction −z, so that it
 leans inward as it falls. Each half becomes a cone through the circle at z = 10. The two ends are

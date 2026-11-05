@@ -50,7 +50,7 @@ exact = "2πRh + 2πrh"
 tex = '2\pi R h + 2\pi r h'
 +++
 
-A ball of radius 5 centred on the origin, with a hole of radius 3 bored right through it along the
+A ball of radius 5 centered on the origin, with a hole of radius 3 bored right through it along the
 z axis.
 ```
 
@@ -73,12 +73,12 @@ How a description is written:
   different solids from it, that is a bug in the case.
 - **Where blends meet at a corner, it says what the corner is, as a composition.** Chamfers or
   fillets meeting at a vertex can close it more than one way: running on until they meet in a
-  mitre, or cut off by a corner face of their own. The words of one kernel's blend are no
+  miter, or cut off by a corner face of their own. The words of one kernel's blend are no
   definition, so the description says which, and states the solid as a composition of operations
   that have one answer: the solid cut by the chamfers' planes, and by each corner's plane where the
-  corner is cut flat (`chamfer/cube-all-edges`); and where the case is about a mitre, the edges
+  corner is cut flat (`chamfer/cube-all-edges`); and where the case is about a miter, the edges
   chamfered one after another, each its own chamfer ending on the faces at its ends
-  (`chamfer/cube-all-edges-mitred`). A corner is
+  (`chamfer/cube-all-edges-mitered`). A corner is
   described only where that composition is one solid. A flat corner face through the corners the
   faces are left with nearest a vertex is one plane where three faces meet, but where four or more
   do only when those corners happen to lie in a plane (the octahedron's, by its symmetry, and not
@@ -107,7 +107,7 @@ fields:
 An implementation builds the described solid the way a user of its kernel would:
 
 - **It may** use anything in the kernel's public API. It may compose the kernel's operations (a
-  sphere as a revolved half disc, where there is no sphere primitive), place things with rigid
+  sphere as a revolved half disk, where there is no sphere primitive), place things with rigid
   motions, and select edges and faces however the kernel does. A small helper module shared by one
   kernel's implementations is fine. Each case file should still read as an example of that kernel's
   use.
@@ -121,7 +121,7 @@ An implementation builds the described solid the way a user of its kernel would:
   with the kernel's own sweep of a solid where it has one. Where it has none, the implementation may
   build the same solid from the kernel's other operations when its shape follows from the
   description by elementary geometry, stated in a comment beside the code: a ball's sweep is the
-  tube about its centre's path with a ball at each end; a box slid along a line is the box at each
+  tube about its center's path with a ball at each end; a box slid along a line is the box at each
   end and each face slid along the line. An envelope the implementation would have to compute
   itself, such as a curve fitted to the points where a moving tool touches its own sweep, is
   geometry made outside the kernel: that case is refused.
@@ -235,7 +235,7 @@ One entry per kernel:
 - **1.7:** a shell's description says what its wall's inside is where moved faces part, cross or
   meet an opening, and states the result exactly, as the solid less its cavity. Grading is
   unchanged.
-- **1.6:** where blends meet at a corner, a description says what the corner is (a mitre, or a
+- **1.6:** where blends meet at a corner, a description says what the corner is (a miter, or a
   corner face) and states the solid as a composition with one answer; a flat corner is asked for
   only where it is one plane. Grading is unchanged.
 - **1.5:** an implementation that works around a feature its kernel lacks is flagged in its

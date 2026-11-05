@@ -13,7 +13,7 @@ exact = "4π(R² + (R − t)²) = 164π"
 tex = '4\pi\left(R^2 + (R - t)^2\right) = 164\pi'
 +++
 
-A ball of radius 5 centred on the origin, hollowed to a wall 1 thick with no opening: its sphere
+A ball of radius 5 centered on the origin, hollowed to a wall 1 thick with no opening: its sphere
 stays as the outside, and moved 1 inward it is the inside, the sphere of radius 4 about the origin.
 The result is the ball less the ball of radius 4, one solid bounded by two spheres, the inner one
-facing in, towards the void.
+facing in, toward the void.

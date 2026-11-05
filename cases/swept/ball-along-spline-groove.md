@@ -13,7 +13,7 @@ exact = "no closed form (the Bézier's arc length is an integral): OCCT and cad-
 +++
 
 A block, the box from (−6, −6, −8) to (36, 26, 0), with a groove cut into its top face by a ball of
-radius 3 carried along a curve. The ball's centre follows the cubic Bézier curve in the top face
+radius 3 carried along a curve. The ball's center follows the cubic Bézier curve in the top face
 (z = 0) whose control points are (0, 0, 0), (10, 0, 0), (20, 20, 0) and (30, 20, 0), from its first
 end to its last. Cut from the block everything the ball passes through.
 

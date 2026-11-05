@@ -4,7 +4,7 @@
 //!
 //! Refused, as `chamfer/cube-all-edges` is: `fillet::flat_along` chamfers each edge, and chamfers
 //! taken off one after another mitre at each corner, the four meeting in a point
-//! (`chamfer/octahedron-all-edges-mitred`). The square closing the corner belongs to chamfering
+//! (`chamfer/octahedron-all-edges-mitered`). The square closing the corner belongs to chamfering
 //! the four edges together, and nothing in `fillet`, `corners` or a recipe's lowered corner places
 //! a flat corner. Cutting each corner off by its plane would be the caller placing the corner, not
 //! the kernel.

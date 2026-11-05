@@ -15,12 +15,12 @@ tex = '\pi R^2 + 2\pi RT + 2\pi R^2 + \pi\left(\rho^2 - p^2\right) + 2\pi\rho^2 
 
 A closed hollow dome with a post inside it.
 
-The dome: a plate, the disc of radius 20 about the z axis from z = −2 to z = 0, and on it a
+The dome: a plate, the disk of radius 20 about the z axis from z = −2 to z = 0, and on it a
 hemispherical shell, everything above z = 0 between 18 and 20 from the origin. Inside them is a
 closed cavity, the half ball of radius 18 about the origin above the plate.
 
-The post: the disc of radius 3 about the z axis on the cavity's floor (the plate's top, z = 0),
+The post: the disk of radius 3 about the z axis on the cavity's floor (the plate's top, z = 0),
 extruded up (along +z) until it meets the inside of the dome, the sphere of radius 18, and joined
 to the dome. So the post's side is a cylinder of radius 3 from z = 0 to z = √315 ≈ 17.748, and
-its top is the cap of the sphere above the disc, rising to z = 18 on the axis. The cavity is
+its top is the cap of the sphere above the disk, rising to z = 18 on the axis. The cavity is
 left as a ring about the post.

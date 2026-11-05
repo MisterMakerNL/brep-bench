@@ -13,8 +13,8 @@ exact = "6·10²: the union is the cube"
 tex = '6\cdot 10^2'
 +++
 
-A cube of side 10 between the origin and (10, 10, 10), united with the ball of radius 5 centred
-at the cube's centre, (5, 5, 5). The ball is inscribed: it touches each of the cube's six faces at
+A cube of side 10 between the origin and (10, 10, 10), united with the ball of radius 5 centered
+at the cube's center, (5, 5, 5). The ball is inscribed: it touches each of the cube's six faces at
 a single point, the middle of the face, and lies everywhere else strictly inside the cube.
 
 The union is the cube itself. The six points of contact are not edges or vertices of the result,

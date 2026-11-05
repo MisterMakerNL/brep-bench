@@ -16,7 +16,7 @@ A solid lofted through rectangles, its shape set by four guide curves: a slab th
 almost to nothing on its way up, while its long sides turn from x to y.
 
 Every section of the solid at a height z from 0 to 24 is a rectangle in the plane at that height,
-centred on the z axis, with its sides parallel to the x and y axes, and its four corners lie on
+centered on the z axis, with its sides parallel to the x and y axes, and its four corners lie on
 the four guides. The guide through the corner with x and y positive is the cubic Bézier curve with
 control points (12, 3.2, 0), (18, −2.8, 8), (15, 0.2, 19) and (3, 12.2, 24); the other three are
 its mirror images in the xz plane, the yz plane and both (its control points with y, x, or both
@@ -28,6 +28,6 @@ it grows longer in x and thinner in y, until at z = 26/3 (the guides' parameter 
 as 6 × 24.4 at z = 24. The width along y is never less than 0.4.
 
 Each of the four walls is swept by one side of the rectangle, a straight horizontal segment
-between two neighbouring guides: the wall facing +x is made of the segments parallel to the y
+between two neighboring guides: the wall facing +x is made of the segments parallel to the y
 axis from each point (p, −q, z) of one guide to the point (p, q, z) of the other, and the wall
 facing +y of the segments parallel to the x axis from (−p, q, z) to (p, q, z). The ends are flat.

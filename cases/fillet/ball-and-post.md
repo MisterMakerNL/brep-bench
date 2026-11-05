@@ -13,11 +13,11 @@ exact = "sphere less its cap above z = 5√3, 400π − 20π(10 − 5√3); the 
 tex = '400\pi - 20\pi\left(10 - 5\sqrt{3}\right) + \left(8\pi^2 - 4\sqrt{3}\,\pi\right) + 8\pi\left(15 - 6\sqrt{3}\right) + 16\pi = 336\pi + 48\sqrt{3}\,\pi + 8\pi^2'
 +++
 
-A ball of radius 10 centred on the origin, and a post: a cylinder of radius 4 on the z axis from
+A ball of radius 10 centered on the origin, and a post: a cylinder of radius 4 on the z axis from
 z = 0 to z = 15, joined to the ball into one solid. The post leaves the ball on the circle of
 radius 4 at z = √84.
 
 Round that circular edge to radius 2, adding material. The round is a torus about the z axis
-tangent to the ball and to the post: its centre circle has radius 6 (4 + 2) and lies 12 (10 + 2)
+tangent to the ball and to the post: its center circle has radius 6 (4 + 2) and lies 12 (10 + 2)
 from the origin, at z = 6√3. It touches the post on the circle of radius 4 at z = 6√3 and the
 ball on the circle of radius 5 at z = 5√3, and covers the ball between there and the post.

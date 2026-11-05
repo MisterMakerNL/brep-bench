@@ -13,4 +13,4 @@ exact = "2πRh + 2πrh"
 tex = '2\pi R h + 2\pi r h'
 +++
 
-A ball of radius 5 centred on the origin, with a hole of radius 3 bored right through it along the z axis.
+A ball of radius 5 centered on the origin, with a hole of radius 3 bored right through it along the z axis.

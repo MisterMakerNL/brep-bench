@@ -494,7 +494,7 @@
    }
   },
   {
-   "case": "chamfer/cube-all-edges-mitred",
+   "case": "chamfer/cube-all-edges-mitered",
    "outcome": "wrong",
    "why": "volume 748.8780748144814 against 808; area 468.9920533525419 against 453.587878479; triangles not closed (42 edges unmatched); triangles' volume 760.675",
    "seconds": 0.008,
@@ -565,7 +565,7 @@
    }
   },
   {
-   "case": "chamfer/octahedron-all-edges-mitred",
+   "case": "chamfer/octahedron-all-edges-mitered",
    "outcome": "wrong",
    "why": "volume 929.0338645081983 against 981.333333333; area 478.7187186178288 against 518.144757648; triangles not closed (60 edges unmatched); triangles' volume 929.034",
    "seconds": 0.012,
@@ -3182,7 +3182,7 @@
    }
   },
   {
-   "case": "sweep/mitred-elbow",
+   "case": "sweep/mitered-elbow",
    "outcome": "pass",
    "why": "",
    "seconds": 0.006,
@@ -3202,7 +3202,7 @@
    }
   },
   {
-   "case": "sweep/mitred-picture-frame",
+   "case": "sweep/mitered-picture-frame",
    "outcome": "wrong",
    "why": "volume 9512.000000000002 against 9864; area 6484.7399118649255 against 6544; triangles not closed (3 edges unmatched); triangles' volume 9512",
    "seconds": 0.014,
@@ -3223,7 +3223,7 @@
    }
   },
   {
-   "case": "sweep/mitred-pipe-on-cube-edges",
+   "case": "sweep/mitered-pipe-on-cube-edges",
    "outcome": "wrong",
    "why": "volume 1108.145264375167 against 1130.97335529; area 1149.8656416011588 against 1156.10609652; triangles' volume 1108.15",
    "seconds": 0.016,
@@ -4032,7 +4032,7 @@
    }
   },
   {
-   "case": "thicken/hemisphere-to-its-centre",
+   "case": "thicken/hemisphere-to-its-center",
    "outcome": "refused",
    "why": "invalid input: thicken: the sphere collapses at this thickness",
    "seconds": 0.005,

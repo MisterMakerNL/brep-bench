@@ -1,5 +1,5 @@
 +++
-title = "A disc with six holes indexed around it"
+title = "A disk with six holes indexed around it"
 tags = ["boolean", "cut", "analytic", "pattern", "sequence"]
 origin = "geomsolver rust/examples/solid_indexed_pattern.sv"
 
@@ -14,8 +14,8 @@ exact = "2(π·20² − 6·π·2²) + 2π·20·5 + 6·2π·2·5 = 1072π"
 tex = '2\left(\pi\cdot 20^2 - 6\pi\cdot 2^2\right) + 2\pi\cdot 20\cdot 5 + 6\cdot 2\pi\cdot 2\cdot 5 = 1072\pi'
 +++
 
-A round disc of radius 20 on the z axis, from z = −5 to z = 0. Six round holes of radius 2 go
+A round disk of radius 20 on the z axis, from z = −5 to z = 0. Six round holes of radius 2 go
 straight through it along z, their axes on the circle of radius 12 about the z axis: the first at
 (12, 0), and each of the others the first turned about the z axis by 60°, 120°, 180°, 240° and
 300°. Cut them one after another, each hole its own cut. If you cut a hole with a cylinder, make
-it run past both faces of the disc.
+it run past both faces of the disk.
