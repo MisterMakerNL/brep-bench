@@ -39,7 +39,10 @@ def head(title, description, depth):
         "<meta name=viewport content='width=device-width, initial-scale=1'>",
         f"<title>{html.escape(title)}</title>",
         f"<meta name=description content='{html.escape(description)}'>",
-        f"<link rel=stylesheet href='{up}style.css'></head><body>",
+        f"<link rel=stylesheet href='{up}style.css'>",
+        f"<link rel=icon href='{up}favicon.ico' sizes=32x32>",
+        f"<link rel=icon href='{up}favicon.svg' type='image/svg+xml'>",
+        f"<link rel=apple-touch-icon href='{up}apple-touch-icon.png'></head><body>",
         f"<nav class=top><a href='{up}index.html'>brep-bench</a>"
         f"<a href='{up}explore.html'>Cases</a><a href='{REPO}'>Source</a></nav>",
     ]
