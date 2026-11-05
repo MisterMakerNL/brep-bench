@@ -24,3 +24,8 @@
 "shell/sphere-opening-sealed" = "no sphere primitive"
 "shell/sphere-pinhole-opening" = "no sphere primitive"
 "shell/torus-hollowed" = "no torus primitive"
+"draft/cylinder-parted-both-ways" = "no draft of a face split at its parting line"
+"offset/cone-grown" = "no cone primitive"
+"offset/napkin-ring-grown" = "no sphere primitive"
+"offset/torus-grown-past-its-hole" = "no torus primitive"
+"offset/torus-shrunk" = "no torus primitive"
