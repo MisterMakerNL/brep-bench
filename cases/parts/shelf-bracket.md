@@ -19,7 +19,7 @@ y = −5 to y = 5. In the xz plane (the first number is x and the second z), the
 
 - from (0, 0) to (20, 0), the foot of the post;
 - from (20, 0) up to (20, 92), the inside of the post;
-- along a quarter circle of radius 8 centred at (28, 92), from (20, 92) to (28, 100), bulging
+- along a quarter circle of radius 8 centered at (28, 92), from (20, 92) to (28, 100), bulging
   toward the corner (20, 100) (its middle is at (28 − 4√2, 92 + 4√2));
 - from (28, 100) to (100, 100), the underside of the arm;
 - from (100, 100) up to (100, 120), the end of the arm;

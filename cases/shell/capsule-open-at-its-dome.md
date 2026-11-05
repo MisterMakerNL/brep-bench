@@ -14,7 +14,7 @@ tex = '(100\pi + 25\pi) + 30\pi + (96\pi + 16\pi) = 267\pi'
 +++
 
 A capsule's end: a cylinder of radius 5 on the z axis from z = 0 to z = 10, capped by the half ball
-of radius 5 centred on (0, 0, 10), so that its top is a hemisphere joined to the side tangentially
+of radius 5 centered on (0, 0, 10), so that its top is a hemisphere joined to the side tangentially
 along the circle z = 10. Shell it inward to a wall 1 thick, open at its hemisphere. The outside of
 the wall is its side and its base, unmoved, and the inside is each of them moved 1 inward along its
 normal, onto the surface offset 1 from it. The moved faces are extended or trimmed where they meet

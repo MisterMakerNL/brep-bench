@@ -22,4 +22,4 @@ The curve leaves the base's rim heading up and outward, along (3, 0, 4), so the 
 its flat round base (radius 9), bulging to 10.125 from the axis; it then curls in over the
 top and meets the z axis at (0, 0, 10) heading straight at it, along −x. So the domed face closes
 smoothly over a single point on the axis, with no spike, and the dome's only other face is the
-flat disc it stands on.
+flat disk it stands on.

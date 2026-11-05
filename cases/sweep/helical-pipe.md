@@ -13,4 +13,4 @@ exact = "2πrL + 2πr²"
 tex = '2\pi r L + 2\pi r^2'
 +++
 
-A pipe of circular section, radius 1, following a helix about the z axis. The helix has radius 10 and rises 5 per turn. It starts at (10, 0, 0), turns right-handed (from +x towards +y) and makes three whole turns. The section stays square to the path, and the pipe's ends are flat.
+A pipe of circular section, radius 1, following a helix about the z axis. The helix has radius 10 and rises 5 per turn. It starts at (10, 0, 0), turns right-handed (from +x toward +y) and makes three whole turns. The section stays square to the path, and the pipe's ends are flat.

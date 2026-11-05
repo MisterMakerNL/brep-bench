@@ -4,7 +4,7 @@ tags = ["fillet", "vanishing-face"]
 
 [volume]
 value = 222.83185307179588
-exact = "10·(4·4 + π2²/2) = 160 + 20π: the section is a 4 × 4 square under a half disc of radius 2"
+exact = "10·(4·4 + π2²/2) = 160 + 20π: the section is a 4 × 4 square under a half disk of radius 2"
 tex = '10\left(4\cdot 4 + \tfrac{\pi\cdot 2^2}{2}\right) = 160 + 20\pi'
 
 [area]
@@ -19,4 +19,4 @@ x, the one at y = 0 and the one at y = 4, each to radius 2: half the top face's 
 The two rounds are quarters of the same cylinder of radius 2 on the line y = 2, z = 4, so the top
 face vanishes entirely: the rounds meet along the line y = 2, z = 6, tangent to each other there,
 and the block's top is a half-cylinder. The two ends x = 0 and x = 10 are each a 4 × 4 square
-under a half disc.
+under a half disk.

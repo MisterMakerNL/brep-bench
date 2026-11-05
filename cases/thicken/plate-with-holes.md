@@ -14,7 +14,7 @@ tex = '2(s^2 - 2\pi r^2) + 4s\cdot 2t + 2\cdot 2\pi r\cdot 2t'
 +++
 
 A sheet: the square in the xy plane from (−10, −10, 0) to (10, 10, 0), with two round holes of
-radius 3 through it, centred on (−5, 0, 0) and (5, 0, 0). It is one flat face, bounded by the
+radius 3 through it, centered on (−5, 0, 0) and (5, 0, 0). It is one flat face, bounded by the
 square and the two circles. Thicken it by 1 to each side, so that it is 2 thick in all with the
 sheet in its middle.
 

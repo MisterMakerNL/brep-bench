@@ -9,7 +9,7 @@ tex = '\tfrac{\pi h^2}{3}(3R - h) = 1125\pi,\quad R = 10,\ h = 15'
 
 [area]
 value = 1178.0972450961724
-exact = "2πRh + π(5√3)² = 300π + 75π = 375π: the cap's spherical zone and the flat disc it stands on"
+exact = "2πRh + π(5√3)² = 300π + 75π = 375π: the cap's spherical zone and the flat disk it stands on"
 tex = '2\pi R h + \pi\left(5\sqrt{3}\right)^2 = 300\pi + 75\pi = 375\pi'
 +++
 
@@ -25,5 +25,5 @@ weights matter: with them the curve is exactly the arc of the circle of radius 1
 origin, turning 120° from (5√3, 0, −5) over its widest point (10, 0, 0) to the top of the circle;
 without them it would be a parabola.
 
-So the solid stands on a flat disc of radius 5√3 at z = −5, bulges out to radius 10 at z = 0
+So the solid stands on a flat disk of radius 5√3 at z = −5, bulges out to radius 10 at z = 0
 and closes over the top at (0, 0, 10), where the curve meets the axis square to it.

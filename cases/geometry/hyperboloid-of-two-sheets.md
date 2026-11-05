@@ -18,6 +18,6 @@ every point with z ≥ 3√(1 + (x² + y²)/16) and z ≤ 6.
 
 Its curved side is the upper sheet z²/9 − (x² + y²)/16 = 1, which comes to its vertex at
 (0, 0, 3), smooth and square to the axis there, and widens to a circle of radius 4√3 in the plane
-z = 6, where a flat disc closes it. It is the hyperbola z²/9 − x²/16 = 1 of the xz plane (its branch
+z = 6, where a flat disk closes it. It is the hyperbola z²/9 − x²/16 = 1 of the xz plane (its branch
 with z > 0, from its vertex to x = 4√3) turned a whole turn about the z axis, which it meets at its
 vertex: a surface of revolution with a pole there.

@@ -1,5 +1,5 @@
 +++
-title = "A fat pipe round a cubic Bézier bend"
+title = "A fat pipe around a cubic Bézier bend"
 tags = ["spline", "sweep", "planar-path", "bezier", "near-cusp"]
 
 [volume]
@@ -9,7 +9,7 @@ tex = '\pi r^2 L,\quad r = 20,\ L = \int_0^1 12\left(4 + (2t - 1)^2\right)dt = 1
 
 [area]
 value = 9047.786842338604
-exact = "2πrL + 2πr² = 2080π + 800π = 2880π: the wall holds 2πr per unit length for the same reason, and the two ends are discs"
+exact = "2πrL + 2πr² = 2080π + 800π = 2880π: the wall holds 2πr per unit length for the same reason, and the two ends are disks"
 tex = '2\pi r L + 2\pi r^2 = 2080\pi + 800\pi = 2880\pi'
 +++
 
@@ -19,8 +19,8 @@ leaves the origin heading down and to the right, along (3, −4, 0), dips to y =
 climbs back to (44, 0, 0), arriving along (3, 4, 0). The curve is a polynomial cubic, not a
 circular arc: its radius of curvature runs from 24 at its lowest point to 37.5 at its ends.
 
-At every point of the curve the section is the disc of radius 20 centred on the curve, in the
-plane square to the curve there. The pipe's two ends are flat discs, square to the curve at its
+At every point of the curve the section is the disk of radius 20 centered on the curve, in the
+plane square to the curve there. The pipe's two ends are flat disks, square to the curve at its
 two ends.
 
 The radius is close to the curve's least radius of curvature, so on the inside of the bend the

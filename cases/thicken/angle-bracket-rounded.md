@@ -23,5 +23,5 @@ between them at the crease is closed by the quarter of the cylinder of radius 1 
 that lies between them.
 
 The thickened sheet's section in any plane y = const is the floor's strip from z = −1 to 0, the
-wall's strip from x = −1 to 0, and the quarter disc of radius 1 about the origin with x ≤ 0 and
+wall's strip from x = −1 to 0, and the quarter disk of radius 1 about the origin with x ≤ 0 and
 z ≤ 0 between them, extruded from y = 0 to y = 8.

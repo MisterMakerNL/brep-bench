@@ -1,5 +1,5 @@
 +++
-title = "A hemispherical sheet thickened to its centre"
+title = "A hemispherical sheet thickened to its center"
 tags = ["thicken", "sheet", "analytic", "sphere", "degenerate", "pole"]
 
 [volume]
@@ -14,8 +14,8 @@ tex = '2\pi R^2 + \pi R^2'
 +++
 
 A sheet: the upper half of the sphere of radius 5 about the origin, where z ≥ 0, one face
-bounded by its equator. Thicken it by 5 toward the sphere's centre: by its whole radius.
+bounded by its equator. Thicken it by 5 toward the sphere's center: by its whole radius.
 
-The sheet's face, moved 5 toward the centre, shrinks to a single point, the origin, and is no face
+The sheet's face, moved 5 toward the center, shrinks to a single point, the origin, and is no face
 of the solid. The thickened sheet is the half ball of radius 5 where z ≥ 0: the sheet, and the
-flat disc of radius 5 in the xy plane that the equator sweeps as it closes on the centre.
+flat disk of radius 5 in the xy plane that the equator sweeps as it closes on the center.

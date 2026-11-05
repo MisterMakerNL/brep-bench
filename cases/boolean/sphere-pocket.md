@@ -13,4 +13,4 @@ exact = "1600 − πr² + 2πr²"
 tex = '1600 - \pi r^2 + 2\pi r^2'
 +++
 
-A block from (−10, −10, −10) to (10, 10, 0). Cut from it a ball of radius 5 centred on the origin, leaving a hemispherical pocket in its top face.
+A block from (−10, −10, −10) to (10, 10, 0). Cut from it a ball of radius 5 centered on the origin, leaving a hemispherical pocket in its top face.

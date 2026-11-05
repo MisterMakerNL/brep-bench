@@ -13,7 +13,7 @@ exact = "πR·10 + πr·95/12 + π(R² − r²) = 60π + 1805π/48 + 215π/16 = 
 tex = '\pi R\cdot 10 + \pi r\cdot\tfrac{95}{12} + \pi\left(R^2 - r^2\right) = \tfrac{2665\pi}{24}'
 +++
 
-A solid cone on the z axis, its base the disc of radius 6 at z = 0 and its apex at (0, 0, 8), so its
+A solid cone on the z axis, its base the disk of radius 6 at z = 0 and its apex at (0, 0, 8), so its
 side is 10 long from the base to the apex and its half-angle α has sin α = 3/5. Shell it inward to a
 wall 1 thick, open at its base, z = 0. The outside of the wall is its side, unmoved, and the inside
 is the side moved 1 inward along its normal, onto the surface offset 1 from it. The moved faces are

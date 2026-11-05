@@ -13,10 +13,10 @@ exact = "R²Ω + 2·R² sin 45°·ψ = R²(π − √2·ψ): the spherical lens,
 tex = 'R^2\Omega + 2R^2\sin 45^\circ\,\psi = R^2\left(\pi - \sqrt{2}\,\psi\right),\quad R = 10'
 +++
 
-A spherical sector is the solid a cone of half-angle 45° with its apex at the centre of a ball of
+A spherical sector is the solid a cone of half-angle 45° with its apex at the center of a ball of
 radius 10 cuts from the ball: the part of the ball within 45° of the cone's axis, bounded by the
 cone's side and a cap of the sphere. Make two, both with their apex at the origin: the first
-about the z axis, towards +z, and the second the first turned 60° about the y axis, so that its
+about the z axis, toward +z, and the second the first turned 60° about the y axis, so that its
 axis runs along (sin 60°, 0, cos 60°). Make the solid common to both.
 
 The two caps lie on the same sphere, and what is left of them is one lens-shaped piece of it,

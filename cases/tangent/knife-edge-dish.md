@@ -14,7 +14,7 @@ tex = '2\pi r h + \pi r^2 + 2\pi r^2 = 175\pi,\quad r = 5,\ h = 10'
 +++
 
 A cylinder of radius 5 on the z axis, from z = 0 to z = 10. Cut from it a ball of radius 5
-centred at (0, 0, 10), the middle of its top face.
+centered at (0, 0, 10), the middle of its top face.
 
 The ball's equator is the rim of the top face, so the whole top face goes, and the hemispherical
 dish meets the cylinder's wall tangentially along that circle: the rim is a knife edge, where

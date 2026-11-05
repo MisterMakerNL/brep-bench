@@ -13,7 +13,7 @@ exact = "2π(49 + 7(4 − 2a) + 2(8 asin a − a)), a = 0.8"
 tex = '2\pi\left(49 + 7(4 - 2a) + 2(8\arcsin a - a)\right),\quad a = 0.8'
 +++
 
-A drum: the cylinder of radius 8 on the z axis from z = 0 to z = 6, with a thin flange round its
+A drum: the cylinder of radius 8 on the z axis from z = 0 to z = 6, with a thin flange around its
 side, a ring from radius 8 out to radius 11 and from z = 2.2 to z = 3.8, 1.6 thick. Shrink it by
 1: the solid of every point at least 1 from the flanged drum's outside.
 

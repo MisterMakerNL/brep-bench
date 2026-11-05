@@ -32,6 +32,6 @@ z = 10 at x = ±12 to its crown along x = 0.
 Their common part keeps, over every point of the square, the lower of the two vaults. The two
 vaults meet along the square's diagonals, in two arches (the groins), each an arc of an ellipse
 in the plane x = y or x = −y, running from corner to corner of the square at z = 10 up to
-z = 16. The groins cross at the centre, (0, 0, 16), where the two vault surfaces are tangent to
+z = 16. The groins cross at the center, (0, 0, 16), where the two vault surfaces are tangent to
 each other. The common part's sides are the four 24 × 10 rectangles,
 where each block's flat side lies in the same plane as the other's arched one.

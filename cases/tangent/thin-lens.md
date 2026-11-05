@@ -13,9 +13,9 @@ exact = "2·2πr(r − d/2) = 4π·5·(5·10⁻⁷) = π·10⁻⁵, r = 5, d = 9
 tex = '2\cdot 2\pi r\left(r - \tfrac{d}{2}\right) = 4\pi\cdot 5\cdot\left(5\cdot 10^{-7}\right) = \pi\cdot 10^{-5}'
 +++
 
-Two balls of radius 5, one centred on the origin and one at (9.999999, 0, 0), so that they
+Two balls of radius 5, one centered on the origin and one at (9.999999, 0, 0), so that they
 overlap to a depth of only 10⁻⁶. Make the lens common to both.
 
 The lens lies across the plane x = 4.9999995, from x = 4.999999 to x = 5. It is 10⁻⁶ thick at
-its middle and about 0.0045 across, a disc of radius √(5² − 4.9999995²) ≈ 0.002236 at its
+its middle and about 0.0045 across, a disk of radius √(5² − 4.9999995²) ≈ 0.002236 at its
 rim, where its two spherical faces meet at an angle of only about 0.05°.

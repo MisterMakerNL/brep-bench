@@ -20,7 +20,7 @@ from y = −15 to y = 15, its axis raised to the line x = 0, z = 2. Unite them.
 The tops of both cylinders are at z = 5, so the branch's surface touches the main's from inside at
 one point, (0, 0, 5), where the two surfaces are tangent; the branch's bottom, at z = −1, is
 inside the main. The branch comes out of the main's wall on both sides, and the curves where it
-leaves cross each other at (0, 0, 5). Round that point the surface is four wedges, alternating:
-the main's wall towards +x and towards −x (one face, joined round under the branch) and the
-branch's wall towards +y and towards −y (two faces, one on each side of the main). The solid's
+leaves cross each other at (0, 0, 5). Around that point the surface is four wedges, alternating:
+the main's wall toward +x and toward −x (one face, joined around under the branch) and the
+branch's wall toward +y and toward −y (two faces, one on each side of the main). The solid's
 surface is a manifold there, but the main's wall is pinched to a point.

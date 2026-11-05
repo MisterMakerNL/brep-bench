@@ -18,7 +18,7 @@ function draw(b) {
   document.title = `${k.name} · brep-bench`;
   const about = [k.backend && `written in ${k.backend}`,
                  k.frontend && `its cases written in ${k.frontend}`,
-                 k.license && `licence ${k.license}`].filter(Boolean).join(' · ');
+                 k.license && `license ${k.license}`].filter(Boolean).join(' · ');
   let out = `<h1>${esc(k.name)}</h1>
     <p class=muted>${esc(about)}${k.home ? ` · <a href='${esc(k.home)}'>home page</a>` : ''}</p>`;
   if (k.note) out += `<p>${esc(k.note)}</p>`;

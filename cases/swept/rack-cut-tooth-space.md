@@ -5,10 +5,10 @@ origin = "geomsolver rust/examples/solid_sweeps/rack.sv"
 settled = false
 +++
 
-A gear blank with one tooth space cut by a rack tooth rolled round it, as a gear is generated:
+A gear blank with one tooth space cut by a rack tooth rolled around it, as a gear is generated:
 module 2, 20 teeth, 20° pressure angle.
 
-The blank is a disc of radius 22 about the y axis, from y = 0 to y = 6. Its pitch circle, in the
+The blank is a disk of radius 22 about the y axis, from y = 0 to y = 6. Its pitch circle, in the
 plane y = 0, has radius 20.
 
 The rack's tooth is a prism whose section, in the plane y = 0, is the trapezoid symmetric about the

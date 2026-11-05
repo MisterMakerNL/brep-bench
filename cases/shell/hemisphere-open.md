@@ -13,7 +13,7 @@ exact = "2πR² + 2π(R − t)² + π(R² − (R − t)²) = 91π"
 tex = '2\pi R^2 + 2\pi (R - t)^2 + \pi\left(R^2 - (R - t)^2\right) = 91\pi'
 +++
 
-The lower half of the ball of radius 5 centred on the origin: the part with z ≤ 0. Shell it inward
+The lower half of the ball of radius 5 centered on the origin: the part with z ≤ 0. Shell it inward
 to a wall 1 thick, open at its flat face, z = 0. The outside of the wall is its sphere, unmoved, and
 the inside is the sphere moved 1 inward along its normal, onto the surface offset 1 from it. The
 moved faces are extended or trimmed where they meet one another, and run on until they meet the

@@ -23,4 +23,4 @@ the outside and the inside.
 
 Each round, moved 1 inward, is the cylinder of radius 1 on the same axis, so the cavity is the 18 ×
 12 rectangle from (1, 1) to (19, 13) with its corners rounded to radius 1, from z = 1 up to the top:
-a tray whose wall is 1 thick all round, its inside corners concentric with its outside ones.
+a tray whose wall is 1 thick all around, its inside corners concentric with its outside ones.

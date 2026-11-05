@@ -19,5 +19,5 @@ z axis. Grow it by 1: the solid of every point within 1 of the drilled plate.
 The plate grows as a box does: each face moves 1 outward, each outer edge becomes a quarter of a
 cylinder of radius 1, each corner an eighth of a ball. The hole narrows to radius 2, and each of
 its rims becomes the inner quarter of a torus's tube: a tube of radius 1 about the rim's circle,
-of radius 3, on the side towards the axis, a saddle. So the hole flares from radius 2 out to
+of radius 3, on the side toward the axis, a saddle. So the hole flares from radius 2 out to
 radius 3 at the grown plate's faces, z = −1 and z = 5, meeting them tangentially.

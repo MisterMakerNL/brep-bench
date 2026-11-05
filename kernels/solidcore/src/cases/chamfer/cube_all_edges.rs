@@ -4,7 +4,7 @@
 //! (x + y + z ≤ 26 and the like).
 //!
 //! solidcore's chamfer of all twelve edges at once runs the chamfers on until they meet, the
-//! three at each corner in a point (`chamfer/cube-all-edges-mitred`), and closes no corner with
+//! three at each corner in a point (`chamfer/cube-all-edges-mitered`), and closes no corner with
 //! a face of its own; so each corner is then cut flat by its plane, through the three corners of
 //! the squares nearest it, with ops' Split Body.
 use crate::bench::{all_edges, reloaded};

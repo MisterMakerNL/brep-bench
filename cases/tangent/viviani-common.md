@@ -4,7 +4,7 @@ tags = ["tangent", "boolean", "common", "ssi", "singular-curve"]
 
 [volume]
 value = 1205.5062135043065
-exact = "2R³(π − 4/3)/3 = 2000π/3 − 8000/9, R = 10: over the cylinder's disc r ≤ R cos θ, ∫∫ 2√(R² − r²) r dr dθ = (2R³/3)∫(1 − |sin θ|³) dθ"
+exact = "2R³(π − 4/3)/3 = 2000π/3 − 8000/9, R = 10: over the cylinder's disk r ≤ R cos θ, ∫∫ 2√(R² − r²) r dr dθ = (2R³/3)∫(1 − |sin θ|³) dθ"
 tex = '\tfrac{2R^3}{3}\left(\pi - \tfrac{4}{3}\right) = \tfrac{2000\pi}{3} - \tfrac{8000}{9},\quad R = 10'
 
 [area]
@@ -13,19 +13,19 @@ exact = "2πR² = 200π, R = 10: the ball's sphere inside the cylinder, 2R²(π 
 tex = '2R^2(\pi - 2) + 4R^2 = 2\pi R^2 = 200\pi,\quad R = 10'
 +++
 
-A ball of radius 10 centred on the origin, and a solid cylinder of radius 5 whose axis is the line
+A ball of radius 10 centered on the origin, and a solid cylinder of radius 5 whose axis is the line
 x = 5, y = 0, parallel to the z axis, running from z = −12 to z = 12. Make the solid common to
 both.
 
-The cylinder's radius is half the ball's and its wall passes through the ball's centre, so it
+The cylinder's radius is half the ball's and its wall passes through the ball's center, so it
 touches the ball's sphere from inside at one point, (10, 0, 0), where the two surfaces are
 tangent. Elsewhere the wall leaves the ball: its ends, at z = ±12, are outside it. The common part
 is the stretch of the cylinder inside the ball, capped above and below by the sphere.
 
 The sphere and the wall meet in Viviani's curve, (10 cos²t, 10 cos t sin t, 10 sin t): a figure
 eight on the sphere that crosses itself at (10, 0, 0), and passes through (0, 0, 10) and
-(0, 0, −10). Round the crossing point the surface is four wedges, alternating: the cylinder's
-wall towards +y and towards −y, and the sphere above and below. The solid is convex, and its
+(0, 0, −10). Around the crossing point the surface is four wedges, alternating: the cylinder's
+wall toward +y and toward −y, and the sphere above and below. The solid is convex, and its
 surface is a manifold there.
 
 If the ball you make has poles and a seam, keep them off the curve and away from its crossing:

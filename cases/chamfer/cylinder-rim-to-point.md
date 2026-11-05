@@ -17,6 +17,6 @@ A cylinder of radius 5 on the z axis, from z = 0 to z = 10. Chamfer the circular
 top face with the same distance 5 on both faces, the cylinder's own radius: 5 in from the rim
 across the top and 5 down the side.
 
-The top face shrinks to its centre, and the chamfer is the cone from the circle of radius 5 at
+The top face shrinks to its center, and the chamfer is the cone from the circle of radius 5 at
 z = 5 up to its apex at (0, 0, 10), its half-angle 45°. The solid is a cylinder from z = 0 to
 z = 5 under that cone.

@@ -13,7 +13,7 @@ exact = "(πr² − s) + (2/3)πr√(r² + h²) + (1/2)·r√3·√(h² + r²/4)
 tex = '\left(\pi r^2 - s\right) + \tfrac{2}{3}\pi r\sqrt{r^2 + h^2} + \tfrac{1}{2}\,r\sqrt{3}\,\sqrt{h^2 + \tfrac{r^2}{4}},\quad r = 5,\ h = 10'
 +++
 
-A solid cone on the z axis: its base the disc of radius 5 in the xy plane centred on the origin,
+A solid cone on the z axis: its base the disk of radius 5 in the xy plane centered on the origin,
 its apex at (0, 0, 10). Cut it by the plane 4x + z = 10, which passes through the apex and meets
 the base plane in the line x = 2.5, and cut away the side where 4x + z > 10, away from the axis.
 

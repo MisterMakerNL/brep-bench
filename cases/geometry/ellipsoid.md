@@ -13,7 +13,7 @@ exact = "Legendre's 2πc² + (2πab/sin φ)(E(φ, k) sin²φ + F(φ, k) cos²φ)
 tex = '2\pi c^2 + \frac{2\pi ab}{\sin\varphi}\left(E(\varphi, k)\sin^2\varphi + F(\varphi, k)\cos^2\varphi\right),\quad \varphi = \tfrac{\pi}{3},\ k^2 = \tfrac{7}{12}'
 +++
 
-A solid ellipsoid centred on the origin, its three semi-axes along the coordinate axes: 6 along x,
+A solid ellipsoid centered on the origin, its three semi-axes along the coordinate axes: 6 along x,
 4 along y and 3 along z. It is every point with x²/36 + y²/16 + z²/9 ≤ 1.
 
 No two of its semi-axes are equal, so it is not a surface of revolution: no circle and no turn

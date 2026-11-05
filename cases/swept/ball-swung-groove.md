@@ -15,9 +15,9 @@ tex = 'A_{\text{box}} - \left(2rR\theta + \pi r^2\right) + \left(\pi r R\theta +
 +++
 
 A block, the box from (−6, −6, −8) to (18, 18, 0), with a curved groove cut into its top face by a
-ball. The ball has radius 3 and its centre starts at (12, 0, 0), on the top face, so it is half sunk
-in the block. It swings a quarter turn about the z axis, right-handed (from +x towards +y), so that
-its centre ends at (0, 12, 0); its centre stays in the top face all the way. Cut from the block
+ball. The ball has radius 3 and its center starts at (12, 0, 0), on the top face, so it is half sunk
+in the block. It swings a quarter turn about the z axis, right-handed (from +x toward +y), so that
+its center ends at (0, 12, 0); its center stays in the top face all the way. Cut from the block
 everything the ball passes through.
 
 The groove is a round-bottomed channel: a quarter of a torus's tube below the top face, closed at

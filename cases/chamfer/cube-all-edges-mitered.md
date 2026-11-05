@@ -1,6 +1,6 @@
 +++
-title = "A cube with every edge chamfered, its corners mitred"
-tags = ["chamfer", "corner", "mitre"]
+title = "A cube with every edge chamfered, its corners mitered"
+tags = ["chamfer", "corner", "miter"]
 
 [volume]
 value = 808.0
@@ -16,7 +16,7 @@ tex = '6(a - 2d)^2 + 12\left((a - 2d)\,d\sqrt{2} + 2\cdot\tfrac{1}{2}\,d\sqrt{2}
 A cube of side 10 between the origin and (10, 10, 10). Chamfer all twelve of its edges, each with
 the same distance 2 on both of its faces: an edge's chamfer is the plane through the two lines,
 one on each of its faces, at distance 2 from the edge. No face closes a corner: each chamfer runs
-on until it meets the others, so the three at each corner meet in a point, the corner mitred.
+on until it meets the others, so the three at each corner meet in a point, the corner mitered.
 
 The solid is the cube cut by the twelve chamfer planes, x + y ≤ 18 for the edge from (10, 10, 0)
 to (10, 10, 10) and the others likewise; `chamfer/cube-all-edges` is this solid cut again by a

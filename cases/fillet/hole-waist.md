@@ -17,7 +17,7 @@ A square plate from (−10, −10, 0) to (10, 10, 2), with a hole of radius 3 th
 axis. Round both circular edges of the hole, the rim on the top face and the rim on the bottom
 face, each to radius 1: half the plate's thickness.
 
-Each round is a quarter of the torus about the z axis whose centre circle has radius 4 at z = 1
+Each round is a quarter of the torus about the z axis whose center circle has radius 4 at z = 1
 and whose tube has radius 1, so the hole's cylindrical wall vanishes entirely: the two rounds
 meet on the waist circle of radius 3 at z = 1, tangent to each other there, and the hole's whole
 surface is the inner half of that torus. The rounds meet the top and bottom faces on the circles

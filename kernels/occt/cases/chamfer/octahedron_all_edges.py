@@ -17,7 +17,7 @@ through (6, 2, 2), (6, −2, 2), (6, −2, −2) and (6, 2, −2).
 
 Those four corners lie in one plane by the octahedron's symmetry. Where they do not, as at the
 apex of a pyramid on a rectangle, no flat face closes the corner, and only the mitre
-(`chamfer/octahedron-all-edges-mitred`) is one solid."""
+(`chamfer/octahedron-all-edges-mitered`) is one solid."""
 from itertools import product
 from math import sqrt
 

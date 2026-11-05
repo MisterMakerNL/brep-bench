@@ -23,7 +23,7 @@ The neck is 2 wide, less than twice the thickness, so the neck's two walls, move
 cross each other: the whole neck is within 1.5 of a wall and is left solid, and the moved walls that
 cross there are no part of the result. The cavity is two pockets, one in each square, each from z =
 1.5 up to the top. A pocket is the square moved in by 1.5, from (1.5, 1.5) to (8.5, 8.5) in the left
-square, with a small bulge towards the neck: at the neck's mouth the nearest walls are its corners
+square, with a small bulge toward the neck: at the neck's mouth the nearest walls are its corners
 (10, 4) and (10, 6), so the pocket there is bounded by the arcs of radius 1.5 about those corners.
 Each arc leaves the line x = 8.5 tangent to it, at y = 4 and y = 6, and the two meet in a point at
 (10 − √5/2, 5). The right pocket is the left's mirror image in x = 12.

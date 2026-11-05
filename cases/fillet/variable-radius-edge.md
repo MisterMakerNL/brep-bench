@@ -18,7 +18,7 @@ y = 10 meet, the line from (10, 10, 0) to (10, 10, 10), with a radius that grows
 it: r = 1 + z/10, so 1 at the bottom face z = 0 and 2 at the top face z = 10.
 
 The round's sections square to the edge are circular: at each height z the round's section by
-the horizontal plane is the quarter circle of radius r(z) centred at (10 − r, 10 − r, z), tangent
+the horizontal plane is the quarter circle of radius r(z) centered at (10 − r, 10 − r, z), tangent
 to the face x = 10 at (10, 10 − r, z) and to the face y = 10 at (10 − r, 10, z). (So the round is
 part of an oblique circular cone with its apex at (10, 10, −10), tangent to both faces along
 straight lines.) It cuts the bottom face with the quarter circle of radius 1 and the top face

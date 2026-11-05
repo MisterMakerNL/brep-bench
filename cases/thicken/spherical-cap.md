@@ -14,7 +14,7 @@ tex = '2\pi(1 - \cos\alpha)\left((R + t)^2 + R^2\right) + \pi\sin\alpha\left((R 
 +++
 
 A sheet: the cap of the sphere of radius 10 about the origin where z ≥ 6, one face bounded by
-the circle of radius 8 at z = 6. Thicken it by 2 away from the sphere's centre.
+the circle of radius 8 at z = 6. Thicken it by 2 away from the sphere's center.
 
 Every point of the sheet moves along the radius through it, so the rim's circle sweeps part of a
 cone, not a cylinder: the cone with its apex at the origin, about the z axis, whose half angle α

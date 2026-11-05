@@ -13,14 +13,14 @@ exact = "the floor 100π + 100π + 175π/8, the hub's top and the stop's 100π +
 tex = '\left(200\pi + \tfrac{175\pi}{8}\right) + \left(100\pi + \tfrac{175\pi}{8}\right) + 100\pi + \left(200\pi - \tfrac{25\pi}{3} - \tfrac{80\pi}{3}\right) + \tfrac{160\pi}{3} + \tfrac{125\pi}{6} + 40 + 110 + 150 = \tfrac{8195\pi}{12} + 300'
 +++
 
-A hub with a stop, and a rib turned round the hub until it meets the stop. Angles about the z
-axis are measured from +x, turning towards +y.
+A hub with a stop, and a rib turned around the hub until it meets the stop. Angles about the z
+axis are measured from +x, turning toward +y.
 
 - The hub: a cylinder of radius 10 on the z axis, from z = 0 to z = 10.
 - The stop: a wedge, everything within 25 of the z axis between the half-planes at 120° and
   135°, from z = 0 to z = 10, joined to the hub.
 - The rib: the rectangle 5 ≤ x ≤ 20, 0 ≤ z ≤ 4 in the plane y = 0 (its inner part inside the
-  hub), turned about the z axis from 0° towards +y until it meets the stop's face at 120°, and
+  hub), turned about the z axis from 0° toward +y until it meets the stop's face at 120°, and
   joined to them.
 
 So the rib is the sector of an annulus from 10 to 20 out (outside the hub), 4 tall, from 0° to

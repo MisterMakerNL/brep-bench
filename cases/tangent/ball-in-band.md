@@ -13,7 +13,7 @@ exact = "2πr·6 + 2·π(5² − 4²) + 2·2πrh = 118π, r = 5, h = 2"
 tex = '2\pi r\cdot 6 + 2\pi\left(5^2 - 4^2\right) + 2\cdot 2\pi r h = 118\pi,\quad r = 5,\ h = 2'
 +++
 
-A ball of radius 5 centred on the origin, united with a cylinder of the same radius on the z
+A ball of radius 5 centered on the origin, united with a cylinder of the same radius on the z
 axis, from z = −3 to z = 3.
 
 Between z = −3 and z = 3 the ball lies inside the cylinder and touches its wall from inside along

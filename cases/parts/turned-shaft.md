@@ -21,7 +21,7 @@ runs:
 - from (0, 0) out to (20, 0), the end of the thick part;
 - from (20, 0) up to (20, 60), the thick part's side;
 - from (20, 60) in to (16, 60), the shoulder;
-- along a quarter circle of radius 4 centred at (16, 64), from (16, 60) to (12, 64), bulging
+- along a quarter circle of radius 4 centered at (16, 64), from (16, 60) to (12, 64), bulging
   toward the corner (12, 60) (its middle is at (16 − 2√2, 64 − 2√2));
 - from (12, 64) up to (12, 160), the thin part's side;
 - from (12, 160) in to (0, 160), the end of the thin part;

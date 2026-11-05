@@ -18,7 +18,7 @@ An open tray lying on its back, its opening facing −y. It is made in three ste
 
 1. A block from (−36, 0, −24) to (36, 16, 24): 72 in x, 16 in y and 48 in z.
 2. A pocket taken out of it: the box from (−33, 0, −21) to (33, 13, 21). This leaves walls 3
-   thick all round, and a floor 3 thick from y = 13 to y = 16. The pocket opens through the
+   thick all around, and a floor 3 thick from y = 13 to y = 16. The pocket opens through the
    block's face at y = 0.
 3. Four standoffs joined to the tray, standing on the floor inside the pocket. Each is a tube
    along y, outer radius 5 and inner radius 2, from y = 5 to y = 13: it stands 8 tall on the

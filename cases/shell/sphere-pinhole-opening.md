@@ -13,7 +13,7 @@ exact = "2π·5(h + 5) + 2π·4(h + 4) + 9π = π(18h + 91)"
 tex = '2\pi\cdot 5\,(h + 5) + 2\pi\cdot 4\,(h + 4) + 9\pi = \pi(18h + 91)'
 +++
 
-The part of the ball of radius 5 centred on the origin below the plane z = 3.9999. Shell it inward
+The part of the ball of radius 5 centered on the origin below the plane z = 3.9999. Shell it inward
 to a wall 1 thick, open at its flat face, z = 3.9999. The outside of the wall is its sphere,
 unmoved, and the inside is the sphere moved 1 inward along its normal, onto the surface offset 1
 from it. The moved faces are extended or trimmed where they meet one another, and run on until they

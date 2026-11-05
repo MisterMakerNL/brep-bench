@@ -13,7 +13,7 @@ exact = "2πRh + 2πrh, R = 5, r = 3, h = 8"
 tex = '2\pi R h + 2\pi r h,\quad R = 5,\ r = 3,\ h = 8'
 +++
 
-A ball of radius 5 centred on the origin, with a hole of radius 3 bored right through it along
+A ball of radius 5 centered on the origin, with a hole of radius 3 bored right through it along
 the z axis: `boolean/napkin-ring` again. The hole's wall meets the sphere in two circles of
 radius 3, at z = 4 and z = −4, the rims of the ring.
 

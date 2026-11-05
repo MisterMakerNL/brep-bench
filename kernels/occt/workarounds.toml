@@ -1,7 +1,7 @@
 # The cases occt builds by working around a feature it lacks, and what that is
 # (SPEC.md, "A workaround is flagged").
 
-"chamfer/octahedron-all-edges-mitred" = "no mitre where four chamfers meet"
+"chamfer/octahedron-all-edges-mitered" = "no miter where four chamfers meet"
 "edit/rounded-block-top-moved-up" = "no move of a face that carries its round"
 "geometry/ellipsoid" = "no ellipsoid"
 "geometry/ellipsoid-half" = "no ellipsoid"

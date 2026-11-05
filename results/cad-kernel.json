@@ -515,7 +515,7 @@
    "mesh": null
   },
   {
-   "case": "chamfer/cube-all-edges-mitred",
+   "case": "chamfer/cube-all-edges-mitered",
    "outcome": "pass",
    "why": "",
    "seconds": 0.052,
@@ -588,7 +588,7 @@
    "mesh": null
   },
   {
-   "case": "chamfer/octahedron-all-edges-mitred",
+   "case": "chamfer/octahedron-all-edges-mitered",
    "outcome": "pass",
    "why": "",
    "seconds": 0.09,
@@ -3415,7 +3415,7 @@
    }
   },
   {
-   "case": "sweep/mitred-elbow",
+   "case": "sweep/mitered-elbow",
    "outcome": "pass",
    "why": "",
    "seconds": 0.008,
@@ -3435,7 +3435,7 @@
    }
   },
   {
-   "case": "sweep/mitred-picture-frame",
+   "case": "sweep/mitered-picture-frame",
    "outcome": "pass",
    "why": "",
    "seconds": 0.022,
@@ -3455,7 +3455,7 @@
    }
   },
   {
-   "case": "sweep/mitred-pipe-on-cube-edges",
+   "case": "sweep/mitered-pipe-on-cube-edges",
    "outcome": "pass",
    "why": "",
    "seconds": 0.048,
@@ -4307,7 +4307,7 @@
    }
   },
   {
-   "case": "thicken/hemisphere-to-its-centre",
+   "case": "thicken/hemisphere-to-its-center",
    "outcome": "pass",
    "why": "",
    "seconds": 0.077,

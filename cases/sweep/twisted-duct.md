@@ -24,6 +24,6 @@ the corner of the diamond with the same letter (A to A′, B to B′, C to C′,
 y between the section is the quadrilateral through the four points those lines reach there.
 
 So each of the four long faces is the ruled surface swept by the straight segment joining two
-neighbouring corner lines at the same y: the face through A, B, B′ and A′ is made of the
-segments from A + t(A′ − A) to B + t(B′ − B) for t from 0 to 1, and so on round. Since the
+neighboring corner lines at the same y: the face through A, B, B′ and A′ is made of the
+segments from A + t(A′ − A) to B + t(B′ − B) for t from 0 to 1, and so on around. Since the
 square's sides are not parallel to the diamond's, these faces are not flat. The two ends are flat.

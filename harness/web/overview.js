@@ -50,7 +50,7 @@ function kernels(b) {
   return `<div class=scroll><table><tr><th>kernel</th>
     <th title='the language the kernel is written in'>back end</th>
     <th title='the language its implementations of the cases are written in'>front end</th>
-    <th>licence</th><th class=num title='cases it has an implementation of'>implemented</th>
+    <th>license</th><th class=num title='cases it has an implementation of'>implemented</th>
     <th>outcomes</th><th></th>
     <th class=num title='passed or built by working around a feature the kernel lacks'>†</th></tr>
     ${rows.join('')}</table></div>`;

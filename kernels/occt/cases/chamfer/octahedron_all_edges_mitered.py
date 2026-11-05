@@ -50,7 +50,7 @@ def octahedron():
 def build():
     # BRepFilletAPI_MakeChamfer of all twelve edges at once declines the corners where four meet
     # (chamfer/octahedron-all-edges), and the edges chamfered one at a time, as the cube's mitre is
-    # (chamfer/cube-all-edges-mitred), leave a solid BRepCheck_Analyzer calls invalid, its volume
+    # (chamfer/cube-all-edges-mitered), leave a solid BRepCheck_Analyzer calls invalid, its volume
     # wrong in some orders; so each chamfer is cut as the half-space beyond its plane.
     solid = octahedron()
     for u, v in ((0, 1), (1, 2), (2, 0)):

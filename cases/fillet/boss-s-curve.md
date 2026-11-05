@@ -21,6 +21,6 @@ Round both circular edges of the boss to radius 2: the rim of its top face at z 
 removing material) and its root, the circle where it meets the plate at z = 4 (concave, adding
 material). Each round takes 2 of the boss's height of 4, so the boss's cylindrical side
 vanishes entirely: the two rounds meet on the circle of radius 5 at z = 6, tangent to each other
-there, and the boss's profile is an S. The rim's round is a torus whose centre circle has radius
-3 at z = 6; the root's is a torus whose centre circle has radius 7 at z = 6, and it meets the
-plate's top on the circle of radius 7. The boss's top face is the disc of radius 3 at z = 8.
+there, and the boss's profile is an S. The rim's round is a torus whose center circle has radius
+3 at z = 6; the root's is a torus whose center circle has radius 7 at z = 6, and it meets the
+plate's top on the circle of radius 7. The boss's top face is the disk of radius 3 at z = 8.

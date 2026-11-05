@@ -13,7 +13,7 @@ exact = "2π(2(R + d)²sin θ + (r − d)h + 2r(π − θ)d − 2d²sin θ)"
 tex = '2\pi\left(2(R + d)^2\sin\theta + (r - d)\,h + 2r(\pi - \theta)\,d - 2d^2\sin\theta\right)'
 +++
 
-A napkin ring: a ball of radius 5 centred on the origin, with a hole of radius 3 bored right
+A napkin ring: a ball of radius 5 centered on the origin, with a hole of radius 3 bored right
 through it along the z axis. Grow it by 1: the solid of every point within 1 of the ring.
 
 The ring's outer face moves out to the sphere of radius 6, and its bore narrows to radius 2. Each
