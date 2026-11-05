@@ -1,17 +1,14 @@
-//! The cylinder of radius 10 about the z axis from z = 0 to z = 20, split at its parting line, the
-//! circle at z = 10, each half drafted 3° away from it: the kernel's drafted extrusion of that
-//! circle 10 up (pull +z) and 10 down (pull −z), each leaning 3° inward as it leaves the parting
-//! line, united along it.
-use crate::solids::boolean::union;
-use crate::solids::draft::circle_halves;
+//! The cylinder of radius 10 about the z axis from z = 0 to z = 20, its side drafted 3° both ways
+//! from its parting line, the circle at z = 10: the kernel's parting-line draft splits the side
+//! there and drafts the upper half for the pull direction +z and the lower for −z, each a cone
+//! through the parting circle leaning inward as it leaves it.
+use crate::solids::draft::faces_at;
 use crate::solids::p;
 use crate::Refusal;
-use brep_kernel::{extrude_profile_brep_draft, BrepSolid};
+use brep_kernel::{draft_faces_parted, make_cylinder_brep, BrepSolid};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    let draft = 3f64.to_radians();
-    let parting = circle_halves(p(0.0, 0.0, 10.0), 10.0)?;
-    let upper = extrude_profile_brep_draft(&parting, p(0.0, 0.0, 1.0), 10.0, draft, None)?;
-    let lower = extrude_profile_brep_draft(&parting, p(0.0, 0.0, -1.0), 10.0, draft, None)?;
-    Ok(union(&upper, &lower)?)
+    let solid = make_cylinder_brep(p(0.0, 0.0, 0.0), p(0.0, 0.0, 1.0), 10.0, 20.0)?;
+    let side = faces_at(&solid, &[p(10.0, 0.0, 5.0)])?;
+    Ok(draft_faces_parted(&solid, &side, p(0.0, 0.0, 1.0), p(0.0, 0.0, 10.0), 3f64.to_radians())?)
 }
