@@ -148,12 +148,14 @@ function start(b) {
     const some = rows.some((r) => r.at.length);
     figures.innerHTML = some ? `
       <h2>By kernel</h2>
-      <p class=muted>${m.about} The scale is logarithmic; the bar is the kernel's median. Point at
-        a dot for its case, or open it.</p>
+      <p class=muted>${m.about} The scale is logarithmic. Over the dots, a faint box spans the
+        middle half of the cases each kernel passes or builds, with their median across it, and
+        its whiskers reach the furthest of those within 1.5 times the box's width. Point at a dot
+        for its case, or open it.</p>
       <p class=legend><span class=key><span class='pass dot'></span>
         passed or built</span><span class=key><span class=dot style='background:var(--muted)'>
         </span>refused, wrong, crashed or timed out</span><span class=key><span class=tick></span>
-        median</span></p>
+        median of the passed or built</span></p>
       <div class=perf-strip></div>
       ${summary(rows, m)}
       ${unmeasured.length ? `<p class=muted>Not measured: ${unmeasured.map((k) => esc(k.name))
@@ -291,8 +293,9 @@ function strip(b, rows, m, holder, tip) {
   // a dot's place across its row: the same for a case in every row, so a case lines up
   const jitter = (i) => ((Math.imul(i + 1, 2654435761) >>> 0) / 2 ** 32) * 2 - 1;
   const dots = [];
+  const medians = [];
   const out = grid(lo, hi, x, top, height, m.tick);
-  rows.forEach(({ k, at, sorted }, r) => {
+  rows.forEach(({ k, at }, r) => {
     const mid = top + r * rowHeight + rowHeight / 2;
     out.push(`<a href='${kernelPage(k.name)}'><text class=name x=${left - 10} y=${mid}
       text-anchor=end dominant-baseline=middle>${esc(k.name)}</text></a>`);
@@ -305,16 +308,28 @@ function strip(b, rows, m, holder, tip) {
       out.push(`<circle class='${solved(k.outcomes[i]) ? 'solved' : 'other'}' cx=${dot.cx.toFixed(1)}
         cy=${dot.cy.toFixed(1)} r=4 />`);
     }
-    const median = quantile(sorted, 0.5);
-    if (median != null) {
-      out.push(`<line class=median x1=${x(median)} x2=${x(median)} y1=${mid - rowHeight / 2 + 3}
-        y2=${mid + rowHeight / 2 - 3} />`);
-    }
+    // a ghost of a box and whiskers over the cases it passes or builds, as the table counts them
+    const passed = at.filter((i) => solved(k.outcomes[i])).map((i) => k[m.key][i])
+      .sort((p, q) => p - q);
+    if (!passed.length) return;
+    const [q1, median, q3] = [0.25, 0.5, 0.75].map((q) => quantile(passed, q));
+    const log = (v) => Math.log10(Math.max(v, m.floor));
+    const reach = 1.5 * (log(q3) - log(q1));
+    const inside = passed.filter((v) => log(v) >= log(q1) - reach && log(v) <= log(q3) + reach);
+    const [low, high] = [inside[0], inside[inside.length - 1]];
+    const h = rowHeight / 2 - 3;
+    medians.push(`${k.name}: median ${m.text(median)}`);
+    out.push(`<g class=ghost><line x1=${x(low)} x2=${x(q1)} y1=${mid} y2=${mid} />
+      <line x1=${x(q3)} x2=${x(high)} y1=${mid} y2=${mid} />
+      <line x1=${x(low)} x2=${x(low)} y1=${mid - h / 2} y2=${mid + h / 2} />
+      <line x1=${x(high)} x2=${x(high)} y1=${mid - h / 2} y2=${mid + h / 2} />
+      <rect x=${x(q1)} y=${mid - h} width=${Math.max(x(q3) - x(q1), 1)} height=${2 * h} rx=2 />
+      </g><line class=median x1=${x(median)} x2=${x(median)} y1=${mid - h} y2=${mid + h} />`);
   });
-  const text = rows.map(({ k, sorted }) => `${k.name}: median ${m.text(quantile(sorted, 0.5))}`)
-    .join('; ');
+  const text = medians.join('; ');
   holder.innerHTML = `<svg width=${width} height=${height} role=img aria-label='${esc(
-    `Each case's ${m.label}, a row a kernel. ${text}. The table below gives the same.`)}'>
+    `Each case's ${m.label}, a row a kernel, with a box and whiskers over the cases each passes `
+    + `or builds. ${text}. The table below gives more.`)}'>
     ${out.join('')}<circle class=hl r=7 visibility=hidden /></svg>`;
   const svg = holder.querySelector('svg');
   const ring = svg.querySelector('.hl');

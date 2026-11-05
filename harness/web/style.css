@@ -183,6 +183,8 @@ tr.spacer td { padding: 0; border: 0; height: auto; }
 .perf-strip circle.solved { fill: var(--m-pass); fill-opacity: 0.55; }
 .perf-strip circle.other { fill: var(--muted); fill-opacity: 0.45; }
 .perf-strip .median { stroke: var(--fg); stroke-width: 2; stroke-linecap: round; }
+.perf-strip .ghost { stroke: var(--fg); stroke-opacity: 0.35; stroke-width: 1.5;
+  fill: var(--fg); fill-opacity: 0.06; pointer-events: none; }
 .perf-strip .hl { fill: none; stroke: var(--fg); stroke-width: 2; pointer-events: none; }
 .key .dot { border-radius: 50%; }
 .key .tick { width: 2px; height: 12px; border-radius: 1px; background: var(--fg); }
