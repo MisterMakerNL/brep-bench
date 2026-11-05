@@ -207,7 +207,7 @@ function start(b) {
       const seconds = k.seconds[c.i];
       const tip = [`${k.name}: ${o}`, wa && `workaround: ${wa}`, k.why[c.i],
                    seconds != null && `${seconds} s`].filter(Boolean).join(' · ');
-      return `<td class='cell ${o}' title='${esc(tip)}'><a href='${page}#results'>${o}${
+      return `<td class='cell ${o}' title='${esc(tip)}'><a href='${casePage(c.id, k.name)}'>${o}${
         wa ? ' <span class=wa>†</span>' : ''}</a></td>`;
     }).join('');
     return `<tr><td class=case><div class=cc>${thumb}<div><a class=t href='${page}'

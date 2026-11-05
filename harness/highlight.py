@@ -5,7 +5,8 @@ code as HTML, escaped, its tokens in <span>s whose classes style.css colours:
   t a type (a Capitalised name), f a function called or defined, m a macro or an attribute.
 
 A language is told by the file's extension: Rust (.rs), Python (.py), Rhai (.rhai) and
-Firmament (.firmament); any other file comes back escaped and nothing more. A lexer here is a
+Firmament (.firmament); any other file comes back escaped and nothing more. `loc(code, path)`
+counts its lines of code by the same lexers, leaving out comments. A lexer here is a
 list of patterns tried in order at each place, not a parser: it knows strings and comments from
 code, and names by their spelling and by whether a `(` follows them. Standard library only."""
 import html
@@ -77,16 +78,12 @@ def kind(name, after, keywords, constants):
     return None
 
 
-def highlight(code, path):
-    lex = LEXERS.get(os.path.splitext(path)[1])
-    if not lex:
-        return html.escape(code)
+def tokens(code, lex):
+    """Each token of `code` by the lexer `lex`, in order: (start, end, class), the class one of the
+    module docstring's or None for a plain name. A Python docstring is prose: a comment, `c`."""
     pattern, keywords, constants = lex
-    out, at = [], 0
     for match in pattern.finditer(code):
         start, end = match.span()
-        out.append(html.escape(code[at:start]))
-        at = end
         text = match.group()
         cls = next(c for c in ("c", "s", "m", "lifetime", "n", "id")
                    if c in match.re.groupindex and match.group(c) is not None)
@@ -96,8 +93,34 @@ def highlight(code, path):
             cls = kind(text, code[end:end + 40], keywords, constants)
         elif cls == "s" and text.startswith(('"""', "'''")) \
                 and not code[code.rfind("\n", 0, start) + 1:start].strip():
-            cls = "c"  # a docstring: prose, as a comment is
-        token = html.escape(text)
+            cls = "c"
+        yield start, end, cls
+
+
+def loc(code, path):
+    """The lines of `code` that hold code: not blank, and not only comment (or a Python
+    docstring). A file in no language known here counts its lines that are not blank."""
+    lex = LEXERS.get(os.path.splitext(path)[1])
+    if lex:
+        kept, at = [], 0
+        for start, end, cls in tokens(code, lex):
+            if cls == "c":  # left out, its line breaks kept
+                kept += [code[at:start], "\n" * code.count("\n", start, end)]
+                at = end
+        kept.append(code[at:])
+        code = "".join(kept)
+    return sum(1 for line in code.splitlines() if line.strip())
+
+
+def highlight(code, path):
+    lex = LEXERS.get(os.path.splitext(path)[1])
+    if not lex:
+        return html.escape(code)
+    out, at = [], 0
+    for start, end, cls in tokens(code, lex):
+        out.append(html.escape(code[at:start]))
+        token = html.escape(code[start:end])
         out.append(f"<span class={cls}>{token}</span>" if cls else token)
+        at = end
     out.append(html.escape(code[at:]))
     return "".join(out)
