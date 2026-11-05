@@ -15,6 +15,15 @@ boolean/` runs part of the suite; `NAME` is the kernel's `name` in `kernels.json
 run narrowed by `--case` is only a check and is not recorded; a run of every case, even for one
 kernel, writes `results/<kernel>.json`.
 
+Each run's time, CPU time (user and system, over every thread) and peak memory are recorded
+beside its outcome; none of them is graded. Runners are started by `harness/measure.py`, a
+small process that holds almost no memory, because on Linux a child's peak resident set starts
+at its parent's. Before its cases, each runner is given the case id `harness/start`, which names
+no case, five times; the median is the kernel's start-up, which the board subtracts from its
+times. `--one-core` runs each case a kernel builds a second time, pinned to one core, for its
+speedup on all of them (Linux only). Each result file also records its machine and the size of
+the kernel's binary, as `binary` in `kernels.json` names it.
+
 CI does not run on pull requests, so run a change locally before proposing it.
 
 The harness uses only Python's standard library (3.11 or later). The runners need their own
@@ -32,8 +41,8 @@ A push to `main` reruns only the cases its changes affect, on top of the last ru
 - a kernel newly added, or one with no results yet that the push touches: it runs every case;
 - a change of which kernel is the reference: every case is drawn again;
 - a deleted case: its rows are dropped from the results;
-- how a run is made or graded (`harness/run.py`, `stl.py`, `suite.py`, `build.py`): the whole suite
-  runs;
+- how a run is made, measured or graded (`harness/run.py`, `measure.py`, `stl.py`, `suite.py`,
+  `build.py`): the whole suite runs;
 - `harness/draw.py`: every case is drawn again;
 - anything else (the site, the docs, a kernel's display-only fields, such as its license):
   nothing runs, and the site is only rebuilt.
@@ -41,7 +50,8 @@ A push to `main` reruns only the cases its changes affect, on top of the last ru
 With no last results to build on, a push runs the whole suite. The site is published after every push.
 
 The whole suite also runs nightly, and on a manual dispatch unless its `full` input is unchecked. CI
-allows 120 s per case, not the 60 s default, so a timeout on the board means more than 120 s.
+allows 120 s per case, not the 60 s default, so a timeout on the board means more than 120 s. CI
+runs with `--one-core`, which roughly doubles the time spent running cases.
 
 ## Layout
 
