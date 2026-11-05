@@ -1,7 +1,5 @@
-// popkern has no ball primitive: a half disc revolved about its diameter on the z axis.
 fn ball(m, r) {
-    m.profile(xz()).path(0.0, -r).arc_to([r, 0.0], [0.0, r]).line_to(0.0, -r).close()
-        .sketch("half_disc").revolve(axis_at([0.0, 0.0, 0.0], [0.0, 0.0, 1.0]), full_circle())
+    m.sphere(r)
 }
 
 // A block from (-6, -6, -8) to (18, 18, 0), with a groove cut by a ball of radius 3 whose centre

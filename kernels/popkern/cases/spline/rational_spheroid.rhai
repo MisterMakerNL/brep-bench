@@ -1,9 +1,10 @@
-// A spheroid turned from a weighted quadratic B-spline, each of its two segments a quarter of
-// the ellipse x²/36 + z²/100 = 1.
-//
-// Refused: popkern's scripts make no spline curve. A profile is lines and three-point arcs
-// (`path`, `polygon`, `rect`, `circle`), and a sweep's path is an edge of a body those make, so
-// neither the weighted B-spline nor the ellipse it traces can be drawn (a profile's arcs are
-// circular).
-throw "popkern's scripts make no spline curve and no ellipse: a profile is lines and circular \
-arcs, so the spheroid's weighted B-spline (quarter ellipses) cannot be drawn";
+// The rational quadratic B-spline (0, −10), (6, −10), (6, 0), (6, 10), (0, 10), weights
+// 1, √2/2, 1, √2/2, 1, knots (0, 0, 0, ½, ½, 1, 1, 1), closed along the z axis and turned a whole
+// turn about it.
+let m = model();
+let w = sqrt(2.0) / 2.0;
+let s = m.profile(xz()).path(0.0, -10.0)
+    .spline_to([[6.0, -10.0], [6.0, 0.0], [6.0, 10.0], [0.0, 10.0]],
+        #{ degree: 2, weights: [1.0, w, 1.0, w, 1.0], knots: [0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0] })
+    .close().sketch("section").revolve(axis_at([0.0, 0.0, 0.0], [0.0, 0.0, 1.0]), full_circle());
+m

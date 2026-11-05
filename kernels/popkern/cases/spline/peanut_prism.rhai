@@ -1,8 +1,7 @@
-// A prism 10 tall whose section is the inside of a closed periodic cubic B-spline of twelve
-// control points.
-//
-// Refused: popkern's scripts make no spline curve. A profile is lines and three-point arcs
-// (`path`, `polygon`, `rect`, `circle`), and a sweep's path is an edge of a body those make, so
-// there is no way to draw the peanut's periodic B-spline.
-throw "popkern's scripts make no spline curve: a profile is lines and three-point arcs, so the \
-periodic cubic B-spline section cannot be drawn";
+// The closed uniform periodic cubic B-spline over the peanut's twelve control points, extruded
+// from z = 0 to z = 10.
+let m = model();
+let p = m.profile(xy()).spline([[14.0, 0.0], [12.0, 8.0], [4.0, 6.0], [0.0, -2.625], [-4.0, 6.0],
+    [-12.0, 8.0], [-14.0, 0.0], [-12.0, -8.0], [-4.0, -6.0], [0.0, 2.625], [4.0, -6.0],
+    [12.0, -8.0]], #{ degree: 3 }).sketch("peanut").extrude(blind(10.0));
+m

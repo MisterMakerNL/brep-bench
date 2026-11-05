@@ -1,9 +1,16 @@
 // A block with a groove cut by a ball of radius 3 whose centre follows a cubic Bézier curve in
-// the top face.
-//
-// Refused: popkern has no sweep of a solid, and a ball's sweep, the tube about its centre's path
-// with a ball at each end, needs that path: popkern's scripts make no spline curve (a profile is
-// lines and three-point arcs, and a pipe follows an edge of a body they make), so there is no
-// cubic Bézier for the tube to follow.
-throw "popkern has no sweep of a solid, and its scripts make no spline curve: there is no cubic \
-Bézier path for the ball's tube to follow";
+// the top face: the tube of radius 3 about the curve (a pipe along the Bézier wire), a ball at
+// each end, cut from the block.
+let m = model();
+let block = m.box(42.0, 32.0, 8.0, #{ at: [-6.0, -6.0, -8.0], label: "block" });
+let path = m.wire_spline([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [20.0, 20.0, 0.0], [30.0, 20.0, 0.0]],
+    #{ control: true, label: "path" });
+let groove = m.tool(|m| {
+    let tube = path.pipe(3.0, #{ label: "tube" });
+    let a = m.tool(|m| m.sphere(3.0, #{ label: "start" }));
+    let b = m.tool(|m| m.sphere(3.0, #{ at: [30.0, 20.0, 0.0], label: "end" }));
+    tube = tube.union(a);
+    tube.union(b)
+});
+block = block.subtract(groove, #{ label: "groove" });
+m
