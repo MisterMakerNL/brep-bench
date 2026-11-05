@@ -12,7 +12,7 @@ changed decides it:
 - a case (cases/<case>.md): every kernel runs it again;
 - a kernel's implementation of a case: that kernel runs that case again;
 - anything else of a kernel's (kernels/<kernel>/): that kernel runs every case again, except its
-  workarounds.toml, which only the site reads;
+  workarounds.toml and elegance.toml, which only the site reads;
 - a kernel's entry in kernels.json, added or changed in how it is built or run: that kernel runs
   every case again. A change to which kernel is the reference draws every case again; a change to
   what the board only shows (its licence, languages, note, the files its binary's size counts)
@@ -40,8 +40,9 @@ from suite import ROOT, cases, kernels  # noqa: E402
 WHOLE_SUITE = {"harness/run.py", "harness/measure.py", "harness/stl.py", "harness/suite.py",
                "harness/build.py"}
 REDRAW = {"harness/draw.py", "harness/stl.py"}
-# a kernel's flags of its workarounds, which the site reads and no run depends on
-FLAGS = "workarounds.toml"
+# a kernel's flags of its implementations (its workarounds, its elegant ones), which the site reads
+# and no run depends on
+FLAGS = {"workarounds.toml", "elegance.toml"}
 # the fields of a kernel's entry in kernels.json that a run depends on
 RUN_FIELDS = ("build", "command", "version", "source", "measured")
 
@@ -120,7 +121,8 @@ def plan(paths, results_dir, old_kernels=None):
             run.setdefault(name, set()).add(cid)
             continue
         for k in runnable:
-            if path.startswith(f"kernels/{k['name']}/") and path != f"kernels/{k['name']}/{FLAGS}":
+            prefix = f"kernels/{k['name']}/"
+            if path.startswith(prefix) and path[len(prefix):] not in FLAGS:
                 # an implementation of a case that is gone needs nothing run
                 if not (k.get("source") and implementation(k["source"]).match(path)):
                     run[k["name"]] = set(ids)

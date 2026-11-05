@@ -36,8 +36,8 @@ A push to `main` reruns only the cases its changes affect, on top of the last ru
 
 - a case: every kernel runs it;
 - a kernel's implementation of a case: that kernel runs that case;
-- anything else under `kernels/<kernel>/` (except its `workarounds.toml`), or how its entry in
-  `kernels.json` builds or runs it: that kernel runs every case;
+- anything else under `kernels/<kernel>/` (except its `workarounds.toml` and `elegance.toml`), or
+  how its entry in `kernels.json` builds or runs it: that kernel runs every case;
 - a kernel newly added, or one with no results yet that the push touches: it runs every case;
 - a change of which kernel is the reference: every case is drawn again;
 - a deleted case: its rows are dropped from the results;
@@ -60,6 +60,7 @@ cases/<category>/<name>.md         a case: its closed forms (TOML header) and it
 kernels.json                       the kernels: how to build and run each, where its cases live
 kernels/<kernel>/                  a kernel's runner and its implementation of each case
 kernels/<kernel>/workarounds.toml  the cases it builds by working around a feature it lacks
+kernels/<kernel>/elegance.toml     its implementations that stand out as elegant, and why
 harness/                           build, run and grade, draw, and render the site
 harness/web/                       the board's pages, which read the site's board.json, and its icons
 results/<kernel>.json              the last results

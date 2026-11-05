@@ -53,7 +53,8 @@ export const PARALLEL_FROM = 0.1;
 /** board.json, read: `cases` (in id order, each with its index `i`), `categories` (in order,
  * each with its cases' indices), `kernels` (every one; those with results carry `outcomes`,
  * `seconds`, `cpu`, `mb`, `built`, `builtCpu`, `builtOne`, `cores`, `speedup`, `why`,
- * `workaround` and `loc` (its implementation's lines of code), one entry a case (a measure null where there was no run), and `start`) and
+ * `workaround`, `elegance` (what makes its implementation elegant, '' where it is not flagged so)
+ * and `loc` (its implementation's lines of code), one entry a case (a measure null where there was no run), and `start`) and
  * `ran` (those with results).
  *
  * `start` is what starting the kernel's runner costs, building nothing: as the harness measured
@@ -109,6 +110,8 @@ export async function load() {
       speedup: builtOne.map((t, i) => (t != null && long(i) ? t / built[i] : null)),
       why: r.why.map((i) => (i < 0 ? '' : b.reasons[i])),
       workaround: r.workaround.map((i) => (i < 0 ? '' : b.workarounds[i])),
+      elegance: r.elegance ? r.elegance.map((i) => (i < 0 ? '' : b.elegance[i]))
+        : r.codes.split('').map(() => ''),
       loc: r.loc || r.codes.split('').map(() => null),
     };
   });
