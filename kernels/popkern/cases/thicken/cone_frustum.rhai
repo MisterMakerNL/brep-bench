@@ -1,5 +1,5 @@
 // The side of the cone frustum about z, radius 6 at z = 0 to 3 at z = 4, thickened by 1 along its
-// normal away from the axis. popkern scripts make sheets from solids: the frustum, revolved from its
+// normal away from the axis. The sheet is made from a solid: the frustum, revolved from its
 // half section, with its two flat ends removed.
 let m = model();
 let c = m.profile(xz()).path(0.0, 0.0).line_to(6.0, 0.0).line_to(3.0, 4.0).line_to(0.0, 4.0).close()

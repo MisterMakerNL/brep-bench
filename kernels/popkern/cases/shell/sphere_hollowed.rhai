@@ -1,4 +1,4 @@
-// popkern has no ball primitive: a half disc of radius 5 revolved a full turn about z. Hollowed to a
+// The ball is a half disc of radius 5 revolved a full turn about z. Hollowed to a
 // wall 1 thick with no opening: no face is removed, so the shell leaves a closed cavity.
 let m = model();
 let b = m.profile(xz()).path(0.0, -5.0).arc_to([5.0, 0.0], [0.0, 5.0]).line_to(0.0, -5.0).close()

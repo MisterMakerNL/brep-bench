@@ -1,4 +1,4 @@
-// popkern has no ball primitive: the lower half of the ball of radius 5 about the origin is a
+// The lower half of the ball of radius 5 about the origin is a
 // quarter disc revolved a full turn about z. Shelled inward to a wall 1 thick, open at its flat
 // face, z = 0.
 let m = model();

@@ -1,6 +1,6 @@
 // A hemispherical sheet of radius 5 thickened by 5 toward its centre: its whole radius.
 let m = model();
-// popkern scripts make sheets from solids: the half ball of radius 5 where z >= 0 (a quarter disc
+// The sheet is made from a solid: the half ball of radius 5 where z >= 0 (a quarter disc
 // revolved about z), with its flat face removed.
 let h = m.profile(xz()).path(0.0, 0.0).line_to(5.0, 0.0).arc_to([3.5355339059327378, 3.5355339059327378], [0.0, 5.0])
     .line_to(0.0, 0.0).close()

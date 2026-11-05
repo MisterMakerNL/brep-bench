@@ -1,6 +1,6 @@
 // A bent sheet-metal flange thickened by 1 outside its bend.
 let m = model();
-// popkern scripts make sheets from solids: the region bounded by the flange (the line from
+// The sheet is made from a solid: the region bounded by the flange (the line from
 // (-10, 0) to (0, 0), the quarter circle of radius 2 about (0, 2) to (2, 2), the line up to (2, 12))
 // and closed above, in the xz plane, extruded 8; then every face but the flange's three removed.
 let f = m.profile(xz()).path(-10.0, 0.0).line_to(0.0, 0.0)

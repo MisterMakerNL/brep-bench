@@ -1,5 +1,5 @@
 // A square sheet (-10, -10)-(10, 10) with two holes of radius 3 at (-5, 0) and (5, 0), thickened by
-// 1 to each side. popkern scripts make sheets from solids: a plate 1 thick drilled twice, keeping
+// 1 to each side. The sheet is made from a solid: a plate 1 thick drilled twice, keeping
 // only its top face.
 let m = model();
 let p = m.profile(xy()).rect(20.0, 20.0).sketch("plate").extrude(blind(1.0));

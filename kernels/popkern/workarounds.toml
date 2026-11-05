@@ -3,7 +3,7 @@
 
 "nurbs/groin-vault" = "no NURBS surface"
 "nurbs/vault-tangent-plane" = "no NURBS surface"
-"parts/star-handle" = "no draft"
+"parts/star-handle" = "its outline extruded and drafted serves an invalid body, so it is lofted"
 "swept/ball-swung-groove" = "no sweep of a solid"
 "swept/ball-thread-groove" = "no sweep of a solid"
 "swept/box-slid-aslant" = "no sweep of a solid"
