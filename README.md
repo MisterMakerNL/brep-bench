@@ -4,7 +4,7 @@ Rosetta Code for B-rep kernels. Each case describes a solid in plain words and g
 area in closed form where one exists. Each kernel builds the cases in its own language and idioms,
 so reading one case across the kernels shows how each is used and where each falls short.
 
-Results: **[bmander.github.io/brep-bench](https://bmander.github.io/brep-bench/)** ([a guide to the
+Results: **[brepbench.org](https://brepbench.org)** ([a guide to the
 board](docs/board.md)).
 
 ## Why
