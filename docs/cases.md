@@ -124,6 +124,19 @@ a cube united with itself turned 0.001°, whose sides cross at that angle and wh
 than the cube by more than a pass allows; and a block's top rim rounded along eight edges each
 running on tangent into the next.
 
+## Surface intersections at their hardest (`tangent/`, `singular/`, from the SSI corpus)
+
+Solids built around the classes of [ssi-corpus](https://github.com/jyviko/ssi-corpus), a corpus of
+surface/surface intersections, each case naming the corpus case it comes from (`origin`). Loops so
+small a coarse search steps over them: a ball's cap and a paraboloid's tip each 10⁻⁴ high, around
+the pole of each. Planes that cross at a slope of 10⁻⁶, leaving a wedge 5·10⁻⁶ thick. Contact
+along lines and at isolated points: a cylinder inscribed through a cube, touching four faces
+along a line each; a torus touching a square slab's four sides at a point each; a paraboloid's
+vertex on a block's face; and a ball fitting the bottom of a paraboloid cup, where the two agree to
+more than first order. Faces that coincide over part of their extent: two half balls of one ball,
+their poles a quarter turn apart, and two half tori of one torus. A saddle cut level through its
+saddle point, where the plane meets it in two lines that cross. Every one has a closed form.
+
 ## Faces moved: direct edits (`edit/`)
 
 A finished solid changed by moving some of its faces rather than by redoing the steps that made it,
