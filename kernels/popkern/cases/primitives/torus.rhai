@@ -1,6 +1,4 @@
-// The tube's section, a circle of radius 2 centred 10 out along x in the xz plane, revolved a
-// full turn about z.
+// A torus about z: centre circle 10, tube 2.
 let m = model();
-m.profile(xz()).circle(2.0).at(10.0, 0.0).sketch("section")
-    .revolve(axis_at([0.0, 0.0, 0.0], [0.0, 0.0, 1.0]), full_circle());
+m.torus(10.0, 2.0);
 m

@@ -1,7 +1,5 @@
-// popkern has no ball primitive: a half disc revolved about its diameter on the z axis.
 fn ball(m, r) {
-    m.profile(xz()).path(0.0, -r).arc_to([r, 0.0], [0.0, r]).line_to(0.0, -r).close()
-        .sketch("half_disc").revolve(axis_at([0.0, 0.0, 0.0], [0.0, 0.0, 1.0]), full_circle())
+    m.sphere(r)
 }
 
 // A circle of radius 1 swept along the helix of radius 10 about the z axis that rises 5 per turn,

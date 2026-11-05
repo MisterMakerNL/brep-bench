@@ -1,8 +1,7 @@
-// A dome turned a full turn about z from a region bounded by the z axis, the x axis and a cubic
-// Bézier curve.
-//
-// Refused: popkern's scripts make no spline curve. A profile is lines and three-point arcs
-// (`path`, `polygon`, `rect`, `circle`), and a sweep's path is an edge of a body those make, so
-// the dome's cubic Bézier side cannot be drawn.
-throw "popkern's scripts make no spline curve: a profile is lines and three-point arcs, so the \
-dome's cubic Bézier side cannot be drawn";
+// The region of the xz plane bounded by the axis, the base from (0, 0) to (9, 0), and the cubic
+// Bézier (9, 0), (12, 4), (9, 10), (0, 10), turned a whole turn about the z axis.
+let m = model();
+let d = m.profile(xz()).path(0.0, 0.0).line_to(9.0, 0.0)
+    .spline_to([[12.0, 4.0], [9.0, 10.0], [0.0, 10.0]], #{ degree: 3 }).close().sketch("section")
+    .revolve(axis_at([0.0, 0.0, 0.0], [0.0, 0.0, 1.0]), full_circle());
+m
