@@ -51,7 +51,7 @@ kernels.json                       the kernels: how to build and run each, where
 kernels/<kernel>/                  a kernel's runner and its implementation of each case
 kernels/<kernel>/workarounds.toml  the cases it builds by working around a feature it lacks
 harness/                           build, run and grade, draw, and render the site
-harness/web/                       the board's pages, which read the site's board.json
+harness/web/                       the board's pages, which read the site's board.json, and its icons
 results/<kernel>.json              the last results
 docs/                              these notes
 ```
