@@ -15,6 +15,15 @@ function meanTime(k) {
   return { seconds: Math.exp(logs / xs.length), n: xs.length };
 }
 
+/** Kernel `k`'s geometric mean lines of code over the cases it passes or builds, and how many
+ * cases it is over; null if none. */
+function meanLoc(k) {
+  const xs = k.loc.filter((x, i) => x != null && x > 0 && solved(k.outcomes[i]));
+  if (!xs.length) return null;
+  const logs = xs.reduce((s, x) => s + Math.log(x), 0);
+  return { lines: Math.exp(logs / xs.length), n: xs.length };
+}
+
 const main = document.getElementById('board');
 load().then(draw, (e) => failed(main, e));
 
@@ -25,9 +34,11 @@ function draw(b) {
     <p class=legend>${legend()}</p>
     <p class=muted>Missing means no implementation yet, and says nothing about the kernel.
       Implementations for the kernels awaiting one are welcome from anyone, the kernel's authors
-      first. † counts results reached by working around a feature the kernel lacks. <em>Mean
-      time</em> is the geometric mean (the mean on a logarithmic scale) of the kernel's own time
-      over the cases it passes or builds, what starting its runner costs left out; <em>binary</em>
+      first. <em>Workarounds</em> counts results reached by working around a feature the kernel
+      lacks. <em>Mean time</em> is the geometric mean (the mean on a logarithmic scale) of the
+      kernel's own time over the cases it passes or builds, what starting its runner costs left
+      out; <em>mean LOC</em> is the geometric mean of the lines of code (comments and blank lines
+      left out) of its implementations of those same cases; <em>binary</em>
       is the size on disk of what it runs. <a href='performance.html'>Performance</a> has
       both in full.</p>
     <h2>By category</h2>
@@ -55,22 +66,23 @@ function kernels(b) {
     const about = `<td class=kernel>${name}</td><td>${esc(k.backend || '')}</td>
       <td class=wrap>${esc(k.frontend || '')}</td><td class=wrap>${esc(k.license || '')}</td>`;
     if (!k.outcomes) {
-      return `<tr>${about}<td class=muted colspan=6>awaiting an implementation</td></tr>`;
+      return `<tr>${about}<td class=muted colspan=7>awaiting an implementation</td></tr>`;
     }
     const t = tally(k);
     const worked = k.workaround.filter((w, i) => w && (k.outcomes[i] === 'pass' ||
                                                        k.outcomes[i] === 'built')).length;
     return `<tr>${about}<td class=num>${total - t.missing} <span class=muted>of ${total}</span></td>
       <td>${bar(t)}</td><td class=counts>${esc(words(t))}</td>
-      <td class='num muted'>${worked || ''}</td>${timeCell(k)}${sizeCell(k)}</tr>`;
+      <td class='num muted'>${worked || ''}</td>${timeCell(k)}${locCell(k)}${sizeCell(k)}</tr>`;
   });
   return `<div class=scroll><table><tr><th>kernel</th>
     <th title='the language the kernel is written in'>back end</th>
     <th title='the language its implementations of the cases are written in'>front end</th>
     <th>license</th><th class=num title='cases it has an implementation of'>implemented</th>
     <th>outcomes</th><th></th>
-    <th class=num title='passed or built by working around a feature the kernel lacks'>†</th>
+    <th class=num title='passed or built by working around a feature the kernel lacks'>workarounds</th>
     <th class=num title='the geometric mean of its own time (start-up left out) over the cases it passes or builds'>mean time</th>
+    <th class=num title='the geometric mean of the lines of code (comments and blank lines left out) of its implementations of the cases it passes or builds'>mean LOC</th>
     <th class=num title='the size on disk of its binary, as built for its last run'>binary</th></tr>
     ${rows.join('')}</table></div>`;
 }
@@ -84,6 +96,13 @@ function timeCell(k) {
     : ', its fastest run left out as start-up';
   return `<td class=num title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}${
     esc(start)}'>${secondsText(m.seconds)}</td>`;
+}
+
+function locCell(k) {
+  const m = meanLoc(k);
+  if (!m) return dash;
+  return `<td class=num title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}'>${
+    Math.round(m.lines)}</td>`;
 }
 
 function sizeCell(k) {
