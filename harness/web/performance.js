@@ -21,7 +21,7 @@ const timeTick = (x) => (x < 1 ? `${Math.round(x * 1000)} ms` : `${Math.round(x)
 const mbTick = (x) => (x < 1000 ? `${x} MB` : `${x / 1000} GB`);
 const ratioText = (x) => (x == null ? '–' : `${x.toFixed(x < 10 ? 2 : 1)}`);
 const speedupText = (x) => (x == null ? '–' : `${ratioText(x)}×`);
-const short = `What starting the runner costs is left out of both, and so are runs whose own time
+const short = `The runner's start-up is left out of both, and so are runs whose own time
   is under ${PARALLEL_FROM} s, too short to say.`;
 const METRICS = [
   {
@@ -30,7 +30,7 @@ const METRICS = [
     most: 'slowest', top: 'The slowest runs',
     about: (counted) => (counted ? `Each dot is one case's wall-clock time, from starting the
       kernel's runner to its exit, starting it counted.` : `Each dot is one case's wall-clock
-      time less what starting the kernel's runner costs: the kernel's own time, building the
+      time less the runner's start-up: the kernel's own time, building the
       solid, measuring it and writing its triangles. A run no longer than the start sits at the
       axis's left end.`),
   },
@@ -39,7 +39,7 @@ const METRICS = [
     tick: timeTick, floor: 0.001, additive: true, compare: true, least: 'least', most: 'most',
     top: 'The runs that spent the most CPU time',
     about: (counted) => `Each dot is the CPU time one case spent, user and system, over every
-      thread${counted ? '' : `, less what starting the kernel's runner spends`}: more than its
+      thread${counted ? '' : `, less the runner's start-up`}: more than its
       time where it kept more than one core busy.`,
   },
   {
@@ -246,7 +246,7 @@ function summary(measured, m) {
         ? cell(start, r, k.start.measured ? '' : notMeasured) : ''}
         <td class=num>${sorted.length}</td>${rest.map((col) => cell(col, r)).join('')}</tr>`;
     }).join('')}</table></div>
-    <p class=muted><em>Start-up</em> is what starting the kernel's runner costs with nothing to
+    <p class=muted><em>Start-up</em> is the cost of starting the kernel's runner with nothing to
       build: the harness gives it a case id no case has and takes the median of five starts.${
       estimated ? ` <sup>*</sup> Not measured yet (the kernel's last run was made before the
       harness did): its fastest run stands in for it.` : ''} The table counts only the cases each
@@ -477,8 +477,8 @@ function machines(b) {
   const groups = new Map();
   for (const k of b.ran) {
     const h = k.host ? `${k.host.cpu}, ${k.host.cores} cores (${k.host.system})${k.host.least_mb
-      ? `, where no run's peak memory reads under ${megabytesText(k.host.least_mb)}, what the
-        harness's measurer holds itself` : ''}` : '';
+      ? `, where no run's peak memory reads under ${megabytesText(k.host.least_mb)}, the
+        harness's measurer's own footprint` : ''}` : '';
     if (!groups.has(h)) groups.set(h, []);
     groups.get(h).push(k.name);
   }
@@ -509,7 +509,7 @@ function multicore(b, indices, which) {
   const num = (x, text, key) => `<td class=num${key ? shade[key](x) : ''}>${x == null
     ? '<span class=muted>–</span>' : text(x)}</td>`;
   return `<h2>Multicore</h2>
-    <p class=muted>How many of the machine's cores each kernel keeps busy, and what they buy it,
+    <p class=muted>How many of the machine's cores each kernel keeps busy, and the speedup they buy it,
       over its runs of ${PARALLEL_FROM} s or more. <em>Cores busy</em> is the CPU time it spent over
       its time, all its runs together: 1 for a kernel that works on one core throughout.
       ${anySpeedup ? `<em>Speedup</em> is its time pinned to one core over its time free on every
@@ -560,13 +560,13 @@ function sizes(b) {
       kernels.json names for it, beside the language runtime its runner runs on (Python, .NET)
       and the system's own libraries. A Rust runner's is its executable, the kernel and its cases
       compiled in; Aetheris's, its assemblies; OCCT's, the cadquery-ocp wheel, OCCT's libraries,
-      what they bundle and OCP's Python bindings (OCP also loads VTK, installed beside it, which
+      their bundled dependencies and OCP's Python bindings (OCP also loads VTK, installed beside it, which
       is not counted). The scale is logarithmic.</p>
     <div class=perf-strip><svg viewBox='0 0 ${width} ${height}' style='max-width:${width}px;
       width:100%' role=img aria-label='${esc(rows.map((k) => `${k.name}: ${megabytesText(mb(k))}`)
         .join('; '))}'>${out.join('')}</svg></div>
     <div class=scroll><table><tr><th>kernel</th><th class=num>size</th><th class=num>files</th>
-      <th>what it counts</th></tr>${rows.map((k) => `<tr><td><a href='${kernelPage(k.name)}'>${
+      <th>target</th></tr>${rows.map((k) => `<tr><td><a href='${kernelPage(k.name)}'>${
         esc(k.name)}</a></td><td class=num>${megabytesText(mb(k))}</td><td class=num>${
         k.binary.files}</td><td class=muted>${k.binary.of.map((o) => (o.distribution
           ? `the Python distribution <code>${esc(o.distribution)}</code>` : `<code>${esc(o)}</code>`))
