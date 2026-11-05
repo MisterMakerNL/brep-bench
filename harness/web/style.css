@@ -10,7 +10,7 @@
         --pass: #d8f0dd; --refused: #f3ecd0; --wrong: #f6d5d2; --crashed: #e9d6f2;
         --timeout: #e9d6f2; --accent: #2f5fb3; --picked: rgba(47, 95, 179, 0.13);
         --m-pass: #2a78d6; --m-built: #1baf7a; --m-refused: #eda100; --m-failed: #e34948;
-        --m-missing: #e3e2de;
+        --m-missing: #e3e2de; --slower: #eb6834;
         --hl-comment: #6a6f76; --hl-string: #2b7a2f; --hl-number: #a65400; --hl-keyword: #a2289c;
         --hl-type: #1f6e8c; --hl-function: #2f5fb3; --hl-macro: #80660a; }
 @media (prefers-color-scheme: dark) {
@@ -19,7 +19,7 @@
           --pass: #1f4429; --refused: #4a4120; --wrong: #5a2420; --crashed: #44264f;
           --timeout: #44264f; --accent: #8fb0ff; --picked: rgba(143, 176, 255, 0.16);
           --m-pass: #3987e5; --m-built: #199e70; --m-refused: #eda100; --m-failed: #e34948;
-          --m-missing: #34343a;
+          --m-missing: #34343a; --slower: #d95926;
           --hl-comment: #8e939b; --hl-string: #8fcf7f; --hl-number: #f0a35e; --hl-keyword: #d68cf0;
           --hl-type: #6cc6e0; --hl-function: #8fb0ff; --hl-macro: #d9c26a; }
 }
@@ -173,3 +173,24 @@ table.explore th.k { white-space: normal; overflow-wrap: anywhere; }
 table.explore th.k select { width: 100%; }
 table.explore .bar { width: 100%; }
 tr.spacer td { padding: 0; border: 0; height: auto; }
+
+/* the performance page: every case's measure a dot on a logarithmic axis, a row a kernel; the
+   tables of kernel against kernel and of categories, their cells washed by value */
+.perf-strip svg { display: block; font: 13px system-ui, sans-serif; }
+.perf-strip .grid { stroke: var(--line); stroke-width: 1; }
+.perf-strip .axis { fill: var(--muted); font-size: 12px; }
+.perf-strip .name { fill: var(--fg); }
+.perf-strip circle.solved { fill: var(--m-pass); fill-opacity: 0.55; }
+.perf-strip circle.other { fill: var(--muted); fill-opacity: 0.45; }
+.perf-strip .median { stroke: var(--fg); stroke-width: 2; stroke-linecap: round; }
+.perf-strip .ghost { stroke: var(--fg); stroke-opacity: 0.35; stroke-width: 1.5;
+  fill: var(--fg); fill-opacity: 0.06; pointer-events: none; }
+.perf-strip .hl { fill: none; stroke: var(--fg); stroke-width: 2; pointer-events: none; }
+.key .dot { border-radius: 50%; }
+.key .tick { width: 2px; height: 12px; border-radius: 1px; background: var(--fg); }
+.swatch { display: inline-block; min-width: 3.2em; padding: 1px 4px; margin: 0 1px;
+          text-align: center; border-radius: 3px; font-size: 0.85em; color: var(--fg); }
+table.versus td { min-width: 4.5em; }
+table.versus td small { display: block; font-size: 0.75em; }
+table.versus th { font-size: 0.9em; }
+table.versus td.empty { text-align: center; }

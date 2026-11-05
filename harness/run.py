@@ -9,11 +9,23 @@
 A kernel's runner is asked for each case it has an implementation of (SPEC.md); a case it has none
 of is missing. Writes results/<kernel>.json after a run of the whole suite (not of a part,
 `--case`), or folds a plan's runs into the last one (`--plan`), and keeps each result's triangles
-as results/meshes/<kernel>/<case>.stl for the drawings and the viewer. Standard library only.
+as results/meshes/<kernel>/<case>.stl for the drawings and the viewer.
+
+Each run is measured too, though nothing measured is graded: its wall-clock time, the CPU time
+it spent (user and system, over every thread), and its peak memory (the largest resident set),
+from the operating system's account of the runner's process (wait4), which harness/measure.py
+starts and waits for. So is what starting the runner costs, alone: it is given a case id no case
+has, `harness/start`, so that it starts and builds nothing, a few times over (`startup`). With
+`--one-core` a case the kernel built is run a second time on one core only, for what its other
+cores bought it; that run is timed and nothing else. Standard library
+only (where there is no wait4, only the time is kept; pinning to one core needs Linux).
 """
 import argparse
+import functools
+import glob
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -85,54 +97,219 @@ def why_crashed(stderr, code):
     return (lines[-1] if lines else f"exit {code}")[:300]
 
 
+class Ran:
+    """How a process ran: its exit `code` (None if it ran out of time), what it wrote, and what it
+    cost: wall-clock `seconds`, `cpu` seconds (user and system, of every thread of it and of the
+    children it waited for) and `peak_mb`, the most memory it held resident at once (megabytes,
+    1e6 bytes). `cpu` and `peak_mb` are None where the system does not say (no wait4)."""
+
+    def __init__(self, code, stdout, stderr, seconds, cpu=None, peak_mb=None):
+        self.code, self.stdout, self.stderr = code, stdout, stderr
+        self.seconds, self.cpu, self.peak_mb = seconds, cpu, peak_mb
+
+
+# where it can, a run is started and waited for by harness/measure.py, a process that holds next
+# to nothing: on Linux a process's peak memory starts at its starter's, which would count the
+# harness's own (every STL it has read) against the runner
+MEASURE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "measure.py")
+MEASURED = all(hasattr(os, f) for f in ("posix_spawnp", "wait4"))
+measurer = None
+
+
+def measured(request):
+    """What harness/measure.py answers of `request`, started the first time it is wanted."""
+    global measurer
+    if measurer is None or measurer.poll() is not None:
+        measurer = subprocess.Popen([sys.executable, "-I", "-S", MEASURE], stdin=subprocess.PIPE,
+                                    stdout=subprocess.PIPE, text=True, cwd=ROOT)
+    measurer.stdin.write(json.dumps(request) + "\n")
+    measurer.stdin.flush()
+    line = measurer.stdout.readline()
+    if not line:
+        raise RuntimeError("harness/measure.py stopped")
+    answer = json.loads(line)
+    if "error" in answer:
+        raise OSError(answer["error"])
+    return answer
+
+
+def execute(argv, timeout, core=None):
+    """Run `argv` until it exits or `timeout` seconds pass, and say how it ran (`Ran`). With `core`,
+    the process and every thread it starts may run on that core only."""
+    env = dict(os.environ, RUST_BACKTRACE="0")
+    with tempfile.TemporaryDirectory() as tmp:
+        out, err = os.path.join(tmp, "stdout"), os.path.join(tmp, "stderr")
+        if MEASURED:
+            a = measured({"argv": argv, "cwd": ROOT, "env": env, "stdout": out, "stderr": err,
+                          "timeout": timeout, "core": core})
+            code, seconds, cpu, peak = a["code"], a["seconds"], a["cpu"], a["peak_bytes"] / 1e6
+        else:
+            # no wait4 (Windows): the time alone
+            with open(out, "wb") as o, open(err, "wb") as e:
+                start = time.monotonic()
+                p = subprocess.Popen(argv, stdout=o, stderr=e, stdin=subprocess.DEVNULL,
+                                     cwd=ROOT, env=env)
+                try:
+                    code = p.wait(timeout)
+                except subprocess.TimeoutExpired:
+                    p.kill()
+                    p.wait()
+                    code = None
+                seconds = time.monotonic() - start
+            cpu = peak = None
+        with open(out, encoding="utf-8", errors="replace") as o, \
+                open(err, encoding="utf-8", errors="replace") as e:
+            return Ran(code, o.read(), e.read(), seconds, cpu, peak)
+
+
 def run_one(command, case, timeout, keep):
+    """Run and grade one case: (outcome, why, reply, mesh, how it ran)."""
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
-        start = time.monotonic()
+        ran = execute(command + [case["id"], out_stl], timeout)
+        if ran.code is None:
+            return "timeout", f"over {timeout} s", None, None, ran
+        if ran.code != 0:
+            return "crashed", why_crashed(ran.stderr, ran.code), None, None, ran
         try:
-            env = dict(os.environ, RUST_BACKTRACE="0")
-            p = subprocess.run(command + [case["id"], out_stl], capture_output=True, text=True,
-                               timeout=timeout, cwd=ROOT, env=env)
-        except subprocess.TimeoutExpired:
-            return "timeout", f"over {timeout} s", None, None, timeout
-        seconds = time.monotonic() - start
-        if p.returncode != 0:
-            return "crashed", why_crashed(p.stderr or "", p.returncode), None, None, seconds
-        try:
-            reply = json.loads(p.stdout.strip().splitlines()[-1])
+            reply = json.loads(ran.stdout.strip().splitlines()[-1])
         except (ValueError, IndexError):
-            return "crashed", "no JSON reply", None, None, seconds
+            return "crashed", "no JSON reply", None, None, ran
         mesh = None
         if reply.get("status") == "ok" and os.path.exists(out_stl):
             try:
                 mesh = stl.check(stl.read(out_stl))
             except (ValueError, OSError) as e:
-                return "wrong", f"unreadable STL: {e}", reply, None, seconds
+                return "wrong", f"unreadable STL: {e}", reply, None, ran
             # kept for the drawings and the viewer (results/meshes, not committed)
             os.makedirs(os.path.dirname(keep), exist_ok=True)
             shutil.copyfile(out_stl, keep)
-        return (*grade(case, reply, mesh), reply, mesh, seconds)
+        return (*grade(case, reply, mesh), reply, mesh, ran)
 
 
-def run_kernel(k, chosen, timeout):
-    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order."""
+def one_core_seconds(command, case, timeout, core):
+    """The wall-clock time of the case run again on `core` alone, or None if it ran out of time or
+    failed. Nothing of the run but its time is kept."""
+    with tempfile.TemporaryDirectory() as tmp:
+        ran = execute(command + [case["id"], os.path.join(tmp, "result.stl")], timeout, core)
+    return round(ran.seconds, 3) if ran.code == 0 else None
+
+
+def rounded(x, places):
+    return None if x is None else round(x, places)
+
+
+# a case id no case has: a runner given it starts, finds nothing to build, and exits (SPEC.md)
+NO_CASE = "harness/start"
+# how many times a runner is started for what starting it costs, the median kept
+STARTS = 5
+
+
+def startup(k, timeout, one_core=None):
+    """What starting kernel `k`'s runner costs, building nothing: the median of STARTS runs given
+    NO_CASE, of their time, CPU time and peak memory, and with `one_core` of their time on that
+    core alone, after one start not counted (the first after a build reads its files from disk).
+    None if the runner does not exit of itself in time."""
+    def median(xs):
+        xs = sorted(x for x in xs if x is not None)
+        return xs[len(xs) // 2] if xs else None
+
+    with tempfile.TemporaryDirectory() as tmp:
+        argv = k["command"] + [NO_CASE, os.path.join(tmp, "none.stl")]
+        if execute(argv, min(timeout, 60)).code is None:
+            return None
+        runs = [execute(argv, min(timeout, 60)) for _ in range(STARTS)]
+        if any(r.code is None for r in runs):
+            return None
+        out = {"seconds": round(median(r.seconds for r in runs), 4),
+               "cpu_seconds": rounded(median(r.cpu for r in runs), 4),
+               "peak_mb": rounded(median(r.peak_mb for r in runs), 1)}
+        if one_core is not None:
+            pinned = [execute(argv, min(timeout, 60), one_core) for _ in range(STARTS)]
+            out["one_core_seconds"] = round(median(r.seconds for r in pinned), 4)
+    return out
+
+
+# the files a Python distribution installed, one a line: of the distribution named first
+FILES_OF = ("import importlib.metadata as m, sys\n"
+            "for f in m.files(sys.argv[1]) or []: print(f.locate())")
+
+
+def binary(k):
+    """The size of kernel `k`'s binary: the files its `binary` in kernels.json names, beside the
+    language runtime its runner runs on and the system's own libraries. Each is a path or a glob
+    pattern, relative to the repository (a directory counts every file under it), or a Python
+    distribution, {"python": INTERPRETER, "distribution": NAME}, its files as that interpreter
+    installed them. {"bytes", "files", "of"}, `of` the entries counted, or None where they name
+    nothing there is (not built)."""
+    found = set()
+    for entry in k.get("binary") or []:
+        if isinstance(entry, dict):
+            try:
+                p = subprocess.run([entry["python"], "-c", FILES_OF, entry["distribution"]],
+                                   cwd=ROOT, capture_output=True, text=True, timeout=60)
+            except (OSError, subprocess.TimeoutExpired):
+                continue
+            paths = p.stdout.splitlines() if p.returncode == 0 else []
+        else:
+            paths = glob.glob(os.path.join(ROOT, entry), recursive=True)
+        for path in paths:
+            if os.path.isdir(path):
+                found.update(os.path.join(d, f) for d, _, fs in os.walk(path) for f in fs)
+            elif os.path.isfile(path):
+                found.add(path)
+    # each file once, however it was named
+    files = {os.path.realpath(f) for f in found}
+    if not files:
+        return None
+    return {"bytes": sum(os.path.getsize(f) for f in files), "files": len(files),
+            "of": k["binary"]}
+
+
+def implemented(k, c):
+    """Whether kernel `k` has an implementation of case `c` (or keeps none apart from its runner)."""
+    src = source(k, c["id"])
+    return not src or os.path.exists(src)
+
+
+def overhead(k, timeout, one_core):
+    """Kernel `k`'s `startup` and the size of its `binary`, each printed as it is known."""
+    start = startup(k, timeout, one_core)
+    said = (f"{start['seconds'] * 1000:.1f} ms" if start else "not known: it did not exit in time")
+    print(f"{k['name']:<14} starting its runner, building nothing: {said}", flush=True)
+    size = binary(k)
+    print(f"{k['name']:<14} its binary: " + (f"{size['bytes'] / 1e6:.1f} MB in {size['files']} "
+          f"file{'s' if size['files'] != 1 else ''}" if size else "none found"), flush=True)
+    return start, size
+
+
+def run_kernel(k, chosen, timeout, one_core=None):
+    """Run `chosen` cases with kernel `k`: its rows, one per case, in case order. With `one_core`, a
+    core's number, each case it builds (passes, builds or answers wrong) is run again on that core
+    alone for `one_core_seconds`."""
     rows = []
     for c in chosen:
         keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
         if os.path.exists(keep):
             os.remove(keep)
-        src = source(k, c["id"])
-        if src and not os.path.exists(src):
-            outcome, why, reply, mesh, seconds = "missing", "no implementation", None, None, 0.0
+        if not implemented(k, c):
+            outcome, why, reply, mesh, ran = "missing", "no implementation", None, None, None
         else:
-            outcome, why, reply, mesh, seconds = run_one(k["command"], c, timeout, keep)
-        rows.append({
-            "case": c["id"], "outcome": outcome, "why": why, "seconds": round(seconds, 3),
+            outcome, why, reply, mesh, ran = run_one(k["command"], c, timeout, keep)
+        row = {
+            "case": c["id"], "outcome": outcome, "why": why,
+            "seconds": rounded(ran and ran.seconds, 3),
+            "cpu_seconds": rounded(ran and ran.cpu, 3), "peak_mb": rounded(ran and ran.peak_mb, 1),
             "measured": (reply or {}).get("measured", "exact"),
             "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
             "faces": (reply or {}).get("faces"), "mesh": mesh,
-        })
-        print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {why[:90]}", flush=True)
+        }
+        if one_core is not None and outcome in ("pass", "built", "wrong"):
+            row["one_core_seconds"] = one_core_seconds(k["command"], c, timeout, one_core)
+        rows.append(row)
+        cost = (f"{ran.seconds:8.3f} s {ran.cpu if ran.cpu is not None else 0:8.3f} cpu "
+                f"{ran.peak_mb or 0:7.1f} MB" if ran else " " * 33)
+        print(f"{k['name']:<14} {outcome:<8} {c['id']:<44} {cost} {why[:70]}", flush=True)
     return rows
 
 
@@ -153,18 +330,57 @@ def tally(rows):
     return out
 
 
-def record(k, rows, last=None):
-    """Write results/<kernel>.json from its rows, of a run now or else of the `last` one."""
+def spent(rows):
+    """What a kernel's runs cost, in a line: their time and CPU time summed, their largest peak."""
+    ran = [r for r in rows if r["outcome"] != "missing"]
+    cpu = [r["cpu_seconds"] for r in ran if r.get("cpu_seconds") is not None]
+    peak = [r["peak_mb"] for r in ran if r.get("peak_mb") is not None]
+    out = f"{len(ran)} runs, {sum(r['seconds'] for r in ran):.1f} s"
+    if cpu:
+        out += f", {sum(cpu):.1f} s of CPU"
+    if peak:
+        out += f", at most {max(peak):.0f} MB"
+    return out
+
+
+@functools.cache
+def host():
+    """The machine a run is made on, since its times and memory are of that machine: its processor,
+    how many cores the runs may use, its system, and the least peak memory a run can read there."""
+    cpu = platform.processor() or platform.machine()
+    try:
+        with open("/proc/cpuinfo") as f:
+            for line in f:
+                if line.startswith("model name"):
+                    cpu = line.split(":", 1)[1].strip()
+                    break
+    except OSError:
+        pass
+    cores = (len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity")
+             else os.cpu_count())
+    out = {"cpu": cpu, "cores": cores, "system": platform.platform(terse=True)}
+    if MEASURED:
+        # the peak of a process that holds next to nothing: the measurer's own, below which no run
+        # can read (harness/measure.py)
+        out["least_mb"] = round(execute([sys.executable, "-I", "-S", "-c", "pass"], 60).peak_mb, 1)
+    return out
+
+
+def record(k, rows, start, size, last=None):
+    """Write results/<kernel>.json from its rows, of a run now or else of the `last` one, with its
+    runner's `startup` (`start`) and the size of its binary (`size`)."""
     result = {"kernel": k["name"], "version": last["version"] if last else version(k),
               "measured": k.get("measured", "exact"),
               "run": last["run"] if last else time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+              "host": last.get("host") if last else host(),
+              "startup": start, "binary": size,
               "tally": tally(rows), "cases": rows}
     with open(os.path.join(ROOT, "results", k["name"] + ".json"), "w") as f:
         json.dump(result, f, indent=1)
         f.write("\n")
 
 
-def run_plan(plan, timeout):
+def run_plan(plan, timeout, one_core=None):
     """Run what a plan from changed.py names, and fold it into each kernel's last results: their
     other rows are kept, and rows of cases that no longer exist are dropped (with their meshes)."""
     current = {c["id"]: c for c in cases()}
@@ -185,10 +401,18 @@ def run_plan(plan, timeout):
             mesh = os.path.join(ROOT, "results", "meshes", name, cid + ".stl")
             if os.path.exists(mesh):
                 os.remove(mesh)
-        rows.update({row["case"]: row for row in run_kernel(k, wanted, timeout)})
+        # measured again when the kernel's whole suite runs (its runner changed) or they never
+        # were, and the runner is to build something; a plan of a few cases keeps the last
+        if (any(implemented(k, c) for c in wanted)
+                and (len(wanted) == len(current) or not last.get("startup"))):
+            start, size = overhead(k, timeout, one_core)
+        else:
+            start, size = last.get("startup"), last.get("binary")
+        rows.update({row["case"]: row for row in run_kernel(k, wanted, timeout, one_core)})
         # with nothing run (only cases dropped), the runner may not be built: keep its version
-        record(k, [rows[cid] for cid in current if cid in rows], None if wanted else last)
-        print(f"{name}: {tally(rows.values())}")
+        record(k, [rows[cid] for cid in current if cid in rows], start, size,
+               None if wanted else last)
+        print(f"{name}: {tally(rows.values())}; {spent(rows.values())}")
 
 
 def main():
@@ -198,23 +422,34 @@ def main():
     ap.add_argument("--plan", help="run what this plan from changed.py names, and fold it into "
                     "the last results")
     ap.add_argument("--timeout", type=float, default=60)
+    ap.add_argument("--one-core", action="store_true",
+                    help="run each case a kernel builds again on one core alone, for its speedup "
+                    "on all of them (Linux)")
     args = ap.parse_args()
+    one_core = None
+    if args.one_core:
+        if not hasattr(os, "sched_setaffinity"):
+            ap.error("--one-core needs a system that can pin a process to a core (Linux)")
+        one_core = min(os.sched_getaffinity(0))
     os.makedirs(os.path.join(ROOT, "results"), exist_ok=True)
     if args.plan:
         with open(args.plan) as f:
             plan = json.load(f)
         if not plan["full"]:
-            run_plan(plan, args.timeout)
+            run_plan(plan, args.timeout, one_core)
             return
-    chosen = [k for k in kernels() if not args.kernel or k["name"] in args.kernel]
-    for k in chosen:
-        if not k.get("command"):
+    chosen = cases(args.case)
+    for k in kernels():
+        if not k.get("command") or (args.kernel and k["name"] not in args.kernel):
             continue
-        rows = run_kernel(k, cases(args.case), args.timeout)
-        # a part of the suite is a check in hand, not a result: only a whole run is recorded
+        # a part of the suite is a check in hand, not a result: only a whole run is recorded, and
+        # only it measures the runner's start-up and binary
         if not args.case:
-            record(k, rows)
-        print(f"{k['name']}: {tally(rows)}")
+            start, size = overhead(k, args.timeout, one_core)
+        rows = run_kernel(k, chosen, args.timeout, one_core)
+        if not args.case:
+            record(k, rows, start, size)
+        print(f"{k['name']}: {tally(rows)}; {spent(rows)}")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 // category, tag, whether it is settled, a view, and each kernel's outcome.  What it shows is in
 // the address, so a view can be linked to.  Only the rows in sight are in the page.
 import { load, tally, words, bar, legend, esc, casePage, kernelPage, thumbOf,
-         failed } from './board.js';
+         failed, secondsText, megabytesText, solved, option } from './board.js';
 
 const main = document.getElementById('explore');
 load().then(start, (e) => failed(main, e));
@@ -22,11 +22,10 @@ const FILTERS = [
   ['missing', 'missing'],
 ];
 const FILTER_LABEL = Object.fromEntries(FILTERS);
-const succeeded = (o) => o === 'pass' || o === 'built';
 function admits(filter, o) {
   switch (filter) {
     case '': return true;
-    case 'not-pass': return !succeeded(o) && o !== 'missing';
+    case 'not-pass': return !solved(o) && o !== 'missing';
     case 'failed': return o === 'wrong' || o === 'crashed' || o === 'timeout';
     case 'implemented': return o !== 'missing';
     default: return o === filter;
@@ -55,6 +54,8 @@ function start(b) {
     tags: new Set(params.getAll('tag')),
     settled: params.get('settled') || '',
     view: params.get('view') || '',
+    // what a cell shows: its outcome, or what the run cost (its colour is the outcome's)
+    cells: ['time', 'memory'].includes(params.get('cells')) ? params.get('cells') : '',
     shown: params.get('show')
       ? params.get('show').split(',').filter((n) => byName[n])
       : b.ran.map((k) => k.name),
@@ -73,14 +74,13 @@ function start(b) {
     for (const t of state.tags) p.append('tag', t);
     if (state.settled) p.set('settled', state.settled);
     if (state.view) p.set('view', state.view);
+    if (state.cells) p.set('cells', state.cells);
     if (state.shown.length !== b.ran.length) p.set('show', state.shown.join(','));
     for (const [k, f] of state.filters) if (f && state.shown.includes(k)) p.set(`f.${k}`, f);
     const s = p.toString();
     history.replaceState(null, '', s ? `?${s}` : location.pathname);
   }
 
-  const option = (value, label, chosen) =>
-    `<option value='${esc(value)}'${value === chosen ? ' selected' : ''}>${esc(label)}</option>`;
   main.innerHTML = `
     <div class=controls>
       <input type=search placeholder='Search titles, ids and tags' aria-label='Search'
@@ -95,6 +95,10 @@ function start(b) {
         ${option('no', 'unsettled', state.settled)}</select>
       <select name=view aria-label='View'>
         ${VIEWS.map(([v, l]) => option(v, l, state.view)).join('')}</select>
+      <select name=cells aria-label='What a cell shows'>
+        ${option('', 'cells: outcome', state.cells)}${option('time', 'cells: time', state.cells)}
+        ${option('memory', 'cells: memory', state.cells)}
+      </select>
     </div>
     <div class=columns role=group aria-label='Kernels shown'><span class=muted>Kernels:</span>
       ${b.ran.map((k) => `<button type=button class=chip data-kernel='${esc(k.name)}'
@@ -104,7 +108,9 @@ function start(b) {
     <div class=table-frame><table class=explore><thead></thead><tbody></tbody></table></div>
     <p class=legend>${legend()}</p>
     <p class=muted>A cell's outcome links to the case's results; point at it for why, or how long
-      it took. † marks a result reached by working around a feature the kernel lacks. Choose
+      it took (<em>cells: time</em> and <em>cells: memory</em> show what each run cost, coloured
+      by outcome;
+      <a href='performance.html'>Performance</a> compares them). † marks a result reached by working around a feature the kernel lacks. Choose
       kernels above to compare only them: <em>where the shown kernels differ</em> then lists the
       cases they do not agree on.</p>`;
 
@@ -132,8 +138,8 @@ function start(b) {
       for (const w of terms) if (!hay[i].includes(w)) return false;
       for (const [k, f] of kernelFilters) if (!admits(f, k.outcomes[i])) return false;
       switch (state.view) {
-        case 'nopass': return !b.ran.some((k) => succeeded(k.outcomes[i]));
-        case 'onepass': return b.ran.filter((k) => succeeded(k.outcomes[i])).length === 1;
+        case 'nopass': return !b.ran.some((k) => solved(k.outcomes[i]));
+        case 'onepass': return b.ran.filter((k) => solved(k.outcomes[i])).length === 1;
         case 'differ': {
           const seen = new Set(shown.map((k) => k.outcomes[i]).filter((o) => o !== 'missing'));
           return seen.size > 1;
@@ -205,9 +211,13 @@ function start(b) {
       if (o === 'missing') return `<td class='cell missing' title='${esc(k.name)}: no implementation yet'>–</td>`;
       const wa = k.workaround[c.i];
       const seconds = k.seconds[c.i];
+      const mb = k.mb[c.i];
       const tip = [`${k.name}: ${o}`, wa && `workaround: ${wa}`, k.why[c.i],
-                   seconds != null && `${seconds} s`].filter(Boolean).join(' · ');
-      return `<td class='cell ${o}' title='${esc(tip)}'><a href='${casePage(c.id, k.name)}'>${o}${
+                   seconds != null && secondsText(seconds),
+                   mb != null && megabytesText(mb)].filter(Boolean).join(' · ');
+      const shows = state.cells === 'time' ? secondsText(seconds)
+        : state.cells === 'memory' ? megabytesText(mb) : o;
+      return `<td class='cell ${o}' title='${esc(tip)}'><a href='${casePage(c.id, k.name)}'>${shows}${
         wa ? ' <span class=wa>†</span>' : ''}</a></td>`;
     }).join('');
     return `<tr><td class=case><div class=cc>${thumb}<div><a class=t href='${page}'
@@ -236,6 +246,7 @@ function start(b) {
     else if (el.dataset.add === 'tag' && el.value) state.tags.add(el.value);
     else if (el.name === 'settled') state.settled = el.value;
     else if (el.name === 'view') state.view = el.value;
+    else if (el.name === 'cells') state.cells = el.value;
     else if (el.dataset.filter) state.filters.set(el.dataset.filter, el.value);
     else return;
     if (el.dataset.add) el.value = '';

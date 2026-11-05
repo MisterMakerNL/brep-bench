@@ -20,7 +20,8 @@
         "kernels/cad-kernel/target/release/brep-bench-cad-kernel",
         "--version"
       ],
-      "source": "kernels/cad-kernel/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/cad-kernel/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/cad-kernel/target/release/brep-bench-cad-kernel"]
     },
     {
       "name": "occt",
@@ -45,7 +46,8 @@
         "kernels/occt/run.py",
         "--version"
       ],
-      "source": "kernels/occt/cases/{category}/{name_snake}.py"
+      "source": "kernels/occt/cases/{category}/{name_snake}.py",
+      "binary": [{"python": "python3", "distribution": "cadquery-ocp"}]
     },
     {"name": "monstertruck", "kernel": "https://github.com/virtualritz/monstertruck", "license": "Apache-2.0", "backend": "Rust", "frontend": "Rust", "command": null},
     {
@@ -68,7 +70,8 @@
         "kernels/arris/target/release/brep-bench-arris",
         "--version"
       ],
-      "source": "kernels/arris/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/arris/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/arris/target/release/brep-bench-arris"]
     },
     {
       "name": "kentron",
@@ -90,7 +93,8 @@
         "kernels/kentron/target/release/brep-bench-kentron",
         "--version"
       ],
-      "source": "kernels/kentron/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/kentron/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/kentron/target/release/brep-bench-kentron"]
     },
     {
       "name": "vcad",
@@ -113,7 +117,8 @@
         "kernels/vcad/target/release/brep-bench-vcad",
         "--version"
       ],
-      "source": "kernels/vcad/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/vcad/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/vcad/target/release/brep-bench-vcad"]
     },
     {
       "name": "solidcraft",
@@ -136,7 +141,8 @@
         "kernels/solidcraft/target/release/brep-bench-solidcraft",
         "--version"
       ],
-      "source": "kernels/solidcraft/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/solidcraft/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/solidcraft/target/release/brep-bench-solidcraft"]
     },
     {
       "name": "brepkit",
@@ -158,7 +164,8 @@
         "kernels/brepkit/target/release/brep-bench-brepkit",
         "--version"
       ],
-      "source": "kernels/brepkit/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/brepkit/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/brepkit/target/release/brep-bench-brepkit"]
     },
     {
       "name": "popkern",
@@ -180,7 +187,8 @@
         "kernels/popkern/target/release/brep-bench-popkern",
         "--version"
       ],
-      "source": "kernels/popkern/cases/{category}/{name_snake}.rhai"
+      "source": "kernels/popkern/cases/{category}/{name_snake}.rhai",
+      "binary": ["kernels/popkern/target/release/brep-bench-popkern"]
     },
     {
       "name": "aetheris",
@@ -202,7 +210,8 @@
         "--version"
       ],
       "measured": "mesh",
-      "source": "kernels/aetheris/cases/{category}/{name_snake}.firmament"
+      "source": "kernels/aetheris/cases/{category}/{name_snake}.firmament",
+      "binary": ["kernels/aetheris/bin/Release/net10.0/*.dll"]
     },
     {
       "name": "next.BREP",
@@ -224,7 +233,8 @@
         "kernels/next.BREP/target/release/brep-bench-next-brep",
         "--version"
       ],
-      "source": "kernels/next.BREP/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/next.BREP/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/next.BREP/target/release/brep-bench-next-brep"]
     },
     {
       "name": "solidcore",
@@ -246,7 +256,8 @@
         "kernels/solidcore/target/release/brep-bench-solidcore",
         "--version"
       ],
-      "source": "kernels/solidcore/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/solidcore/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/solidcore/target/release/brep-bench-solidcore"]
     },
     {
       "name": "geop",
@@ -268,7 +279,8 @@
         "kernels/geop/target/release/brep-bench-geop",
         "--version"
       ],
-      "source": "kernels/geop/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/geop/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/geop/target/release/brep-bench-geop"]
     },
     {
       "name": "cadrs",
@@ -290,7 +302,8 @@
         "kernels/cadrs/target/release/brep-bench-cadrs",
         "--version"
       ],
-      "source": "kernels/cadrs/src/cases/{category}/{name_snake}.rs"
+      "source": "kernels/cadrs/src/cases/{category}/{name_snake}.rs",
+      "binary": ["kernels/cadrs/target/release/brep-bench-cadrs"]
     }
   ]
 }
