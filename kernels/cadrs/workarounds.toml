@@ -45,3 +45,6 @@
 "chamfer/octahedron-all-edges" = "no corner face for chamfers"
 "feature/post-up-to-dome" = "no sphere primitive"
 "fillet/ball-and-post" = "no sphere primitive"
+"thicken/angle-bracket-rounded" = "no thicken of a sheet of several faces"
+"thicken/angle-bracket-sharp" = "no thicken of a sheet of several faces, no sharp thicken"
+"thicken/open-box-outward-sharp" = "no sharp thicken"
