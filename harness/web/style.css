@@ -8,7 +8,7 @@
 :root { --bg: #fff; --fg: #1d1d1f; --muted: #6b6b70; --line: #e3e3e6; --card: #f6f6f4;
         --built: #dbe7f6;
         --pass: #d8f0dd; --refused: #f3ecd0; --wrong: #f6d5d2; --crashed: #e9d6f2;
-        --timeout: #e9d6f2; --accent: #2f5fb3;
+        --timeout: #e9d6f2; --accent: #2f5fb3; --picked: rgba(47, 95, 179, 0.13);
         --m-pass: #2a78d6; --m-built: #1baf7a; --m-refused: #eda100; --m-failed: #e34948;
         --m-missing: #e3e2de;
         --hl-comment: #6a6f76; --hl-string: #2b7a2f; --hl-number: #a65400; --hl-keyword: #a2289c;
@@ -17,7 +17,7 @@
   :root { --bg: #151517; --fg: #ececf0; --muted: #9a9aa2; --line: #2c2c31; --card: #1e1e21;
           --built: #1f3550;
           --pass: #1f4429; --refused: #4a4120; --wrong: #5a2420; --crashed: #44264f;
-          --timeout: #44264f; --accent: #8fb0ff;
+          --timeout: #44264f; --accent: #8fb0ff; --picked: rgba(143, 176, 255, 0.16);
           --m-pass: #3987e5; --m-built: #199e70; --m-refused: #eda100; --m-failed: #e34948;
           --m-missing: #34343a;
           --hl-comment: #8e939b; --hl-string: #8fcf7f; --hl-number: #f0a35e; --hl-keyword: #d68cf0;
@@ -68,14 +68,19 @@ img.thumb { width: 64px; height: 64px; object-fit: contain; border-radius: 4px;
 .pick { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .pick button, .chip { font: inherit; padding: 4px 12px; border-radius: 999px; cursor: pointer;
                border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
-.pick button[aria-current=true], .chip[aria-pressed=true] { border-color: var(--accent);
-                                                            color: var(--accent); }
+.chip[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
 /* a case page's entries: the table of them all, a column each, picks the one shown below it */
 table.entries th, table.entries td { padding: 4px 10px; text-align: center; }
 table.entries th[scope=row] { text-align: left; font-weight: normal; color: var(--muted); }
 table.entries [data-k] { cursor: pointer; }
+/* the entry picked: its button filled, its column tinted (over an outcome's fill too) and
+   outlined */
+.pick button[aria-current=true] { background: var(--accent); border-color: var(--accent);
+                                  color: var(--bg); }
+.pick button[aria-current=true] .muted { color: inherit; opacity: 0.8; }
 table.entries [aria-current=true] { --sides: inset 2px 0 var(--accent), inset -2px 0 var(--accent);
-                                   box-shadow: var(--sides); }
+                                   box-shadow: var(--sides);
+                                   background-image: linear-gradient(var(--picked), var(--picked)); }
 table.entries th[aria-current=true] { color: var(--accent);
                                       box-shadow: var(--sides), inset 0 2px var(--accent); }
 table.entries tr:last-child [aria-current=true] { box-shadow: var(--sides),
