@@ -78,6 +78,10 @@ function quantile(sorted, q) {
 function start(b) {
   // only the measures some kernel's runs have
   const metrics = METRICS.filter((m) => b.ran.some((k) => k[m.key] && k[m.key].some((x) => x != null)));
+  if (!metrics.length) {
+    main.innerHTML = '<p class=muted>No kernel has measured runs yet.</p>';
+    return;
+  }
   const params = new URLSearchParams(location.search);
   const state = {
     metric: metrics.find((m) => m.key === params.get('m')) || metrics[0],
@@ -187,7 +191,7 @@ function summary(rows, m) {
   const start = (k) => {
     const x = k.start[m.start];
     if (x == null) return '<td class=num><span class=muted>–</span></td>';
-    return `<td class=num${k.start.measured ? '' : ` title='not measured: the kernel's fastest run
+    return `<td class=num${k.start.measured ? '' : ` title='not measured: the kernel&#39;s fastest run
       stands in for it'`}>${m.text(x)}${k.start.measured ? '' : '<sup>*</sup>'}</td>`;
   };
   const estimated = m.start && rows.some(({ k }) => !k.start.measured);
@@ -430,8 +434,9 @@ function multicore(b, indices, which) {
     const at = indices.filter((i) => k.cores[i] != null && (!which || solved(k.outcomes[i])));
     const both = at.filter((i) => k.speedup[i] != null);
     const sum = (list, key) => list.reduce((s, i) => s + k[key][i], 0);
-    const busy = at.length ? sum(at, 'cpu') / sum(at, 'seconds') : null;
-    const speedup = both.length ? sum(both, 'one') / sum(both, 'seconds') : null;
+    // start-up left out, as in each run's `cores` and `speedup`
+    const busy = at.length ? sum(at, 'builtCpu') / sum(at, 'built') : null;
+    const speedup = both.length ? sum(both, 'builtOne') / sum(both, 'built') : null;
     const sorted = at.map((i) => k.cores[i]).sort((x, y) => x - y);
     return { k, at, both, busy, median: quantile(sorted, 0.5), most: sorted[sorted.length - 1],
              speedup, cores: k.host && k.host.cores };

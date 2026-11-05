@@ -33,12 +33,13 @@ export const PARALLEL_FROM = 0.1;
 
 /** board.json, read: `cases` (in id order, each with its index `i`), `categories` (in order,
  * each with its cases' indices), `kernels` (every one; those with results carry `outcomes`,
- * `seconds`, `cpu`, `mb`, `one`, `built`, `builtCpu`, `cores`, `speedup`, `why` and
+ * `seconds`, `cpu`, `mb`, `one`, `built`, `builtCpu`, `builtOne`, `cores`, `speedup`, `why` and
  * `workaround`, one entry a case, and `start`) and `ran` (those with results).
  *
  * `start` is what starting the kernel's runner costs, building nothing: as the harness measured
  * it (`measured`), or for results from before it did, the kernel's fastest run standing in for
- * it.  `built` and `builtCpu` are a run's time and CPU time less the start's: the kernel's own.
+ * it.  `built`, `builtCpu` and `builtOne` are a run's time, CPU time and time on one core less
+ * the start's: the kernel's own.
  * `cores` is how many cores a run kept busy on average while building (its CPU time over its
  * time, the start's left out of both) and `speedup` its time on one core over its time on all of
  * them (likewise), both null for a run shorter than PARALLEL_FROM so reckoned. */
@@ -89,6 +90,7 @@ export async function load() {
       start,
       built,
       builtCpu,
+      builtOne,
       cores: builtCpu.map((c, i) => (c != null && long(i) ? c / built[i] : null)),
       speedup: builtOne.map((t, i) => (t != null && long(i) ? t / built[i] : null)),
       why: r.why.map((i) => (i < 0 ? '' : b.reasons[i])),

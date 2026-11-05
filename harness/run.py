@@ -243,8 +243,11 @@ def binary(k):
     found = set()
     for entry in k.get("binary") or []:
         if isinstance(entry, dict):
-            p = subprocess.run([entry["python"], "-c", FILES_OF, entry["distribution"]], cwd=ROOT,
-                               capture_output=True, text=True, timeout=60)
+            try:
+                p = subprocess.run([entry["python"], "-c", FILES_OF, entry["distribution"]],
+                                   cwd=ROOT, capture_output=True, text=True, timeout=60)
+            except (OSError, subprocess.TimeoutExpired):
+                continue
             paths = p.stdout.splitlines() if p.returncode == 0 else []
         else:
             paths = glob.glob(os.path.join(ROOT, entry), recursive=True)
@@ -260,17 +263,21 @@ def binary(k):
     return {"bytes": sum(os.path.getsize(f) for f in files), "files": len(files)}
 
 
-def started(k, timeout, one_core, chosen):
-    """`startup` of kernel `k`, when any of the `chosen` cases is to be run, said as it is known."""
-    if not any(not source(k, c["id"]) or os.path.exists(source(k, c["id"])) for c in chosen):
-        return None
-    out = startup(k, timeout, one_core)
-    said = (f"{out['seconds'] * 1000:.1f} ms" if out else "not known: it did not exit in time")
+def implemented(k, c):
+    """Whether kernel `k` has an implementation of case `c` (or keeps none apart from its runner)."""
+    src = source(k, c["id"])
+    return not src or os.path.exists(src)
+
+
+def overhead(k, timeout, one_core):
+    """Kernel `k`'s `startup` and the size of its `binary`, each printed as it is known."""
+    start = startup(k, timeout, one_core)
+    said = (f"{start['seconds'] * 1000:.1f} ms" if start else "not known: it did not exit in time")
     print(f"{k['name']:<14} starting its runner, building nothing: {said}", flush=True)
     size = binary(k)
     print(f"{k['name']:<14} its binary: " + (f"{size['bytes'] / 1e6:.1f} MB in {size['files']} "
-          "files" if size else "none found"), flush=True)
-    return out
+          f"file{'s' if size['files'] != 1 else ''}" if size else "none found"), flush=True)
+    return start, size
 
 
 def run_kernel(k, chosen, timeout, one_core=None):
@@ -282,8 +289,7 @@ def run_kernel(k, chosen, timeout, one_core=None):
         keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
         if os.path.exists(keep):
             os.remove(keep)
-        src = source(k, c["id"])
-        if src and not os.path.exists(src):
+        if not implemented(k, c):
             outcome, why, reply, mesh, ran = "missing", "no implementation", None, None, None
         else:
             outcome, why, reply, mesh, ran = run_one(k["command"], c, timeout, keep)
@@ -356,15 +362,14 @@ def host():
     return out
 
 
-def record(k, rows, last=None, start=None):
-    """Write results/<kernel>.json from its rows, of a run now (whose runner's `start` cost so
-    much, `startup`) or else of the `last` one."""
+def record(k, rows, start, size, last=None):
+    """Write results/<kernel>.json from its rows, of a run now or else of the `last` one, with its
+    runner's `startup` (`start`) and the size of its binary (`size`)."""
     result = {"kernel": k["name"], "version": last["version"] if last else version(k),
               "measured": k.get("measured", "exact"),
               "run": last["run"] if last else time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "host": last.get("host") if last else host(),
-              "startup": last.get("startup") if last else start,
-              "binary": last.get("binary") if last else binary(k),
+              "startup": start, "binary": size,
               "tally": tally(rows), "cases": rows}
     with open(os.path.join(ROOT, "results", k["name"] + ".json"), "w") as f:
         json.dump(result, f, indent=1)
@@ -392,10 +397,15 @@ def run_plan(plan, timeout, one_core=None):
             mesh = os.path.join(ROOT, "results", "meshes", name, cid + ".stl")
             if os.path.exists(mesh):
                 os.remove(mesh)
-        start = started(k, timeout, one_core, wanted)
+        # measured again only when the runner is to build something; else the last are kept
+        if any(implemented(k, c) for c in wanted):
+            start, size = overhead(k, timeout, one_core)
+        else:
+            start, size = last.get("startup"), last.get("binary")
         rows.update({row["case"]: row for row in run_kernel(k, wanted, timeout, one_core)})
         # with nothing run (only cases dropped), the runner may not be built: keep its version
-        record(k, [rows[cid] for cid in current if cid in rows], None if wanted else last, start)
+        record(k, [rows[cid] for cid in current if cid in rows], start, size,
+               None if wanted else last)
         print(f"{name}: {tally(rows.values())}; {spent(rows.values())}")
 
 
@@ -422,16 +432,17 @@ def main():
         if not plan["full"]:
             run_plan(plan, args.timeout, one_core)
             return
-    chosen = [k for k in kernels() if not args.kernel or k["name"] in args.kernel]
-    for k in chosen:
-        if not k.get("command"):
+    chosen = cases(args.case)
+    for k in kernels():
+        if not k.get("command") or (args.kernel and k["name"] not in args.kernel):
             continue
-        chosen = cases(args.case)
-        start = started(k, args.timeout, one_core, chosen)
-        rows = run_kernel(k, chosen, args.timeout, one_core)
-        # a part of the suite is a check in hand, not a result: only a whole run is recorded
+        # a part of the suite is a check in hand, not a result: only a whole run is recorded, and
+        # only it measures the runner's start-up and binary
         if not args.case:
-            record(k, rows, start=start)
+            start, size = overhead(k, args.timeout, one_core)
+        rows = run_kernel(k, chosen, args.timeout, one_core)
+        if not args.case:
+            record(k, rows, start, size)
         print(f"{k['name']}: {tally(rows)}; {spent(rows)}")
 
 

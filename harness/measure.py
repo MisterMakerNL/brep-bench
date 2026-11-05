@@ -69,22 +69,27 @@ def run(req):
         for fd in (out, err, null):
             os.close(fd)
 
-    state = {"reaped": False, "killed": False}
+    killed = []
 
     def ran_out(signum, frame):
-        if not state["reaped"]:
-            state["killed"] = True
-            os.kill(pid, signal.SIGKILL)
+        killed.append(True)
+        os.kill(pid, signal.SIGKILL)
 
     signal.signal(signal.SIGALRM, ran_out)
     signal.setitimer(signal.ITIMER_REAL, req["timeout"])
     try:
-        _, status, usage = os.wait4(pid, 0)
-        state["reaped"] = True
+        # wait for it to exit without reaping it: until it is reaped its pid is not reused, so a
+        # timer that fires late kills only the exited process, which is harmless
+        os.waitid(os.P_PID, pid, os.WEXITED | os.WNOWAIT)
+        seconds = time.monotonic() - start
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
-    seconds = time.monotonic() - start
-    return {"code": None if state["killed"] else os.waitstatus_to_exitcode(status),
+        signal.signal(signal.SIGALRM, signal.SIG_IGN)
+    _, status, usage = os.wait4(pid, 0)
+    # ran out of time only if the timer's kill is what ended it, not an exit just before it
+    timed_out = (killed and os.WIFSIGNALED(status)
+                 and os.WTERMSIG(status) == signal.SIGKILL)
+    return {"code": None if timed_out else os.waitstatus_to_exitcode(status),
             "seconds": seconds, "cpu": usage.ru_utime + usage.ru_stime,
             "peak_bytes": usage.ru_maxrss * MAXRSS_BYTES}
 
