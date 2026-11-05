@@ -194,13 +194,16 @@ function heat(t) {
 
 // The table beside the strip, which says in numbers what it draws, and what starting each
 // kernel's runner costs of the measure: left out of the strip's times (unless counted), only
-// said of its memory.  Each column but the count of cases is washed from green at its best
-// value to red at its worst, on the strip's logarithmic scale.
-function summary(rows, m) {
+// said of its memory.  Only the cases each kernel passes or builds count, whatever the filter.
+// Each column but the count of cases is washed from green at its best value to red at its
+// worst, on the strip's logarithmic scale.
+function summary(measured, m) {
+  const rows = measured.map(({ k, at }) => ({ k, sorted: at.filter((i) => solved(k.outcomes[i]))
+    .map((i) => k[m.key][i]).sort((x, y) => x - y) }));
   // the columns washed, each a value a row
   const columns = [
     m.start && ((k) => k.start[m.start]),
-    m.additive && ((k, sorted) => sorted.reduce((s, x) => s + x, 0)),
+    m.additive && ((k, sorted) => (sorted.length ? sorted.reduce((s, x) => s + x, 0) : null)),
     (k, sorted) => sorted[0],
     (k, sorted) => quantile(sorted, 0.5),
     (k, sorted) => quantile(sorted, 0.9),
@@ -224,7 +227,8 @@ function summary(rows, m) {
   const notMeasured = ` title='not measured: the kernel&#39;s fastest run stands in for it'`;
   const estimated = m.start && rows.some(({ k }) => !k.start.measured);
   return `<div class=scroll><table><tr><th>kernel</th>${m.start ? `<th class=num
-    title='starting the runner, building nothing'>start-up</th>` : ''}<th class=num>cases</th>
+    title='starting the runner, building nothing'>start-up</th>` : ''}<th class=num
+    title='the cases it passes or builds'>cases</th>
     ${m.additive ? '<th class=num>total</th>' : ''}<th class=num>${m.least}</th>
     <th class=num>median</th><th class=num title='nine cases in ten have no more'>90th
     percentile</th><th class=num>${m.most}</th></tr>${rows.map(({ k, sorted }, r) => {
@@ -237,8 +241,9 @@ function summary(rows, m) {
     <p class=muted><em>Start-up</em> is what starting the kernel's runner costs with nothing to
       build: the harness gives it a case id no case has and takes the median of five starts.${
       estimated ? ` <sup>*</sup> Not measured yet (the kernel's last run was made before the
-      harness did): its fastest run stands in for it.` : ''} Each column is shaded from green at
-      its best value to red at its worst, on a logarithmic scale.</p>`;
+      harness did): its fastest run stands in for it.` : ''} The table counts only the cases each
+      kernel passes or builds. Each column is shaded from green at its best value to red at its
+      worst, on a logarithmic scale.</p>`;
 }
 
 // The ticks of a logarithmic axis from 10^lo to 10^hi: each power of ten, and 2 and 5 times it
