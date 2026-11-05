@@ -1,0 +1,4 @@
+# The cases brepkit builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"chamfer/octahedron-all-edges" = "the octahedron as the convex hull of six points, every edge chamfered in one call"

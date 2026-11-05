@@ -1,0 +1,4 @@
+# The cases solidcore builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"geometry/hyperboloid-ruled" = "two circles, the upper started a quarter turn on, lofted at degree 1: the case in three lines"

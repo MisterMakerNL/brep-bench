@@ -1,0 +1,6 @@
+# The cases cad-kernel builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"sweep/helical-pipe-round-ends" = "the ball itself is screwed along the helix, so the round ends come free"
+"swept/ball-swung-groove" = "the kernel sweeps the ball itself; no torus and end balls assembled by hand"
+"swept/ball-thread-groove" = "the groove is one canal of the ball along six turns, cut from the rod; the only one built without a workaround"

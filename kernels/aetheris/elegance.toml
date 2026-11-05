@@ -1,0 +1,5 @@
+# The cases aetheris builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"boolean/indexed-pattern" = "the first hole is a feature, repeated by a radial pattern; no angle loop or cutters"
+"parts/flange" = "a feature tree as the case reads: base, boss on top, through-all hole, radial pattern"

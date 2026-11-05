@@ -1,0 +1,5 @@
+# The cases arris builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"fillet/box-one-edge" = "the edge named by the box's provenance, along z on its two max sides, not found by coordinates"
+"fillet/cylinder-rim" = "the edge asked for as the cylinder's top rim, by provenance, not by coordinates"
