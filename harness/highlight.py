@@ -5,7 +5,8 @@ code as HTML, escaped, its tokens in <span>s whose classes style.css colours:
   t a type (a Capitalised name), f a function called or defined, m a macro or an attribute.
 
 A language is told by the file's extension: Rust (.rs), Python (.py), Rhai (.rhai) and
-Firmament (.firmament); any other file comes back escaped and nothing more. A lexer here is a
+Firmament (.firmament); any other file comes back escaped and nothing more. `loc(code, path)`
+counts its lines of code by the same lexers, leaving out comments. A lexer here is a
 list of patterns tried in order at each place, not a parser: it knows strings and comments from
 code, and names by their spelling and by whether a `(` follows them. Standard library only."""
 import html
@@ -75,6 +76,28 @@ def kind(name, after, keywords, constants):
     if after.lstrip(" ").startswith("("):
         return "f"
     return None
+
+
+def loc(code, path):
+    """The lines of `code` that hold code: not blank, and not only comment (or a Python
+    docstring). A file in no language known here counts its lines that are not blank."""
+    lex = LEXERS.get(os.path.splitext(path)[1])
+    if lex:
+        pattern = lex[0]
+        kept, at = [], 0
+        for match in pattern.finditer(code):
+            start, end = match.span()
+            text = match.group()
+            prose = match.group("c") is not None or (
+                match.group("s") is not None and text.startswith(('"""', "'''"))
+                and not code[code.rfind("\n", 0, start) + 1:start].strip())
+            if prose:  # blanked, its line breaks kept
+                kept.append(code[at:start])
+                kept.append(re.sub(r"[^\n]", " ", text))
+                at = end
+        kept.append(code[at:])
+        code = "".join(kept)
+    return sum(1 for line in code.splitlines() if line.strip())
 
 
 def highlight(code, path):

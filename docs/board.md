@@ -16,7 +16,7 @@ kernel above another and lists them in the order of `kernels.json`. It has:
 - **A page for each case:** the description; its expected volume and area with their closed
   forms (or, for an unsettled case, a note that it has none yet); a drawing of the expected solid
   (three views and an isometric); a table of every kernel's entry at a glance, a column each (its
-  outcome, its errors or measures and its time); and the entry picked, by a click on that table or
+  outcome, its errors or measures, its time and its lines of code, comments left out); and the entry picked, by a click on that table or
   on the buttons under it: its result in a 3D viewer, with any open edges of its mesh marked in red;
   its time; its notes (why it failed, what it works around); its data (its measures against the
   expected ones, which other kernels it agrees with, its faces, its mesh and its STL to download);

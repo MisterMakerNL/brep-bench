@@ -5,9 +5,10 @@
 - the board's pages, harness/web/ copied as they are: the overview (index.html), the explorer of
   every case (explore.html) and a kernel's page (kernel.html?k=NAME), which read board.json;
 - a page for each case (cases/<case>.html), written here: its description, its closed forms, its
-  drawing, a table of every kernel's entry at a glance, and the entry picked (#k=NAME in the
-  address picks one): its result in 3D, its time, its notes, its measures and its STL file, and
-  its implementation, the code highlighted (harness/highlight.py).
+  drawing, a table of every kernel's entry at a glance (outcome, errors, time and lines of code),
+  and the entry picked (#k=NAME in the address picks one): its result in 3D, its time, its notes,
+  its measures and its STL file, and its implementation, the code highlighted
+  (harness/highlight.py).
 
 Kernels are listed in kernels.json's order, everywhere: the board ranks nothing. Run
 harness/draw.py first for the drawings. Standard library only."""
@@ -21,7 +22,7 @@ import tomllib
 import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from highlight import highlight  # noqa: E402
+from highlight import highlight, loc  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
@@ -244,9 +245,14 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
             shutil.copyfile(stl, dest)
             href = f"{up}meshes/{e(name)}/{e(cid)}.stl"
             mb = os.path.getsize(stl) / 1e6
+        src = source(registry.get(name, {}), cid)
+        code = None
+        if src and os.path.exists(src):
+            with open(src, encoding="utf-8") as f:
+                code = f.read()
         entries.append({"name": name, "row": row, "outcome": row["outcome"] if row else "missing",
-                        "stl": href, "mb": mb, "wa": r["workarounds"].get(cid),
-                        "src": source(registry.get(name, {}), cid)})
+                        "stl": href, "mb": mb, "wa": r["workarounds"].get(cid), "src": src,
+                        "code": code, "loc": None if code is None else loc(code, src)})
 
     # each result's measures, and which other results they agree with: to 1e-8 between exact
     # kernels, to 1e-3 where either was measured from its mesh
@@ -284,7 +290,9 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
 
         # every entry at a glance, a column each
         out.append("<h2 id=results>Results</h2>")
-        lines = [["<th></th>"], ["<th scope=row>outcome</th>"], [], [], ["<th scope=row>time</th>"]]
+        lines = [["<th></th>"], ["<th scope=row>outcome</th>"], [], [], ["<th scope=row>time</th>"],
+                 ["<th scope=row title='lines of code, comments and blank lines left out'>"
+                  "LOC</th>"]]
         if exp:
             lines[2].append("<th scope=row title='relative error'>volume err.</th>")
             lines[3].append("<th scope=row title='relative error'>area err.</th>")
@@ -307,6 +315,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
             lines[2].append(mark(en, "td", "", vcell))
             lines[3].append(mark(en, "td", "", acell))
             lines[4].append(mark(en, "td", "", f"{row['seconds']} s" if row else ""))
+            lines[5].append(mark(en, "td", "", "" if en["loc"] is None else str(en["loc"])))
         out.append("<div class=scroll><table class=entries>" +
                    "".join(f"<tr>{''.join(cells)}</tr>" for cells in lines) + "</table></div>")
         out.append("<p class=muted>† works around a missing feature. Pick an entry to see its "
@@ -421,14 +430,14 @@ def entry(en, shown, exp, measured, agrees, e):
         out.append("<p class=muted>None.</p>")
 
     out.append("<h3>Implementation</h3>")
-    src = en["src"]
-    if not src or not os.path.exists(src):
+    src, code = en["src"], en["code"]
+    if code is None:
         out.append("<p class=muted>No implementation yet.</p>")
     else:
-        with open(src, encoding="utf-8") as f:
-            code = f.read()
         rel = os.path.relpath(src, ROOT)
-        out.append(f"<p class=muted><a href='{REPO}/blob/main/{e(rel)}'>{e(rel)}</a></p>"
+        n = en["loc"]
+        out.append(f"<p class=muted><a href='{REPO}/blob/main/{e(rel)}'>{e(rel)}</a> · {n} "
+                   f"line{'' if n == 1 else 's'} of code, comments left out</p>"
                    f"<pre class=code>{highlight(code, src)}</pre>")
     out.append("</section>")
     return "\n".join(out)
