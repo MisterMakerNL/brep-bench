@@ -10,6 +10,6 @@
 "swept/torus-slid-through-rod" = "no sweep of a solid"
 "swept/two-beads-slid-through-rod" = "no sweep of a solid"
 "loft/twisted-thin-blade" = "no loft along guide curves"
-"sweep/mitred-pipe-on-cube-edges" = "the mitred runs do not unite on their elliptical mitre faces"
-"sweep/mitred-picture-frame" = "no sweep of a section offset from its path"
+"sweep/mitered-pipe-on-cube-edges" = "the mitred runs do not unite on their elliptical mitre faces"
+"sweep/mitered-picture-frame" = "no sweep of a section offset from its path"
 "sweep/round-cornered-pipe" = "a rounded corner's quarter ball does not unite with the runs it is tangent to"
