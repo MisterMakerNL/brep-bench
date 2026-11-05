@@ -18,6 +18,7 @@ live; [SPEC.md](../SPEC.md#kernelsjson) describes the fields. The `name` there (
 | [brepkit](https://github.com/andymai/brepkit) | `kernels/brepkit` (Rust, on the `brepkit-*` crates from crates.io, pinned in its `Cargo.toml`) |
 | [solidcore](https://github.com/tangency-labs/solidcore) | `kernels/solidcore` (Rust, on solidcore-ops for its operations and solidcore-tess for meshing, both from its repository at a commit pinned in its `Cargo.toml`) |
 | [geop](https://github.com/geop-cad/geop) | `kernels/geop` (Rust programs of geop's operations, on its crates from its repository at a release tag pinned in its `Cargo.toml`) |
+| [cadrs](https://github.com/rvdende/cadrs) | `kernels/cadrs` (Rust, through the `Kernel` trait of cadrs's kernel crate, `cadrs_kernel`, from its repository at a commit pinned in its `Cargo.toml`) |
 | [monstertruck](https://github.com/virtualritz/monstertruck) | listed, with no runner yet: wanted |
 
 A kernel **measured from its mesh** has no exact measures of its own: the harness takes its volume

@@ -1,0 +1,14 @@
+//! A ball hollowed, its cavity closed. A ball of radius 5 centered on the origin, hollowed to a wall 1
+//! thick with no opening: the ball less the ball of radius 4, one solid bounded by two spheres.
+//!
+//! The ball is a half disc beside the z axis revolved a whole turn (cadrs has no sphere primitive);
+//! cadrs's Shell feature with Hollow set (no face removed).
+use crate::bench::{ball, p3};
+use crate::shared::shell::hollow;
+use crate::Refusal;
+use cadrs_kernel::{BodyId, DefaultKernel};
+
+pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
+    let b = ball(k, p3(0.0, 0.0, 0.0), 5.0)?;
+    hollow(k, b, 1.0)
+}
