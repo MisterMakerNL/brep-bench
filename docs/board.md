@@ -1,8 +1,7 @@
 # The board
 
-The results are published at
-**[bmander.github.io/brep-bench](https://bmander.github.io/brep-bench/)**. The board ranks no
-kernel above another and lists them in the order of `kernels.json`. It has:
+The results are published at **[brepbench.org](https://brepbench.org/)**. The board ranks no kernel
+above another and lists them in the order of `kernels.json`. It has:
 
 - **An overview:** each kernel's outcomes, each category's outcomes by kernel, and a strip of every
   case's outcome for every kernel.
