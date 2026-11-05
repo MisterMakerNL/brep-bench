@@ -269,6 +269,28 @@
         "--version"
       ],
       "source": "kernels/geop/src/cases/{category}/{name_snake}.rs"
+    },
+    {
+      "name": "cadrs",
+      "kernel": "https://github.com/rvdende/cadrs",
+      "license": "MIT OR Apache-2.0",
+      "backend": "Rust",
+      "frontend": "Rust (the Kernel trait cadrs's Part Studio features call)",
+      "build": [
+        "cargo",
+        "build",
+        "--release",
+        "--manifest-path",
+        "kernels/cadrs/Cargo.toml"
+      ],
+      "command": [
+        "kernels/cadrs/target/release/brep-bench-cadrs"
+      ],
+      "version": [
+        "kernels/cadrs/target/release/brep-bench-cadrs",
+        "--version"
+      ],
+      "source": "kernels/cadrs/src/cases/{category}/{name_snake}.rs"
     }
   ]
 }

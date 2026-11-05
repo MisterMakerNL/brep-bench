@@ -1,0 +1,8 @@
+# The cases cadrs builds by working around a feature its kernel lacks, and what that is
+# (SPEC.md, "A workaround is flagged"). cadrs's kernel, like Onshape, has no primitives: a part
+# starts from a sketch, extruded or revolved. A block and a cylinder are a rectangle and a circle
+# extruded; a ball, a cone and a torus revolved from their sections are flagged here.
+
+"primitives/cone-frustum" = "no cone primitive"
+"primitives/sphere" = "no sphere primitive"
+"primitives/torus" = "no torus primitive"

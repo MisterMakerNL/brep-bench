@@ -1,0 +1,16 @@
+[package]
+name = "brep-bench-cadrs"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "The brep-bench runner for cadrs's kernel, and its implementation of every case."
+publish = false
+
+# cadrs's kernel (the crate cadrs_kernel) is not on crates.io, so it comes from cadrs's
+# repository at one commit: the board says which, and moving to another is a change made here.
+[dependencies]
+cadrs_kernel = { git = "https://github.com/rvdende/cadrs", rev = "26cdea68b59b56ad9323188c756f035b6ea27d88" }
+nalgebra = "0.35"
+
+[profile.release]
+debug = 0
