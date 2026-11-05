@@ -1,6 +1,19 @@
 // The overview: the kernels, the categories by kernels, and a strip of every case.
 import { load, tally, words, bar, legend, esc, casePage, kernelPage, groupOf, markColours,
-         failed, placeTip } from './board.js';
+         failed, placeTip, solved, secondsText, megabytesText } from './board.js';
+
+// The least time a run's own time is taken as, for the mean of their logarithms: a time of 0 is
+// under the clock's resolution (the performance page's floor).
+const TIME_FLOOR = 0.001;
+
+/** Kernel `k`'s geometric mean time over the cases it passes or builds, its runner's start-up
+ * left out (each time no less than TIME_FLOOR), and how many cases it is over; null if none. */
+function meanTime(k) {
+  const xs = k.built.filter((x, i) => x != null && solved(k.outcomes[i]));
+  if (!xs.length) return null;
+  const logs = xs.reduce((s, x) => s + Math.log(Math.max(x, TIME_FLOOR)), 0);
+  return { seconds: Math.exp(logs / xs.length), n: xs.length };
+}
 
 const main = document.getElementById('board');
 load().then(draw, (e) => failed(main, e));
@@ -12,7 +25,11 @@ function draw(b) {
     <p class=legend>${legend()}</p>
     <p class=muted>Missing means no implementation yet, and says nothing about the kernel.
       Implementations for the kernels awaiting one are welcome from anyone, the kernel's authors
-      first. † counts results reached by working around a feature the kernel lacks.</p>
+      first. † counts results reached by working around a feature the kernel lacks. <em>Mean
+      time</em> is the geometric mean (the mean on a logarithmic scale) of the kernel's own time
+      over the cases it passes or builds, what starting its runner costs left out; <em>binary</em>
+      is the size on disk of what it runs. <a href='performance.html'>Performance</a> has
+      both in full.</p>
     <h2>By category</h2>
     <p class=muted>How many of each category's cases each kernel passes (or, unsettled, builds
       soundly). Open a category to read its cases.</p>
@@ -38,22 +55,41 @@ function kernels(b) {
     const about = `<td class=kernel>${name}</td><td>${esc(k.backend || '')}</td>
       <td class=wrap>${esc(k.frontend || '')}</td><td class=wrap>${esc(k.license || '')}</td>`;
     if (!k.outcomes) {
-      return `<tr>${about}<td class=muted colspan=4>awaiting an implementation</td></tr>`;
+      return `<tr>${about}<td class=muted colspan=6>awaiting an implementation</td></tr>`;
     }
     const t = tally(k);
     const worked = k.workaround.filter((w, i) => w && (k.outcomes[i] === 'pass' ||
                                                        k.outcomes[i] === 'built')).length;
     return `<tr>${about}<td class=num>${total - t.missing} <span class=muted>of ${total}</span></td>
       <td>${bar(t)}</td><td class=counts>${esc(words(t))}</td>
-      <td class='num muted'>${worked || ''}</td></tr>`;
+      <td class='num muted'>${worked || ''}</td>${timeCell(k)}${sizeCell(k)}</tr>`;
   });
   return `<div class=scroll><table><tr><th>kernel</th>
     <th title='the language the kernel is written in'>back end</th>
     <th title='the language its implementations of the cases are written in'>front end</th>
     <th>license</th><th class=num title='cases it has an implementation of'>implemented</th>
     <th>outcomes</th><th></th>
-    <th class=num title='passed or built by working around a feature the kernel lacks'>†</th></tr>
+    <th class=num title='passed or built by working around a feature the kernel lacks'>†</th>
+    <th class=num title='the geometric mean of its own time (start-up left out) over the cases it passes or builds'>mean time</th>
+    <th class=num title='the size on disk of its binary, as built for its last run'>binary</th></tr>
     ${rows.join('')}</table></div>`;
+}
+
+const dash = '<td class=num><span class=muted>–</span></td>';
+
+function timeCell(k) {
+  const m = meanTime(k);
+  if (!m) return dash;
+  const start = k.start.measured ? `, start-up of ${secondsText(k.start.seconds)} left out`
+    : ', its fastest run left out as start-up';
+  return `<td class=num title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}${
+    esc(start)}'>${secondsText(m.seconds)}</td>`;
+}
+
+function sizeCell(k) {
+  if (!k.binary) return dash;
+  const files = `${k.binary.files} file${k.binary.files === 1 ? '' : 's'}`;
+  return `<td class=num title='${esc(files)}'>${megabytesText(k.binary.bytes / 1e6)}</td>`;
 }
 
 function categories(b) {
