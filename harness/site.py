@@ -2,8 +2,9 @@
 """Render the results as a static site (site/):
 
 - board.json: every case and every kernel's outcome of it, in one file (its form is `board`'s);
-- the board's pages, harness/web/ copied as they are: the overview (index.html), the explorer of
-  every case (explore.html) and a kernel's page (kernel.html?k=NAME), which read board.json;
+- the board's pages, harness/web/ copied, the addresses of their scripts and of board.json
+  versioned: the overview (index.html), the explorer of every case (explore.html) and a kernel's
+  page (kernel.html?k=NAME), which read board.json;
 - a page for each case (cases/<case>.html), written here: its description, its closed forms, its
   drawing, a table of every kernel's entry at a glance (outcome, errors, time and lines of code),
   and the entry picked (#k=NAME in the address picks one): its result in 3D, its time, its notes,
@@ -12,6 +13,7 @@
 
 Kernels are listed in kernels.json's order, everywhere: the board ranks nothing. Run
 harness/draw.py first for the drawings. Standard library only."""
+import hashlib
 import html
 import json
 import os
@@ -691,6 +693,33 @@ picked(document.querySelector('section.entry:not([hidden])')?.dataset.src);
 </script>"""
 
 
+def web(data):
+    """Copy harness/web/ into site/, each address of a script or of board.json given a version
+    (`?v=` and a hash of the scripts and of `data`, board.json's bytes). GitHub Pages lets a
+    browser keep a file for ten minutes, so without it a browser can pair a deploy's scripts
+    with the last deploy's board.json, or the reverse, and draw nothing."""
+    names = sorted(os.listdir(WEB))
+    digest = hashlib.sha256(data)
+    for name in names:
+        with open(os.path.join(WEB, name), "rb") as f:
+            digest.update(name.encode() + b"\0" + f.read())
+    v = "?v=" + digest.hexdigest()[:12]
+    for name in names:
+        src, dest = os.path.join(WEB, name), os.path.join(SITE, name)
+        if not name.endswith((".html", ".js")):
+            shutil.copyfile(src, dest)
+            continue
+        with open(src, encoding="utf-8") as f:
+            text = f.read()
+        text = text.replace("'board.json'", f"'board.json{v}'")
+        if name.endswith(".html"):
+            text = re.sub(r"src='(\w+\.js)'", rf"src='\1{v}'", text)
+        else:
+            text = re.sub(r"from '\./(\w+\.js)'", rf"from './\1{v}'", text)
+        with open(dest, "w", encoding="utf-8") as f:
+            f.write(text)
+
+
 def main():
     registry, results, cases, drawings = load()
     for k in registry.values():
@@ -705,11 +734,11 @@ def main():
             if cid in cases and o not in ("pass", "built"):
                 print(f"kernels/{r['kernel']}/{ELEGANCE}: {cid} is {o}", file=sys.stderr)
     os.makedirs(SITE, exist_ok=True)
-    for name in sorted(os.listdir(WEB)):
-        shutil.copyfile(os.path.join(WEB, name), os.path.join(SITE, name))
-    with open(os.path.join(SITE, "board.json"), "w") as f:
-        json.dump(board(registry, results, cases, drawings), f, separators=(",", ":"),
-                  ensure_ascii=False)
+    data = json.dumps(board(registry, results, cases, drawings), separators=(",", ":"),
+                      ensure_ascii=False).encode()
+    with open(os.path.join(SITE, "board.json"), "wb") as f:
+        f.write(data)
+    web(data)
     ids = sorted(cases)
     for i, cid in enumerate(ids):
         category = cid.rpartition("/")[0]
