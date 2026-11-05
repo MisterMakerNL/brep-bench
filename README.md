@@ -29,7 +29,8 @@ A runner builds the case, writes its triangles as STL, and reports the solid's v
 
 A case with no closed form is *unsettled* until two independent kernels agree on it to 1e-8; until
 then a sound result is graded **built**. A result that works around a missing feature (a ball
-revolved from a half disk, for a kernel with no sphere) is marked † as a **workaround**.
+revolved from a half disk, for a kernel with no sphere) is marked † as a **workaround**; one that
+stands out as especially clean, or for an idea in its kernel's API, is marked ✦ as **elegant**.
 **Refused** ranks above **wrong**. The full rules are in [SPEC.md](SPEC.md).
 
 ## Running it

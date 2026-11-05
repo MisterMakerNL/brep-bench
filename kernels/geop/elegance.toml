@@ -1,0 +1,5 @@
+# The cases geop builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"fillet/rounded-block-top-rim" = "one rim edge picked; the fillet follows the tangent chain all round the top"
+"geometry/saddle-drum" = "the saddle filled from its four edges; the piece above dropped by its end face's persistent name"

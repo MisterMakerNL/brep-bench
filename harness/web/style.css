@@ -54,6 +54,8 @@ td.case small { display: block; color: var(--muted); }
 details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
 .description { max-width: 70ch; font-size: 1.05em; }
 td.why { white-space: normal; min-width: 240px; font-size: 0.9em; }
+table.elegance th.kernel { vertical-align: top; }
+table.elegance td.why { font-size: 1em; max-width: 70ch; }
 .muted { color: var(--muted); }
 a { color: inherit; }
 img.thumb { width: 64px; height: 64px; object-fit: contain; border-radius: 4px;

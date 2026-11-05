@@ -1,5 +1,6 @@
 // A kernel's page (kernel.html?k=NAME): what it is, its outcomes by category, its refusals by
-// reason, what it got wrong, what it worked around, and how long it took.
+// reason, what it got wrong, what it worked around, which implementations are elegant, and how
+// long it took.
 import { load, tally, bar, legend, esc, casePage, kernelPage, OUTCOMES,
          failed, secondsText, megabytesText, quantile } from './board.js';
 
@@ -55,6 +56,15 @@ function draw(b) {
   const link = (i) => `<a href='${casePage(b.cases[i].id, k.name)}'>${esc(b.cases[i].title)}</a>
     <small class=muted>${esc(b.cases[i].id)}</small>`;
   const all = b.cases.map((c) => c.i);
+
+  // the implementations flagged elegant, and why
+  const neat = all.filter((i) => k.elegance[i]);
+  out += `<h2 id=elegance>Elegance</h2>`;
+  out += neat.length ? `<p class=muted>Implementations that stand out beside the other kernels'
+    of the same case: notably clean, or showing an idea in the kernel's API or design.</p>
+    <div class=scroll><table><tr><th>case</th><th>why</th></tr>${neat.map((i) =>
+      `<tr><td class=case>${link(i)}</td><td class=why>${esc(k.elegance[i])}</td></tr>`).join('')}
+    </table></div>` : '<p class=muted>None flagged.</p>';
 
   // refusals, by the reason given, the commonest first
   const reasons = new Map();
@@ -124,4 +134,6 @@ function draw(b) {
         k.outcomes[i]}</td></tr>`).join('')}</table></div>`;
   }
   main.innerHTML = out;
+  // drawn after the page loaded: a section the address names (#elegance) is scrolled to now
+  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 }

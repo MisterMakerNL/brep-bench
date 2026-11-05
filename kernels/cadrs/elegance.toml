@@ -1,0 +1,5 @@
+# The cases cadrs builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"draft/l-block-sides" = "the sides picked by what they are, faces_where(is_side), not by points"
+"feature/hole-through-the-upper-arm" = "the drill extruded up to next: no stop face or depth given"

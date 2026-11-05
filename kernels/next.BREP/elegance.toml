@@ -1,0 +1,5 @@
+# The cases next.BREP builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"loft/square-to-octagon" = "curves of no length pair each corner with a cut side, so one plain loft makes every face"
+"loft/square-to-round" = "the loft rails curve k to curve k; curves of no length pair corners with arcs and sides with points"

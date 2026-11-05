@@ -1,0 +1,4 @@
+# The cases vcad builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"fillet/variable-radius-edge" = "the edge named by its two ends, the radius keyed at t = 0 and 1; no check of its direction"

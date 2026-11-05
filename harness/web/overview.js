@@ -45,6 +45,7 @@ function draw(b) {
     <p class=muted>How many of each category's cases each kernel passes (or, unsettled, builds
       soundly). Open a category to read its cases.</p>
     ${categories(b)}
+    ${elegance(b)}
     <h2>Every case</h2>
     <p class=muted>All ${n} cases, a column each, grouped by category; a row a kernel. Point at
       one for its outcomes, or open it. <a href='explore.html'>The explorer</a> lists them.</p>
@@ -109,6 +110,26 @@ function sizeCell(k) {
   if (!k.binary) return dash;
   const files = `${k.binary.files} file${k.binary.files === 1 ? '' : 's'}`;
   return `<td class=num title='${esc(files)}'>${megabytesText(k.binary.bytes / 1e6)}</td>`;
+}
+
+// The implementations each kernel's authors call elegant (its elegance.toml), kernel by kernel in
+// kernels.json's order: what each case asks, said cleanly, or an idea in the kernel's API.
+function elegance(b) {
+  const rows = [];
+  for (const k of b.ran) {
+    const mine = b.cases.filter((c) => k.elegance[c.i]);
+    mine.forEach((c, j) => rows.push(`<tr>${j ? '' : `<th rowspan=${mine.length} class=kernel>
+      <a href='${kernelPage(k.name)}#elegance'>${esc(k.name)}</a></th>`}
+      <td class=case><a href='${casePage(c.id, k.name)}'>${esc(c.title)}</a>
+      <small class=muted>${esc(c.id)}</small></td><td class=why>${esc(k.elegance[c.i])}</td></tr>`));
+  }
+  if (!rows.length) return '';
+  return `<h2 id=elegance>Elegance</h2>
+    <p class=muted>Implementations that stand out when a case is read across the kernels: a
+      solution notably cleaner than the rest, or an idea in a kernel's API or design that makes
+      the case say what it means. Open one to read its code beside the others'.</p>
+    <div class=scroll><table class=elegance><tr><th>kernel</th><th>case</th><th>why</th></tr>
+    ${rows.join('')}</table></div>`;
 }
 
 function categories(b) {

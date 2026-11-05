@@ -1,0 +1,5 @@
+# The cases solidcraft builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"loft/twisted-tapering-square" = "twist and taper are plain fields of the sweep; one call, no guide curve built"
+"sweep/hollow-reducer" = "sections with holes lofted outline to outline and hole to hole; no inner loft cut away"

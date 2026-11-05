@@ -65,9 +65,11 @@ def load():
             # (the Actions cache keeps them)
             if r["kernel"] not in registry:
                 continue
-            # each case's row by id, and what the kernel's implementations work around, read once
+            # each case's row by id, and what the kernel's implementations work around and which
+            # are flagged elegant, read once
             r["rows"] = {c["case"]: c for c in r["cases"]}
-            r["workarounds"] = workarounds(registry.get(r["kernel"], {"name": r["kernel"]}))
+            r["workarounds"] = flags(registry[r["kernel"]], WORKAROUNDS)
+            r["elegance"] = flags(registry[r["kernel"]], ELEGANCE)
             results.append(r)
     # kernels.json's order: the board ranks nothing
     order = {name: i for i, name in enumerate(registry)}
@@ -81,10 +83,15 @@ def load():
     return registry, results, cases, drawings
 
 
-def workarounds(kernel):
-    """What each of `kernel`'s implementations works around, by case id: its workarounds.toml
-    beside its runner (SPEC.md), or nothing."""
-    path = os.path.join(ROOT, "kernels", kernel.get("name", ""), "workarounds.toml")
+# a kernel's flags of its implementations, beside its runner (SPEC.md): what each works around, and
+# what makes each it calls elegant
+WORKAROUNDS = "workarounds.toml"
+ELEGANCE = "elegance.toml"
+
+
+def flags(kernel, name):
+    """`kernel`'s flags in its file `name` (WORKAROUNDS or ELEGANCE), by case id, or nothing."""
+    path = os.path.join(ROOT, "kernels", kernel.get("name", ""), name)
     if not os.path.exists(path):
         return {}
     with open(path, "rb") as f:
@@ -111,7 +118,8 @@ def board(registry, results, cases, drawings):
       a case (`codes`), with lists in the same order of what each run cost (null where it has no
       row, or the run was not measured so): its wall-clock `seconds`, its `cpu` seconds, its
       peak memory in megabytes (`mb`) and its wall-clock seconds on one core alone (`one`); and
-      of its `why` and its `workaround` (indices in `reasons` and `workarounds`, -1 for none),
+      of its `why`, its `workaround` and its `elegance` (indices in `reasons`, `workarounds` and
+      `elegance`, -1 for none),
       and the lines of code of its implementation of each case (`loc`, null where it has none).
       A kernel's `host` is the machine its last run was made on, and its `startup` what starting
       its runner cost there, building nothing (`seconds`, `cpu`, `mb`, and `one` on one core);
@@ -121,7 +129,7 @@ def board(registry, results, cases, drawings):
     ids = sorted(cases)
     tags = sorted({t for c in cases.values() for t in c["tags"]})
     tag_ix = {t: i for i, t in enumerate(tags)}
-    strings = {"reasons": {}, "workarounds": {}}
+    strings = {"reasons": {}, "workarounds": {}, "elegance": {}}
 
     def intern(table, text):
         if not text:
@@ -151,7 +159,7 @@ def board(registry, results, cases, drawings):
             start = r.get("startup")
             if start:
                 k["startup"] = {key: start.get(field) for key, field in COSTS.items()}
-            codes, why, worked, lines = [], [], [], []
+            codes, why, worked, neat, lines = [], [], [], [], []
             spent = {key: [] for key in COSTS}
             for cid in ids:
                 row = r["rows"].get(cid)
@@ -161,6 +169,7 @@ def board(registry, results, cases, drawings):
                         spent[key].append(None)
                     why.append(-1)
                     worked.append(-1)
+                    neat.append(-1)
                     lines.append(None)
                     continue
                 codes.append(CODES[row["outcome"]])
@@ -169,9 +178,10 @@ def board(registry, results, cases, drawings):
                     spent[key].append(None if row["outcome"] == "missing" else row.get(field))
                 why.append(intern("reasons", row.get("why")))
                 worked.append(intern("workarounds", r["workarounds"].get(cid)))
+                neat.append(intern("elegance", r["elegance"].get(cid)))
                 lines.append(lines_of(a, cid))
             out[name] = {"codes": "".join(codes), **spent, "why": why, "workaround": worked,
-                         "loc": lines}
+                         "elegance": neat, "loc": lines}
         elif not a.get("command"):
             k["awaiting"] = True
         kernels.append(k)
@@ -185,6 +195,7 @@ def board(registry, results, cases, drawings):
         "results": out,
         "reasons": list(strings["reasons"]),
         "workarounds": list(strings["workarounds"]),
+        "elegance": list(strings["elegance"]),
     }
 
 
@@ -297,9 +308,12 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
                 code = f.read()
         o = row["outcome"] if row else "missing"
         wa = r["workarounds"].get(cid)
+        neat = r["elegance"].get(cid)
         entries.append({"name": name, "row": row, "outcome": o, "stl": href, "mb": mb, "wa": wa,
-                        "src": src, "code": code, "loc": None if code is None else loc(code, src),
-                        "label": "–" if o == "missing" else o + (" †" if wa else ""),
+                        "neat": neat, "src": src, "code": code,
+                        "loc": None if code is None else loc(code, src),
+                        "label": "–" if o == "missing" else
+                                 o + (" †" if wa else "") + (" ✦" if neat else ""),
                         "measures": measures(row)})
     # which other results each agrees with
     for en in entries:
@@ -345,8 +359,9 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
                 f"<a href='#k={e(q(en['name']))}'>{body(en)}</a></{tag}>" for en in entries) +
                 "</tr>")
         out.append("</table></div>")
-        out.append("<p class=muted>† works around a missing feature. Pick an entry to see its "
-                   "solid, its measures and its code.</p>")
+        neat = " ✦ an elegant solution." if any(en["neat"] for en in entries) else ""
+        out.append(f"<p class=muted>† works around a missing feature.{neat} Pick an entry to see "
+                   "its solid, its measures and its code.</p>")
 
         # the entry picked (the page's script shows it): its solid in 3D, its time, its notes,
         # its data and its code
@@ -430,6 +445,8 @@ def entry(en, exp):
     out.append(f"<p><span class='badge {o}'>{o}</span> {e(why or MEANS[o])}</p>")
     if en["wa"]:
         out.append(f"<p><strong>Workaround †</strong> {e(en['wa'])}</p>")
+    if en["neat"]:
+        out.append(f"<p><strong>Elegant ✦</strong> {e(en['neat'])}</p>")
     if row and row.get("measured") == "mesh":
         out.append("<p class=muted>It has no exact measures: its volume and area are its "
                    f"triangles', graded to {FROM_MESH:g}.</p>")
@@ -677,8 +694,16 @@ picked(document.querySelector('section.entry:not([hidden])')?.dataset.src);
 def main():
     registry, results, cases, drawings = load()
     for k in registry.values():
-        for cid in sorted(set(workarounds(k)) - set(cases)):
-            print(f"kernels/{k['name']}/workarounds.toml: no case {cid}", file=sys.stderr)
+        for name in (WORKAROUNDS, ELEGANCE):
+            for cid in sorted(set(flags(k, name)) - set(cases)):
+                print(f"kernels/{k['name']}/{name}: no case {cid}", file=sys.stderr)
+    # an elegant entry is one that stands: flagged where it neither passes nor builds, it is
+    # shown all the same, and said here
+    for r in results:
+        for cid, note in r["elegance"].items():
+            o = r["rows"].get(cid, {}).get("outcome", "missing")
+            if cid in cases and o not in ("pass", "built"):
+                print(f"kernels/{r['kernel']}/{ELEGANCE}: {cid} is {o}", file=sys.stderr)
     os.makedirs(SITE, exist_ok=True)
     for name in sorted(os.listdir(WEB)):
         shutil.copyfile(os.path.join(WEB, name), os.path.join(SITE, name))

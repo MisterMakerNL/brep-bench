@@ -1,0 +1,8 @@
+# The cases popkern builds with a solution that stands out across the kernels, and what makes it so
+# (SPEC.md, "An elegant implementation may be flagged").
+
+"chamfer/box-top-asymmetric" = "two-distance chamfer whose reference face is itself a selector query"
+"feature/hole-through-the-upper-arm" = "the cut runs up to the arm's underside, picked by a face query; no depth given"
+"feature/pad-down-to-cylinder" = "the extrusion ends at a face query, up to the cylinder's side; no overrun swallowed by a union"
+"feature/rib-revolved-to-a-stop" = "the rib turns up to a labelled face; the label survives turning the stop into place"
+"fillet/variable-radius-edge" = "the edge picked by its direction and an end; the law starts at the vertex named"

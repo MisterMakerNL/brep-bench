@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.8
+# brep-bench specification, version 1.9
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -140,6 +140,18 @@ An implementation builds the described solid the way a user of its kernel would:
   workaround. A workaround is graded like any other implementation: the flag only says how the
   result was reached. A refusal is never flagged, and nor is composition the case itself describes
   (a hole cut from a block), nor a choice between operations the kernel has.
+- **An elegant implementation may be flagged.** One that stands out when the case is read across
+  the kernels, as a solution notably cleaner than the others or as one showing an idea in its
+  kernel's API or design, may be called so in `kernels/<kernel>/elegance.toml`: one line per such
+  case, its id and what makes it elegant, briefly, in the same form as a workaround's:
+
+  ```
+  "fillet/box-all-edges" = "every edge rounded in one call, selected as a set"
+  ```
+
+  Only a result that passes or builds is flagged, and never a workaround. The board marks the
+  implementation's result ✦ and lists every kernel's on its overview and each kernel's on its
+  page. Like a workaround's, the flag changes no grade.
 - **A case the kernel cannot do** still has a file. The file refuses, saying precisely why (for
   example, "the kernel has no helical curve, and sweeps only by translation and rotation"). That result
   is graded as *refused*.
@@ -258,6 +270,8 @@ One entry per kernel:
 
 ## Versions
 
+- **1.9:** an implementation may be flagged elegant in its kernel's `elegance.toml`, and the board
+  marks and lists it. Grading is unchanged.
 - **1.8:** the harness measures each run's CPU time and peak memory beside its time, and, asked,
   its time on one core alone; and what starting each runner costs, which the board's times leave
   out; and the size of each kernel's binary, which `kernels.json` names. A runner given a case id
