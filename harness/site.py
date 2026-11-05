@@ -111,7 +111,8 @@ def board(registry, results, cases, drawings):
       a case (`codes`), with lists in the same order of what each run cost (null where it has no
       row, or the run was not measured so): its wall-clock `seconds`, its `cpu` seconds, its
       peak memory in megabytes (`mb`) and its wall-clock seconds on one core alone (`one`); and
-      of its `why` and its `workaround` (indices in `reasons` and `workarounds`, -1 for none).
+      of its `why` and its `workaround` (indices in `reasons` and `workarounds`, -1 for none),
+      and the lines of code of its implementation of each case (`loc`, null where it has none).
       A kernel's `host` is the machine its last run was made on, and its `startup` what starting
       its runner cost there, building nothing (`seconds`, `cpu`, `mb`, and `one` on one core);
       its `binary` is the size of its binary (`bytes`, `files`), and `of` what kernels.json counts
@@ -150,7 +151,7 @@ def board(registry, results, cases, drawings):
             start = r.get("startup")
             if start:
                 k["startup"] = {key: start.get(field) for key, field in COSTS.items()}
-            codes, why, worked = [], [], []
+            codes, why, worked, lines = [], [], [], []
             spent = {key: [] for key in COSTS}
             for cid in ids:
                 row = r["rows"].get(cid)
@@ -160,6 +161,7 @@ def board(registry, results, cases, drawings):
                         spent[key].append(None)
                     why.append(-1)
                     worked.append(-1)
+                    lines.append(None)
                     continue
                 codes.append(CODES[row["outcome"]])
                 # a missing case has no run, whatever an older row says of its time
@@ -167,7 +169,9 @@ def board(registry, results, cases, drawings):
                     spent[key].append(None if row["outcome"] == "missing" else row.get(field))
                 why.append(intern("reasons", row.get("why")))
                 worked.append(intern("workarounds", r["workarounds"].get(cid)))
-            out[name] = {"codes": "".join(codes), **spent, "why": why, "workaround": worked}
+                lines.append(lines_of(a, cid))
+            out[name] = {"codes": "".join(codes), **spent, "why": why, "workaround": worked,
+                         "loc": lines}
         elif not a.get("command"):
             k["awaiting"] = True
         kernels.append(k)
@@ -182,6 +186,15 @@ def board(registry, results, cases, drawings):
         "reasons": list(strings["reasons"]),
         "workarounds": list(strings["workarounds"]),
     }
+
+
+def lines_of(kernel, cid):
+    """The lines of code of `kernel`'s implementation of case `cid`, or None if it has none."""
+    src = source(kernel, cid)
+    if not src or not os.path.exists(src):
+        return None
+    with open(src, encoding="utf-8") as f:
+        return loc(f.read(), src)
 
 
 # what a run cost: each measure's name on the board, and the field of a result's row it is read from
