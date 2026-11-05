@@ -194,6 +194,19 @@ function heat(t) {
     var(${from})) 35%, transparent)`;
 }
 
+// A column's shading: `style(x)` washes a value from green at the best of `values` to red at
+// the worst, on a logarithmic scale (values under `floor` taken as it) or a linear one.
+function shading(values, { higher = false, log = false, floor = 0 } = {}) {
+  const at = (x) => (log ? Math.log10(Math.max(x, floor)) : x);
+  const known = values.filter((x) => x != null).map(at);
+  const [lo, hi] = [Math.min(...known), Math.max(...known)];
+  return (x) => {
+    if (x == null || !(hi > lo)) return '';
+    const t = (at(x) - lo) / (hi - lo);
+    return ` style='${heat(higher ? 1 - t : t)}'`;
+  };
+}
+
 // The table beside the strip, which says in numbers what it draws, and what starting each
 // kernel's runner costs of the measure: left out of the strip's times (unless counted), only
 // said of its memory.  Only the cases each kernel passes or builds count, whatever the filter.
@@ -212,14 +225,7 @@ function summary(measured, m) {
     (k, sorted) => sorted[sorted.length - 1],
   ].filter(Boolean).map((value) => {
     const values = rows.map(({ k, sorted }) => value(k, sorted));
-    const logs = values.filter((x) => x != null).map((x) => Math.log10(Math.max(x, m.floor)));
-    const [lo, hi] = [Math.min(...logs), Math.max(...logs)];
-    const style = (x) => {
-      if (x == null || !(hi > lo)) return '';
-      const t = (Math.log10(Math.max(x, m.floor)) - lo) / (hi - lo);
-      return ` style='${heat(m.higher ? 1 - t : t)}'`;
-    };
-    return { values, style };
+    return { values, style: shading(values, { higher: m.higher, log: true, floor: m.floor }) };
   });
   const cell = (col, r, extra = '') => {
     const x = col.values[r];
@@ -496,7 +502,12 @@ function multicore(b, indices, which) {
   });
   if (!rows.length) return '';
   const anySpeedup = rows.some((r) => r.speedup != null);
-  const num = (x, text) => `<td class=num>${x == null ? '<span class=muted>–</span>' : text(x)}</td>`;
+  for (const r of rows) r.efficiency = r.speedup != null && r.cores ? r.speedup / r.cores : null;
+  // each column of a ratio shaded, more being better; the counts are not
+  const shade = Object.fromEntries(['busy', 'median', 'most', 'speedup', 'efficiency'].map((key) =>
+    [key, shading(rows.map((r) => r[key]), { higher: true })]));
+  const num = (x, text, key) => `<td class=num${key ? shade[key](x) : ''}>${x == null
+    ? '<span class=muted>–</span>' : text(x)}</td>`;
   return `<h2>Multicore</h2>
     <p class=muted>How many of the machine's cores each kernel keeps busy, and what they buy it,
       over its runs of ${PARALLEL_FROM} s or more. <em>Cores busy</em> is the CPU time it spent over
@@ -511,11 +522,13 @@ function multicore(b, indices, which) {
       <th class=num>most</th>${anySpeedup ? `<th class=num>runs on one core</th>
       <th class=num>speedup</th><th class=num>efficiency</th>` : ''}</tr>
       ${rows.map((r) => `<tr><td><a href='${kernelPage(r.k.name)}'>${esc(r.k.name)}</a></td>
-        ${num(r.cores, String)}<td class=num>${r.at.length}</td>${num(r.busy, ratioText)}
-        ${num(r.median, ratioText)}${num(r.most, ratioText)}${anySpeedup
-          ? `<td class=num>${r.both.length}</td>${num(r.speedup, speedupText)}
-             ${num(r.speedup != null && r.cores ? r.speedup / r.cores : null,
-                   (x) => `${Math.round(100 * x)}%`)}` : ''}</tr>`).join('')}</table></div>`;
+        ${num(r.cores, String)}<td class=num>${r.at.length}</td>${num(r.busy, ratioText, 'busy')}
+        ${num(r.median, ratioText, 'median')}${num(r.most, ratioText, 'most')}${anySpeedup
+          ? `<td class=num>${r.both.length}</td>${num(r.speedup, speedupText, 'speedup')}
+             ${num(r.efficiency, (x) => `${Math.round(100 * x)}%`, 'efficiency')}` : ''}</tr>`)
+        .join('')}</table></div>
+    <p class=muted>Each ratio's column is shaded from green at its highest to red at its
+      lowest.</p>`;
 }
 
 // The size of each kernel's binary, a dot a kernel on one logarithmic axis, and a table of the
