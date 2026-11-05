@@ -78,22 +78,34 @@ def kind(name, after, keywords, constants):
     return None
 
 
+def tokens(code, lex):
+    """Each token of `code` by the lexer `lex`, in order: (start, end, class), the class one of the
+    module docstring's or None for a plain name. A Python docstring is prose: a comment, `c`."""
+    pattern, keywords, constants = lex
+    for match in pattern.finditer(code):
+        start, end = match.span()
+        text = match.group()
+        cls = next(c for c in ("c", "s", "m", "lifetime", "n", "id")
+                   if c in match.re.groupindex and match.group(c) is not None)
+        if cls == "lifetime":
+            cls = "m"
+        elif cls == "id":
+            cls = kind(text, code[end:end + 40], keywords, constants)
+        elif cls == "s" and text.startswith(('"""', "'''")) \
+                and not code[code.rfind("\n", 0, start) + 1:start].strip():
+            cls = "c"
+        yield start, end, cls
+
+
 def loc(code, path):
     """The lines of `code` that hold code: not blank, and not only comment (or a Python
     docstring). A file in no language known here counts its lines that are not blank."""
     lex = LEXERS.get(os.path.splitext(path)[1])
     if lex:
-        pattern = lex[0]
         kept, at = [], 0
-        for match in pattern.finditer(code):
-            start, end = match.span()
-            text = match.group()
-            prose = match.group("c") is not None or (
-                match.group("s") is not None and text.startswith(('"""', "'''"))
-                and not code[code.rfind("\n", 0, start) + 1:start].strip())
-            if prose:  # blanked, its line breaks kept
-                kept.append(code[at:start])
-                kept.append(re.sub(r"[^\n]", " ", text))
+        for start, end, cls in tokens(code, lex):
+            if cls == "c":  # left out, its line breaks kept
+                kept += [code[at:start], "\n" * code.count("\n", start, end)]
                 at = end
         kept.append(code[at:])
         code = "".join(kept)
@@ -104,23 +116,11 @@ def highlight(code, path):
     lex = LEXERS.get(os.path.splitext(path)[1])
     if not lex:
         return html.escape(code)
-    pattern, keywords, constants = lex
     out, at = [], 0
-    for match in pattern.finditer(code):
-        start, end = match.span()
+    for start, end, cls in tokens(code, lex):
         out.append(html.escape(code[at:start]))
-        at = end
-        text = match.group()
-        cls = next(c for c in ("c", "s", "m", "lifetime", "n", "id")
-                   if c in match.re.groupindex and match.group(c) is not None)
-        if cls == "lifetime":
-            cls = "m"
-        elif cls == "id":
-            cls = kind(text, code[end:end + 40], keywords, constants)
-        elif cls == "s" and text.startswith(('"""', "'''")) \
-                and not code[code.rfind("\n", 0, start) + 1:start].strip():
-            cls = "c"  # a docstring: prose, as a comment is
-        token = html.escape(text)
+        token = html.escape(code[start:end])
         out.append(f"<span class={cls}>{token}</span>" if cls else token)
+        at = end
     out.append(html.escape(code[at:]))
     return "".join(out)

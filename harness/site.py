@@ -23,6 +23,7 @@ import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from highlight import highlight, loc  # noqa: E402
+from run import FROM_MESH  # noqa: E402
 from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
@@ -250,96 +251,72 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
         if src and os.path.exists(src):
             with open(src, encoding="utf-8") as f:
                 code = f.read()
-        entries.append({"name": name, "row": row, "outcome": row["outcome"] if row else "missing",
-                        "stl": href, "mb": mb, "wa": r["workarounds"].get(cid), "src": src,
-                        "code": code, "loc": None if code is None else loc(code, src)})
-
-    # each result's measures, and which other results they agree with: to 1e-8 between exact
-    # kernels, to 1e-3 where either was measured from its mesh
-    measured = {}
+        o = row["outcome"] if row else "missing"
+        wa = r["workarounds"].get(cid)
+        entries.append({"name": name, "row": row, "outcome": o, "stl": href, "mb": mb, "wa": wa,
+                        "src": src, "code": code, "loc": None if code is None else loc(code, src),
+                        "label": "–" if o == "missing" else o + (" †" if wa else ""),
+                        "measures": measures(row)})
+    # which other results each agrees with
     for en in entries:
-        row = en["row"]
-        if not row:
-            continue
-        from_mesh = row.get("measured") == "mesh"
-        m = row.get("mesh") or {}
-        vol = m.get("volume") if from_mesh else row.get("volume")
-        area = m.get("area") if from_mesh else row.get("area")
-        if row["outcome"] in ("pass", "built", "wrong") and vol is not None and area is not None:
-            measured[en["name"]] = (vol, area, from_mesh)
+        en["friends"] = [o["name"] for o in entries if o is not en
+                         and agree(en["measures"], o["measures"])]
+    has_mesh = any(en["stl"] for en in entries)
 
-    def agrees(a, b):
-        (va, aa, ma), (vb, ab, mb) = measured[a], measured[b]
-        tol = 1e-3 if ma or mb else 1e-8
-        return all(abs(x - y) <= tol * max(abs(x), abs(y), 1e-12) for x, y in ((va, vb), (aa, ab)))
-
+    out.append("<h2 id=results>Results</h2>")
     if not entries:
-        out.append("<h2 id=results>Results</h2><p class=muted>No kernel has run it yet.</p>")
+        out.append("<p class=muted>No kernel has run it yet.</p>")
     else:
         # the entry shown first: a pass with triangles to show, else any result with them, else
-        # any result at all; a link's #k=NAME picks another
-        shown = (next((en for en in entries if en["outcome"] == "pass" and en["stl"]), None)
-                 or next((en for en in entries if en["stl"]), None)
-                 or next((en for en in entries if en["row"]), None) or entries[0])
+        # any result at all (the first such, in kernels.json's order); #k=NAME picks another
+        shown = max(entries, key=lambda en: (en["outcome"] == "pass" and bool(en["stl"]),
+                                             bool(en["stl"]), bool(en["row"])))
 
-        def mark(en, tag, cls="", body=""):
-            """A cell of the table of entries: picks its entry when clicked."""
-            on = " on" if en is shown else ""
-            return (f"<{tag} class='{cls}{on}' data-k='{e(en['name'])}'>"
-                    f"<a href='#k={e(q(en['name']))}'>{body}</a></{tag}>")
-
-        # every entry at a glance, a column each
-        out.append("<h2 id=results>Results</h2>")
-        lines = [["<th></th>"], ["<th scope=row>outcome</th>"], [], [], ["<th scope=row>time</th>"],
-                 ["<th scope=row title='lines of code, comments and blank lines left out'>"
-                  "LOC</th>"]]
-        if exp:
-            lines[2].append("<th scope=row title='relative error'>volume err.</th>")
-            lines[3].append("<th scope=row title='relative error'>area err.</th>")
-        else:
-            lines[2].append("<th scope=row>volume</th>")
-            lines[3].append("<th scope=row>area</th>")
-        for en in entries:
-            row = en["row"]
-            vol, area, _ = measured.get(en["name"], (None, None, False))
-            if exp:
-                vcell = relative(vol, exp["volume"]["value"])
-                acell = relative(area, exp["area"]["value"])
-            else:
-                vcell = "" if vol is None else f"{vol:.6g}"
-                acell = "" if area is None else f"{area:.6g}"
-            o = en["outcome"]
-            label = "–" if o == "missing" else o + (" <span class=wa>†</span>" if en["wa"] else "")
-            lines[0].append(mark(en, "th", "k", e(en["name"])))
-            lines[1].append(mark(en, "td", f"cell {o}", label))
-            lines[2].append(mark(en, "td", "", vcell))
-            lines[3].append(mark(en, "td", "", acell))
-            lines[4].append(mark(en, "td", "", f"{row['seconds']} s" if row else ""))
-            lines[5].append(mark(en, "td", "", "" if en["loc"] is None else str(en["loc"])))
-        out.append("<div class=scroll><table class=entries>" +
-                   "".join(f"<tr>{''.join(cells)}</tr>" for cells in lines) + "</table></div>")
+        # every entry at a glance, a column each; a click on any of its cells picks it
+        def value(en, i):
+            m = en["measures"]
+            if m is None:
+                return ""
+            return relative(m[i], exp[KEYS[i]]["value"]) if exp else f"{m[i]:.6g}"
+        rows = [
+            ("<th></th>", "th", lambda en: "k", lambda en: e(en["name"])),
+            ("<th scope=row>outcome</th>", "td", lambda en: f"cell {en['outcome']}",
+             lambda en: e(en["label"])),
+            ("<th scope=row title='relative error'>volume err.</th>" if exp
+             else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0)),
+            ("<th scope=row title='relative error'>area err.</th>" if exp
+             else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1)),
+            ("<th scope=row>time</th>", "td", None,
+             lambda en: f"{en['row']['seconds']} s" if en["row"] else ""),
+            ("<th scope=row title='lines of code, comments and blank lines left out'>LOC</th>",
+             "td", None, lambda en: "" if en["loc"] is None else str(en["loc"])),
+        ]
+        out.append(f"<div class=scroll><table class=entries data-default='{e(shown['name'])}'>")
+        for head_cell, tag, cls, body in rows:
+            out.append("<tr>" + head_cell + "".join(
+                f"<{tag} class='{cls(en) if cls else ''}' data-k='{e(en['name'])}'>"
+                f"<a href='#k={e(q(en['name']))}'>{body(en)}</a></{tag}>" for en in entries) +
+                "</tr>")
+        out.append("</table></div>")
         out.append("<p class=muted>† works around a missing feature. Pick an entry to see its "
                    "solid, its measures and its code.</p>")
 
-        # the entry picked: its solid in 3D, its time, its notes, its data and its code
+        # the entry picked (the page's script shows it): its solid in 3D, its time, its notes,
+        # its data and its code
         out.append("<div class=pick role=group aria-label='Whose entry'>" + "".join(
-            f"<button type=button data-k='{e(en['name'])}' "
-            f"aria-pressed={'true' if en is shown else 'false'}>{e(en['name'])} "
-            f"<span class=muted>{'–' if en['outcome'] == 'missing' else en['outcome']}"
-            f"{' †' if en['wa'] else ''}</span></button>" for en in entries) + "</div>")
-        if any(en["stl"] for en in entries):
-            out.append(f"<div id=view data-src='{shown['stl'] or ''}'"
-                       f"{'' if shown['stl'] else ' hidden'}><canvas id=viewer></canvas>"
+            f"<button type=button data-k='{e(en['name'])}'>{e(en['name'])} "
+            f"<span class=muted>{e(en['label'])}</span></button>" for en in entries) + "</div>")
+        if has_mesh:
+            out.append("<div id=view hidden><canvas id=viewer></canvas>"
                        "<p class=muted>Drag to turn, scroll or pinch to zoom, right-drag to move. "
                        "Black lines are where the surface turns sharply; red ones, seen through "
                        "the solid, are open edges, where the mesh is not closed.</p></div>")
-        for en in entries:
-            out.append(entry(en, en is shown, exp, measured, agrees, e))
+        out += [entry(en, exp) for en in entries]
         out.append(PICK)
 
     out.append(f"<p class=muted><a href='{REPO}/blob/main/cases/{e(cid)}.md'>{e(cid)}.md</a>, "
                "the case as written.</p>")
-    if any(en["stl"] for en in entries):
+    if has_mesh:
         out.append(VIEWER.replace("{cdn}", THREE))
     if exp and any(exp[k]["tex"] for k in exp):
         out.append(TEX.replace("{cdn}", KATEX))
@@ -348,6 +325,29 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         f.write("\n".join(out))
+
+
+KEYS = ("volume", "area")
+
+
+def measures(row):
+    """A result's (volume, area, from its mesh), or None where it built no solid to measure."""
+    if not row or row["outcome"] not in ("pass", "built", "wrong"):
+        return None
+    from_mesh = row.get("measured") == "mesh"
+    m = row.get("mesh") or {}
+    vol = m.get("volume") if from_mesh else row.get("volume")
+    area = m.get("area") if from_mesh else row.get("area")
+    return None if vol is None or area is None else (vol, area, from_mesh)
+
+
+def agree(a, b):
+    """Whether two results' measures agree: to 1e-8 between exact kernels, to FROM_MESH where
+    either was measured from its mesh."""
+    if a is None or b is None:
+        return False
+    tol = FROM_MESH if a[2] or b[2] else 1e-8
+    return all(abs(x - y) <= tol * max(abs(x), abs(y), 1e-12) for x, y in zip(a[:2], b[:2]))
 
 
 # what each outcome means, said where a result gives no reason of its own
@@ -363,14 +363,15 @@ MEANS = {
 }
 
 
-def entry(en, shown, exp, measured, agrees, e):
-    """One kernel's entry for a case, as HTML: hidden unless `shown`, the page's script showing
-    the one picked. Its triangles are drawn by the page's one viewer, above it."""
+def entry(en, exp):
+    """One kernel's entry for a case, as HTML, hidden: the page's script shows the one picked.
+    Its triangles are drawn by the page's one viewer, above it."""
+    e = html.escape
     name, row, o = en["name"], en["row"], en["outcome"]
-    out = [f"<section class=entry data-k='{e(name)}' data-src='{en['stl'] or ''}'"
-           f"{'' if shown else ' hidden'} aria-label='{e(name)}'>"]
+    out = [f"<section class=entry data-k='{e(name)}' data-src='{en['stl'] or ''}' hidden "
+           f"aria-label='{e(name)}'>"]
     if not en["stl"]:
-        out.append(f"<p class='muted nomesh'>{e(name)} left no triangles to show.</p>")
+        out.append(f"<div class='muted nomesh'>{e(name)} left no triangles to show.</div>")
 
     out.append("<h3>Time</h3>")
     out.append(f"<p>{row['seconds']} s</p>" if row else "<p class=muted>It has not run.</p>")
@@ -382,28 +383,24 @@ def entry(en, shown, exp, measured, agrees, e):
         out.append(f"<p><strong>Workaround †</strong> {e(en['wa'])}</p>")
     if row and row.get("measured") == "mesh":
         out.append("<p class=muted>It has no exact measures: its volume and area are its "
-                   "triangles', graded to 1e-3.</p>")
+                   f"triangles', graded to {FROM_MESH:g}.</p>")
 
     out.append("<h3>Data</h3>")
     facts = []
-    if name in measured:
-        vol, area, from_mesh = measured[name]
-        got = "its triangles'" if from_mesh else "measured"
-        if exp:
-            table = ["<table><tr><th></th>", f"<th>{got}</th><th>expected</th>"
-                     "<th>rel. error</th></tr>"]
-            for key, x in (("volume", vol), ("area", area)):
+    if en["measures"]:
+        *got, from_mesh = en["measures"]
+        whose = "its triangles'" if from_mesh else "measured"
+        table = [f"<tr><th></th><th>{whose}</th>"
+                 + ("<th>expected</th><th>rel. error</th>" if exp else "") + "</tr>"]
+        for key, x in zip(KEYS, got):
+            cells = f"<td>{x:.10g}</td>" if exp else f"<td>{x:.12g}</td>"
+            if exp:
                 want = exp[key]["value"]
-                table.append(f"<tr><td>{key}</td><td>{x:.10g}</td><td>{want:.10g}</td>"
-                             f"<td>{relative(x, want)}</td></tr>")
-        else:
-            table = ["<table><tr><th></th>", f"<th>{got}</th></tr>"]
-            for key, x in (("volume", vol), ("area", area)):
-                table.append(f"<tr><td>{key}</td><td>{x:.12g}</td></tr>")
-        out.append("<div class=scroll>" + "".join(table) + "</table></div>")
-        friends = [o for o in measured if o != name and agrees(name, o)]
-        facts.append(("agrees with", e(", ".join(friends)) or "<span class=muted>no other "
-                      "kernel</span>"))
+                cells += f"<td>{want:.10g}</td><td>{relative(x, want)}</td>"
+            table.append(f"<tr><td>{key}</td>{cells}</tr>")
+        out.append("<div class=scroll><table>" + "".join(table) + "</table></div>")
+        facts.append(("agrees with", e(", ".join(en["friends"])) or
+                      "<span class=muted>no other kernel</span>"))
     elif row:
         out.append("<p class=muted>No measures: it built no solid to measure.</p>")
     faces = (row or {}).get("faces")
@@ -411,11 +408,9 @@ def entry(en, shown, exp, measured, agrees, e):
         facts.append(("faces", e(", ".join(f"{n} {k}" for k, n in faces.items()))))
     m = (row or {}).get("mesh")
     if m:
-        bits = [f"{m['triangles']} triangles"]
-        if m.get("closed"):
-            bits.append("closed")
-        else:
-            bits.append(f"open: {m.get('unmatched_edges', 0)} edges unmatched")
+        bits = [f"{m['triangles']} triangles",
+                "closed" if m.get("closed") else
+                f"open: {m.get('unmatched_edges', 0)} edges unmatched"]
         if m.get("degenerate"):
             bits.append(f"{m['degenerate']} degenerate")
         facts.append(("mesh", ", ".join(bits)))
@@ -430,12 +425,11 @@ def entry(en, shown, exp, measured, agrees, e):
         out.append("<p class=muted>None.</p>")
 
     out.append("<h3>Implementation</h3>")
-    src, code = en["src"], en["code"]
+    src, code, n = en["src"], en["code"], en["loc"]
     if code is None:
         out.append("<p class=muted>No implementation yet.</p>")
     else:
         rel = os.path.relpath(src, ROOT)
-        n = en["loc"]
         out.append(f"<p class=muted><a href='{REPO}/blob/main/{e(rel)}'>{e(rel)}</a> · {n} "
                    f"line{'' if n == 1 else 's'} of code, comments left out</p>"
                    f"<pre class=code>{highlight(code, src)}</pre>")
@@ -443,26 +437,21 @@ def entry(en, shown, exp, measured, agrees, e):
     return "\n".join(out)
 
 
-# picks the entry shown: a click on the table of entries or the buttons, or the address's #k=NAME
+# shows the entry picked, by a click on the table of entries or the buttons, or the address's
+# #k=NAME, else the table's default; marks it picked (aria-current) and tells the viewer its
+# triangles (an `entry` event, its detail their path, '' for none)
 PICK = """<script>
 (() => {
   const entries = [...document.querySelectorAll('section.entry')];
-  const marks = [...document.querySelectorAll('.entries [data-k], .pick [data-k]')];
+  const marks = [...document.querySelectorAll('[data-k]:not(section)')];
   const view = document.getElementById('view');
   function pick(k) {
     const entry = entries.find((x) => x.dataset.k === k);
     if (!entry) return false;
     for (const x of entries) x.hidden = x !== entry;
-    for (const m of marks) {
-      const on = m.dataset.k === k;
-      if (m.tagName === 'BUTTON') m.setAttribute('aria-pressed', String(on));
-      else m.classList.toggle('on', on);
-    }
-    if (view) {
-      view.hidden = !entry.dataset.src;
-      view.dataset.src = entry.dataset.src;
-      document.dispatchEvent(new Event('entry'));
-    }
+    for (const m of marks) m.setAttribute('aria-current', String(m.dataset.k === k));
+    if (view) view.hidden = !entry.dataset.src;
+    document.dispatchEvent(new CustomEvent('entry', { detail: entry.dataset.src }));
     return true;
   }
   const asked = () => new URLSearchParams(location.hash.slice(1)).get('k');
@@ -476,6 +465,7 @@ PICK = """<script>
   addEventListener('hashchange', () => pick(asked()));
   // arriving for one kernel's result (from the explorer, say): show it, and scroll to it
   if (pick(asked())) document.getElementById('results').scrollIntoView();
+  else pick(document.querySelector('table.entries').dataset.default);
 })();
 </script>"""
 
@@ -568,28 +558,39 @@ function openEdges(geometry) {
   return both;
 }
 
+// each solid, built once: its surface, its creases and its open edges
+const built = new Map();
+function build(src) {
+  if (!built.has(src)) {
+    built.set(src, new Promise((ok, no) => loader.load(src, ok, undefined, no)).then((geometry) => {
+      geometry.computeVertexNormals();
+      geometry.computeBoundingSphere();
+      const solid = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+        color: 0xdfe3ea, roughness: 0.75, metalness: 0.0, flatShading: false,
+        polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }));
+      const lines = new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 28),
+        new THREE.LineBasicMaterial({ color: dark.matches ? 0x0d0d10 : 0x22252a }));
+      const group = new THREE.Group();
+      group.add(solid, lines);
+      const open = openEdges(geometry);
+      if (open) group.add(open);
+      group.userData.sphere = geometry.boundingSphere;
+      return group;
+    }));
+  }
+  return built.get(src);
+}
+
 let wanted = null;
 function show(src, fit) {
-  const got = cache.get(src) || new Promise((ok, no) => loader.load(src, ok, undefined, no));
-  cache.set(src, got);
   wanted = src;
-  got.then((geometry) => {
+  build(src).then((group) => {
     if (src !== wanted) return;  // another entry was picked while this one loaded
     if (shown) scene.remove(shown);
-    geometry.computeVertexNormals();
-    const solid = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
-      color: 0xdfe3ea, roughness: 0.75, metalness: 0.0, flatShading: false,
-      polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }));
-    const lines = new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 28),
-      new THREE.LineBasicMaterial({ color: dark.matches ? 0x0d0d10 : 0x22252a }));
-    shown = new THREE.Group();
-    shown.add(solid, lines);
-    const open = openEdges(geometry);
-    if (open) shown.add(open);
+    shown = group;
     scene.add(shown);
     if (fit) {
-      geometry.computeBoundingSphere();
-      const { center, radius } = geometry.boundingSphere;
+      const { center, radius } = group.userData.sphere;
       const away = new THREE.Vector3(1, -1, 0.9).normalize()
         .multiplyScalar(radius / Math.sin(THREE.MathUtils.degToRad(15)) * 1.05);
       camera.position.copy(center).add(away);
@@ -600,25 +601,27 @@ function show(src, fit) {
   });
 }
 
-// the entry picked (the page's other script keeps #view's data-src): the camera is fitted to the
-// first solid shown, and stays put as others are picked, so they can be compared
-const view = document.getElementById('view');
+function frame() {
+  controls.update();
+  sun.position.copy(camera.position);
+  renderer.render(scene, camera);
+}
+
+// the entry picked (the page's other script's `entry` event, its detail the path of its
+// triangles): the camera is fitted to the first solid shown, and stays put as others are picked,
+// so they can be compared; nothing is drawn while the viewer is hidden
 let fitted = false;
-function picked() {
-  const src = view.dataset.src;
+function picked(src) {
+  renderer.setAnimationLoop(src ? frame : null);
   if (!src) return;
   show(src, !fitted);
   fitted = true;
 }
-document.addEventListener('entry', picked);
+document.addEventListener('entry', (event) => picked(event.detail));
 new ResizeObserver(resize).observe(canvas);
 resize();
-picked();
-renderer.setAnimationLoop(() => {
-  controls.update();
-  sun.position.copy(camera.position);
-  renderer.render(scene, camera);
-});
+// this module runs after the other script has picked the first entry
+picked(document.querySelector('section.entry:not([hidden])')?.dataset.src);
 </script>"""
 
 
