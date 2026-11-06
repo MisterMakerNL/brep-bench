@@ -1,14 +1,17 @@
-//! The box from the origin to (30, 20, 10), its vertical edges rounded to radius 4, with all eight
-//! sides drafted 5° for the pull direction +z about the neutral plane z = 0, the floor: the kernel's
-//! drafted extrusion of the floor's rounded rectangle, 10 up, leaning 5° inward as it rises, its
-//! planes turned about their bottom edges and its rounds quarter cones through their quarter
-//! circles, tangent to the planes beside them.
-use crate::solids::draft::rounded_rectangle;
+//! The box from the origin to (30, 20, 10), its vertical edges rounded to radius 4 (the rounded
+//! rectangle of its floor extruded 10 up), with all eight sides drafted 5° for the pull direction
+//! +z about the neutral plane z = 0, the floor: the kernel's draft turns each plane about its
+//! bottom edge and makes each round the quarter cone through its quarter circle, tangent to the
+//! planes beside it.
+use crate::solids::draft::{rounded_rectangle, walls};
 use crate::solids::p;
 use crate::Refusal;
-use brep_kernel::{extrude_profile_brep_draft, BrepSolid};
+use brep_kernel::{draft_faces, extrude_profile_brep, BrepSolid};
 
 pub fn build() -> Result<BrepSolid, Refusal> {
     let floor = rounded_rectangle(0.0, 0.0, 30.0, 20.0, 4.0, 0.0)?;
-    Ok(extrude_profile_brep_draft(&floor, p(0.0, 0.0, 1.0), 10.0, 5f64.to_radians(), None)?)
+    let solid = extrude_profile_brep(&floor, p(0.0, 0.0, 1.0), 10.0)?;
+    // Every side: the faces that run along z.
+    let sides = walls(&solid, |_| true)?;
+    Ok(draft_faces(&solid, &sides, p(0.0, 0.0, 1.0), p(0.0, 0.0, 0.0), 5f64.to_radians())?)
 }
