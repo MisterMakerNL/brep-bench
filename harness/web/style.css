@@ -29,6 +29,7 @@ body.wide { max-width: 1600px; }
 h1 { font-size: 1.6em; margin: 0 0 4px; }
 h2 { margin-top: 32px; }
 p.lede { color: var(--muted); margin: 0 0 24px; max-width: 80ch; }
+p.definition { max-width: 80ch; }
 nav.top { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0 0 16px; font-size: 0.95em; }
 nav.top a { text-decoration: none; color: var(--muted); }
 nav.top a:first-child { color: var(--fg); font-weight: 600; }
