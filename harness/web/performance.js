@@ -6,6 +6,7 @@
 // Kernels keep kernels.json's order: the board ranks nothing.
 import { load, esc, casePage, kernelPage, failed, secondsText, megabytesText, solved, quantile,
          option, placeTip, PARALLEL_FROM } from './board.js';
+import { sortable } from './sort.js';
 
 const main = document.getElementById('performance');
 load().then(start, (e) => failed(main, e));
@@ -169,6 +170,7 @@ function start(b) {
       ${slowest(b, rows, m)}` : `<p class=muted>No runs in this selection have a measure of
       ${esc(m.label)}.</p>`;
     figures.insertAdjacentHTML('beforeend', multicore(b, indices, state.which) + sizes(b));
+    sortable(figures);
     const holder = figures.querySelector('.perf-strip');
     redraw = holder ? () => strip(b, rows, m, holder, tip) : null;
     if (redraw) redraw();

@@ -2,7 +2,8 @@
 // category, tag, whether it is settled, a view, and each kernel's outcome.  What it shows is in
 // the address, so a view can be linked to.  Only the rows in sight are in the page.
 import { load, tally, words, bar, legend, esc, casePage, kernelPage, thumbOf,
-         failed, secondsText, megabytesText, solved, option } from './board.js';
+         failed, secondsText, megabytesText, solved, option, OUTCOMES } from './board.js';
+import { sortButton, compare, next } from './sort.js';
 
 const main = document.getElementById('explore');
 load().then(start, (e) => failed(main, e));
@@ -61,7 +62,19 @@ function start(b) {
       ? params.get('show').split(',').filter((n) => byName[n])
       : b.ran.map((k) => k.name),
     filters: new Map(),
+    // the column the rows are sorted by ('case', or a kernel's name; '' for the cases' order),
+    // and which way
+    sort: '',
+    order: 'ascending',
   };
+  {
+    const s = params.get('sort') || '';
+    const name = s.replace(/^-/, '');
+    if (name === 'case' || byName[name]) {
+      state.sort = name;
+      state.order = s.startsWith('-') ? 'descending' : 'ascending';
+    }
+  }
   for (const [key, value] of params) {
     if (key.startsWith('f.') && byName[key.slice(2)] && FILTER_LABEL[value] !== undefined) {
       state.filters.set(key.slice(2), value);
@@ -76,6 +89,7 @@ function start(b) {
     if (state.settled) p.set('settled', state.settled);
     if (state.view) p.set('view', state.view);
     if (state.cells) p.set('cells', state.cells);
+    if (state.sort) p.set('sort', `${state.order === 'descending' ? '-' : ''}${state.sort}`);
     if (state.shown.length !== b.ran.length) p.set('show', state.shown.join(','));
     for (const [k, f] of state.filters) if (f && state.shown.includes(k)) p.set(`f.${k}`, f);
     const s = p.toString();
@@ -150,6 +164,26 @@ function start(b) {
         default: return true;
       }
     }).map((c) => c.i);
+    sort();
+  }
+
+  // the matched cases in the order of the column sorted by: a case by its title, a kernel's
+  // column by what its cells show (an outcome in the outcomes' order, or what the run cost),
+  // its blanks last; ties keep the cases' order
+  function sort() {
+    if (state.sort && state.sort !== 'case' && !state.shown.includes(state.sort)) state.sort = '';
+    if (!state.sort) return;
+    const k = byName[state.sort];
+    const key = state.sort === 'case' ? (i) => b.cases[i].title
+      : (i) => {
+        if (k.outcomes[i] === 'missing') return null;
+        if (state.cells === 'time') return k.seconds[i];
+        if (state.cells === 'memory') return k.mb[i];
+        return OUTCOMES.indexOf(k.outcomes[i]);
+      };
+    const keys = new Map(matched.map((i) => [i, key(i)]));
+    const dir = state.order === 'descending' ? -1 : 1;
+    matched.sort((x, y) => compare(keys.get(x), keys.get(y), dir));
   }
 
   function chips() {
@@ -175,8 +209,13 @@ function start(b) {
       return `<th class=k title='${esc(words(t))}'>${bar(t)}${t.pass + t.built} of ${matched.length}
         </th>`;
     }).join('');
-    thead.innerHTML = `<tr><th class=case>case</th>${shown.map((k) => `<th class=k>
-      <a href='${kernelPage(k.name)}'>${esc(k.name)}</a><br>${select(k)}</th>`).join('')}</tr>
+    const order = (key) => (state.sort === key ? state.order : 'none');
+    const sorted = (key) => (state.sort === key ? ` aria-sort=${state.order}` : '');
+    const button = (key, label) => sortButton(label, order(key), ` data-sort='${esc(key)}'`);
+    thead.innerHTML = `<tr><th class=case${sorted('case')}>case ${
+      button('case', 'case')}</th>${shown.map((k) => `<th class=k${sorted(k.name)}>
+      <a href='${kernelPage(k.name)}'>${esc(k.name)}</a> ${button(k.name, k.name)}<br>${
+      select(k)}</th>`).join('')}</tr>
       <tr class=tally><th class='case muted'>passed or built</th>${tallies}</tr>`;
     frame.style.setProperty('--head', `${thead.rows[0].offsetHeight}px`);
   }
@@ -267,6 +306,12 @@ function start(b) {
       state.shown = on ? state.shown.filter((n) => n !== name)
         : b.ran.map((k) => k.name).filter((n) => n === name || state.shown.includes(n));
       el.setAttribute('aria-pressed', String(!on));
+    } else if (el.dataset.sort) {
+      const now = state.sort === el.dataset.sort ? state.order : 'none';
+      const then = next(now);
+      state.sort = then === 'none' ? '' : el.dataset.sort;
+      state.order = then === 'none' ? 'ascending' : then;
+      frame.scrollTop = 0;
     } else if (el.dataset.remove === 'cat') state.cats.delete(el.dataset.value);
     else if (el.dataset.remove === 'tag') state.tags.delete(el.dataset.value);
     else if (el.dataset.remove === 'filter') state.filters.delete(el.dataset.value);
