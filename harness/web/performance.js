@@ -232,7 +232,7 @@ function summary(measured, m) {
   const cell = (col, r, extra = '') => {
     const x = col.values[r];
     return x == null ? '<td class=num><span class=muted>–</span></td>'
-      : `<td class=num${col.style(x)}${extra}>${m.text(x)}${extra ? '<sup>*</sup>' : ''}</td>`;
+      : `<td class=num data-v=${x}${col.style(x)}${extra}>${m.text(x)}${extra ? '<sup>*</sup>' : ''}</td>`;
   };
   const notMeasured = ` title='not measured: the kernel&#39;s fastest run stands in for it'`;
   const estimated = m.start && rows.some(({ k }) => !k.start.measured);
@@ -420,7 +420,7 @@ function versus(rows, indices, m) {
     const r = Math.exp(sum / n);
     const words = `${a.name} takes ${times(r)} the ${m.label} ${c.name} takes, over the ${n} `
       + `case${n === 1 ? '' : 's'} both pass or build`;
-    return `<td class=num style='${diverging(Math.log10(r))}' title='${esc(words)}'>${times(r)}
+    return `<td class=num data-v=${r} style='${diverging(Math.log10(r))}' title='${esc(words)}'>${times(r)}
       <small class=muted>${n}</small></td>`;
   }));
   const keys = [[-1.5, '20×'], [-1, '5×'], [-0.5, '2×'], [0, 'even'], [0.5, '2×'], [1, '5×'],
@@ -452,7 +452,7 @@ function byCategory(b, rows, m) {
       </th>${rows.map(({ k, at }) => {
         const vs = at.filter((i) => inCat.has(i)).map((i) => k[m.key][i]).sort((x, y) => x - y);
         const med = quantile(vs, 0.5);
-        return med == null ? '<td class="muted empty">·</td>' : `<td class=num style='${wash(med)}'
+        return med == null ? '<td class="muted empty">·</td>' : `<td class=num data-v=${med} style='${wash(med)}'
           title='${esc(`${k.name}: median ${m.text(med)} over ${vs.length} cases`)}'>${
           m.text(med)}</td>`;
       }).join('')}</tr>`;
@@ -470,7 +470,7 @@ function slowest(b, rows, m) {
   return `<div class=scroll><table><tr><th>case</th><th>kernel</th><th class=num>${
     esc(m.label)}</th><th>outcome</th></tr>${runs.map(({ k, i, v }) => `<tr><td class=case>
       <a href='${casePage(b.cases[i].id)}'>${esc(b.cases[i].title)}</a><small>${
-      esc(b.cases[i].id)}</small></td><td>${esc(k.name)}</td><td class=num>${m.text(v)}</td>
+      esc(b.cases[i].id)}</small></td><td>${esc(k.name)}</td><td class=num data-v=${v}>${m.text(v)}</td>
       <td class='cell ${k.outcomes[i]}'>${k.outcomes[i]}</td></tr>`).join('')}</table></div>`;
 }
 
@@ -508,7 +508,7 @@ function multicore(b, indices, which) {
   // each column of a ratio shaded, more being better; the counts are not
   const shade = Object.fromEntries(['busy', 'median', 'most', 'speedup', 'efficiency'].map((key) =>
     [key, shading(rows.map((r) => r[key]), { higher: true })]));
-  const num = (x, text, key) => `<td class=num${key ? shade[key](x) : ''}>${x == null
+  const num = (x, text, key) => `<td class=num data-v='${x ?? ''}'${key ? shade[key](x) : ''}>${x == null
     ? '<span class=muted>–</span>' : text(x)}</td>`;
   return `<h2>Multicore</h2>
     <p class=muted>How many of the machine's cores each kernel keeps busy, and the speedup they buy it,
@@ -569,7 +569,7 @@ function sizes(b) {
         .join('; '))}'>${out.join('')}</svg></div>
     <div class=scroll><table><tr><th>kernel</th><th class=num>size</th><th class=num>files</th>
       <th>target</th></tr>${rows.map((k) => `<tr><td><a href='${kernelPage(k.name)}'>${
-        esc(k.name)}</a></td><td class=num>${megabytesText(mb(k))}</td><td class=num>${
+        esc(k.name)}</a></td><td class=num data-v=${k.binary.bytes}>${megabytesText(mb(k))}</td><td class=num>${
         k.binary.files}</td><td class=muted>${k.binary.of.map((o) => (o.distribution
           ? `the Python distribution <code>${esc(o.distribution)}</code>` : `<code>${esc(o)}</code>`))
         .join(', ')}</td></tr>`).join('')}</table></div>

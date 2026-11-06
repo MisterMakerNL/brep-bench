@@ -339,27 +339,34 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             if m is None:
                 return ""
             return relative(m[i], exp[KEYS[i]]["value"]) if exp else f"{m[i]:.6g}"
+        # each row's head, its cells' tag, class and content, and the field of a result's row its
+        # cells sort by (sort.js), where their text is in units
         rows = [
-            ("<th></th>", "th", lambda en: "k", lambda en: e(en["name"])),
+            ("<th></th>", "th", lambda en: "k", lambda en: e(en["name"]), None),
             ("<th scope=row>outcome</th>", "td", lambda en: f"cell {en['outcome']}",
-             lambda en: e(en["label"])),
+             lambda en: e(en["label"]), None),
             ("<th scope=row title='relative error'>volume err.</th>" if exp
-             else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0)),
+             else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0), None),
             ("<th scope=row title='relative error'>area err.</th>" if exp
-             else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1)),
-            ("<th scope=row>time</th>", "td", None, lambda en: spent(en, "seconds", " s")),
+             else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1), None),
+            ("<th scope=row>time</th>", "td", None, lambda en: spent(en, "seconds", " s"),
+             "seconds"),
             ("<th scope=row title='user and system time, over every thread'>CPU time</th>", "td",
-             None, lambda en: spent(en, "cpu_seconds", " s")),
+             None, lambda en: spent(en, "cpu_seconds", " s"), "cpu_seconds"),
             ("<th scope=row title='the most memory the runner held resident at once'>memory</th>",
-             "td", None, lambda en: spent(en, "peak_mb", " MB")),
+             "td", None, lambda en: spent(en, "peak_mb", " MB"), "peak_mb"),
             ("<th scope=row title='lines of code, comments and blank lines left out'>LOC</th>",
-             "td", None, lambda en: "" if en["loc"] is None else str(en["loc"])),
+             "td", None, lambda en: "" if en["loc"] is None else str(en["loc"]), None),
         ]
         out.append(f"<div class=scroll><table class=entries data-sort=columns "
                    f"data-default='{e(shown['name'])}'>")
-        for head_cell, tag, cls, body in rows:
+        def key(en, field):
+            x = en["row"].get(field) if field and en["row"] else None
+            return "" if x is None else f" data-v='{x!r}'"
+        for head_cell, tag, cls, body, field in rows:
             out.append("<tr>" + head_cell + "".join(
-                f"<{tag} class='{cls(en) if cls else ''}' data-k='{e(en['name'])}'>"
+                f"<{tag} class='{cls(en) if cls else ''}' data-k='{e(en['name'])}'"
+                f"{key(en, field)}>"
                 f"<a href='#k={e(q(en['name']))}'>{body(en)}</a></{tag}>" for en in entries) +
                 "</tr>")
         out.append("</table></div>")

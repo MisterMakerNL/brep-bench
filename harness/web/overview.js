@@ -74,7 +74,7 @@ function kernels(b) {
     const t = tally(k);
     const worked = k.workaround.filter((w, i) => w && (k.outcomes[i] === 'pass' ||
                                                        k.outcomes[i] === 'built')).length;
-    return `<tr>${about}<td class=num>${total - t.missing} <span class=muted>of ${total}</span></td>
+    return `<tr>${about}<td class=num data-v=${total - t.missing}>${total - t.missing} <span class=muted>of ${total}</span></td>
       <td data-v=${t.pass + t.built}>${bar(t)}</td><td class=counts>${esc(words(t))}</td>
       <td class='num muted' data-v=${worked}>${worked || ''}</td>${timeCell(k)}${locCell(k)}${sizeCell(k)}</tr>`;
   });
@@ -104,7 +104,7 @@ function timeCell(k) {
 function locCell(k) {
   const m = meanLoc(k);
   if (!m) return dash;
-  return `<td class=num title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}'>${
+  return `<td class=num data-v=${m.lines} title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}'>${
     Math.round(m.lines)}</td>`;
 }
 
@@ -119,11 +119,9 @@ function sizeCell(k) {
 function elegance(b) {
   const rows = [];
   for (const k of b.ran) {
-    const mine = b.cases.filter((c) => k.elegance[c.i]);
-    mine.forEach((c, j) => rows.push(`<tr>${j ? '' : `<th rowspan=${mine.length} class=kernel>
-      <a href='${kernelPage(k.name)}#elegance'>${esc(k.name)}</a></th>`}
-      <td class=case><a href='${casePage(c.id, k.name)}'>${esc(c.title)}</a>
-      <small class=muted>${esc(c.id)}</small></td><td class=why>${esc(k.elegance[c.i])}</td></tr>`));
+    for (const c of b.cases.filter((x) => k.elegance[x.i])) rows.push(`<tr><td><a href='${kernelPage(k.name)}#elegance'>${
+      esc(k.name)}</a></td><td class=case><a href='${casePage(c.id, k.name)}'>${esc(c.title)}</a>
+      <small class=muted>${esc(c.id)}</small></td><td class=why>${esc(k.elegance[c.i])}</td></tr>`);
   }
   if (!rows.length) return '';
   return `<h2 id=elegance>Elegance</h2>
