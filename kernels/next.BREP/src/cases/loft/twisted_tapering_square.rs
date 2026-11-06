@@ -2,19 +2,18 @@
 //! centred on the z axis and turned about it, right-handed, by 4.5° for every unit of height, its
 //! corners on four conical spirals, its walls ruled by horizontal segments between them.
 //!
-//! Refused: next.BREP's loft takes no guide curves for its corners (its guided loft rides one
-//! spine curve, blending its sections without turning them about it), and its twisted sweep turns
-//! a section without scaling it. The square both turns and shrinks, and its walls, ruled by
-//! horizontal lines turning in proportion to height, are no surface a loft through finitely many
-//! of its sections makes: lofting through sampled sections would only approximate them.
+//! The section both turns and shrinks in proportion to the height risen, which is the kernel's
+//! twisted sweep with a scaling law (`sweep_profile_twisted_scaled`): the square of side 30 at
+//! z = 0 swept up the z axis, turning half a turn about it and scaled to a third (side 10) at the
+//! top, both in proportion to the height risen.
+use crate::solids::{p, polygon};
 use crate::Refusal;
-use brep_kernel::BrepSolid;
+use brep_kernel::{make_line, sweep_profile_twisted_scaled, BrepSolid};
+use std::f64::consts::PI;
 
 pub fn build() -> Result<BrepSolid, Refusal> {
-    Err(Refusal::from(
-        "next.BREP's loft takes no guide curves for its corners (its guided loft rides one spine \
-         curve) and its twisted sweep has no scaling law; the square both turns and tapers, so \
-         its walls, ruled by horizontal lines turning in proportion to height, are not a surface \
-         it can build (a loft through sampled sections would only approximate them)",
-    ))
+    let foot = polygon(&[p(15.0, -15.0, 0.0), p(15.0, 15.0, 0.0), p(-15.0, 15.0, 0.0),
+        p(-15.0, -15.0, 0.0)])?;
+    let axis = make_line(p(0.0, 0.0, 0.0), p(0.0, 0.0, 40.0))?;
+    Ok(sweep_profile_twisted_scaled(&foot, &axis, PI, 1.0 / 3.0, None)?)
 }
