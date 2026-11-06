@@ -230,8 +230,9 @@ def relative(got, want):
     return f"{abs(got - want) / max(abs(want), 1e-12):.1e}"
 
 
-def case_page(c, registry, results, drawing, prev=None, after=None):
-    """`prev` and `after`: the cases before and after this one in its category, or None."""
+def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
+    """`prev` and `after`: the cases before and after this one in its category, or None; `v`
+    the version the board's scripts are addressed with (`web`'s)."""
     e = html.escape
     q = urllib.parse.quote
     cid = c["id"]
@@ -259,7 +260,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
                    "kernel builds: <em>built</em> means a watertight, consistently oriented solid, "
                    "whatever its measures; the table says which kernels agree with which.</p>")
     else:
-        out.append("<div class=scroll><table><tr><th></th><th>expected</th>"
+        out.append("<div class=scroll><table data-nosort><tr><th></th><th>expected</th>"
                    "<th>closed form</th></tr>")
         for key in ("volume", "area"):
             x = exp[key]
@@ -338,26 +339,34 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
             if m is None:
                 return ""
             return relative(m[i], exp[KEYS[i]]["value"]) if exp else f"{m[i]:.6g}"
+        # each row's head, its cells' tag, class and content, and the field of a result's row its
+        # cells sort by (sort.js), where their text is in units
         rows = [
-            ("<th></th>", "th", lambda en: "k", lambda en: e(en["name"])),
+            ("<th></th>", "th", lambda en: "k", lambda en: e(en["name"]), None),
             ("<th scope=row>outcome</th>", "td", lambda en: f"cell {en['outcome']}",
-             lambda en: e(en["label"])),
+             lambda en: e(en["label"]), None),
             ("<th scope=row title='relative error'>volume err.</th>" if exp
-             else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0)),
+             else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0), None),
             ("<th scope=row title='relative error'>area err.</th>" if exp
-             else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1)),
-            ("<th scope=row>time</th>", "td", None, lambda en: spent(en, "seconds", " s")),
+             else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1), None),
+            ("<th scope=row>time</th>", "td", None, lambda en: spent(en, "seconds", " s"),
+             "seconds"),
             ("<th scope=row title='user and system time, over every thread'>CPU time</th>", "td",
-             None, lambda en: spent(en, "cpu_seconds", " s")),
+             None, lambda en: spent(en, "cpu_seconds", " s"), "cpu_seconds"),
             ("<th scope=row title='the most memory the runner held resident at once'>memory</th>",
-             "td", None, lambda en: spent(en, "peak_mb", " MB")),
+             "td", None, lambda en: spent(en, "peak_mb", " MB"), "peak_mb"),
             ("<th scope=row title='lines of code, comments and blank lines left out'>LOC</th>",
-             "td", None, lambda en: "" if en["loc"] is None else str(en["loc"])),
+             "td", None, lambda en: "" if en["loc"] is None else str(en["loc"]), None),
         ]
-        out.append(f"<div class=scroll><table class=entries data-default='{e(shown['name'])}'>")
-        for head_cell, tag, cls, body in rows:
+        out.append(f"<div class=scroll><table class=entries data-sort=columns "
+                   f"data-default='{e(shown['name'])}'>")
+        def key(en, field):
+            x = en["row"].get(field) if field and en["row"] else None
+            return "" if x is None else f" data-v='{x!r}'"
+        for head_cell, tag, cls, body, field in rows:
             out.append("<tr>" + head_cell + "".join(
-                f"<{tag} class='{cls(en) if cls else ''}' data-k='{e(en['name'])}'>"
+                f"<{tag} class='{cls(en) if cls else ''}' data-k='{e(en['name'])}'"
+                f"{key(en, field)}>"
                 f"<a href='#k={e(q(en['name']))}'>{body(en)}</a></{tag}>" for en in entries) +
                 "</tr>")
         out.append("</table></div>")
@@ -377,6 +386,9 @@ def case_page(c, registry, results, drawing, prev=None, after=None):
                        "the solid, are open edges, where the mesh is not closed.</p></div>")
         out += [entry(en, exp) for en in entries]
         out.append(PICK)
+        # the table of entries sorted by a click on a row's head (the board's sort.js)
+        out.append(f"<script type=module>import {{ sortable }} from '{up}sort.js{v}'; "
+                   "sortable(document);</script>")
 
     out.append(f"<p class=muted><a href='{REPO}/blob/main/cases/{e(cid)}.md'>{e(cid)}.md</a>, "
                "the case as written.</p>")
@@ -466,7 +478,7 @@ def entry(en, exp):
                 want = exp[key]["value"]
                 cells += f"<td>{want:.10g}</td><td>{relative(x, want)}</td>"
             table.append(f"<tr><td>{key}</td>{cells}</tr>")
-        out.append("<div class=scroll><table>" + "".join(table) + "</table></div>")
+        out.append("<div class=scroll><table data-nosort>" + "".join(table) + "</table></div>")
         facts.append(("agrees with", e(", ".join(en["friends"])) or
                       "<span class=muted>no other kernel</span>"))
     elif row:
@@ -697,7 +709,8 @@ def web(data):
     """Copy harness/web/ into site/, each address of a script or of board.json given a version
     (`?v=` and a hash of the scripts and of `data`, board.json's bytes). GitHub Pages lets a
     browser keep a file for ten minutes, so without it a browser can pair a deploy's scripts
-    with the last deploy's board.json, or the reverse, and draw nothing."""
+    with the last deploy's board.json, or the reverse, and draw nothing.  Returns the version,
+    for the case pages' addresses of the scripts."""
     names = sorted(os.listdir(WEB))
     digest = hashlib.sha256(data)
     for name in names:
@@ -718,6 +731,7 @@ def web(data):
             text = re.sub(r"from '\./(\w+\.js)'", rf"from './\1{v}'", text)
         with open(dest, "w", encoding="utf-8") as f:
             f.write(text)
+    return v
 
 
 def main():
@@ -738,14 +752,14 @@ def main():
                       ensure_ascii=False).encode()
     with open(os.path.join(SITE, "board.json"), "wb") as f:
         f.write(data)
-    web(data)
+    v = web(data)
     ids = sorted(cases)
     for i, cid in enumerate(ids):
         category = cid.rpartition("/")[0]
         prev = ids[i - 1] if i and ids[i - 1].rpartition("/")[0] == category else None
         after = (ids[i + 1] if i + 1 < len(ids) and ids[i + 1].rpartition("/")[0] == category
                  else None)
-        case_page(cases[cid], registry, results, drawings.get(cid), prev, after)
+        case_page(cases[cid], registry, results, drawings.get(cid), prev, after, v)
     print(f"site/: the board, board.json and {len(cases)} case pages written")
 
 

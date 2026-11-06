@@ -2,7 +2,9 @@
 
 The results are published at
 **[bmander.github.io/brep-bench](https://bmander.github.io/brep-bench/)**. The board ranks no
-kernel above another and lists them in the order of `kernels.json`. It has:
+kernel above another and lists them in the order of `kernels.json`, though any of its tables
+can be sorted: a click on a column's head (or its arrow) sorts the rows by it, ascending, then
+descending, then back to the order drawn, with blank cells last. It has:
 
 - **An overview:** each kernel's outcomes, each category's outcomes by kernel, the implementations
   flagged elegant (see [SPEC.md](../SPEC.md#an-implementation)) with what makes each so, and a
@@ -11,8 +13,9 @@ kernel above another and lists them in the order of `kernels.json`. It has:
   whether the case is settled (has an expected answer: a closed form or two kernels' agreement; see
   [SPEC.md](../SPEC.md#principles)), and each kernel's outcome. It has views of the cases no kernel
   passes, the cases one kernel alone passes, the cases the kernels shown differ on, and the cases
-  with a workaround, and the cases with an elegant solution. Its cells show each outcome, or each run's time or peak memory. Its address
-  records its filters, so a view can be linked.
+  with a workaround, and the cases with an elegant solution. Its cells show each outcome, or each run's time or peak memory, and a column
+  sorts by what its cells show. Its address records its filters and its sort, so a view can be
+  linked.
 - **A page for each kernel:** its outcomes by category, its refusals grouped by reason, its wrong
   answers, crashes and timeouts, its workarounds grouped by the missing feature, its elegant
   implementations and what makes each so, and its times
@@ -27,7 +30,7 @@ kernel above another and lists them in the order of `kernels.json`. It has:
   forms (or, for an unsettled case, a note that it has none yet); a drawing of the expected solid
   (three views and an isometric); a table of every kernel's entry at a glance, a column each (its
   outcome, its errors or measures, its time, CPU time and peak memory, and its lines of code,
-  comments left out); and the entry picked, by a click on that table or
+  comments left out), its columns sorted by a click on a row's head; and the entry picked, by a click on that table or
   on the buttons under it: its result in a 3D viewer, with any open edges of its mesh marked in red;
   its time; its notes (why it failed, what it works around, what makes it elegant); its data (its measures against the
   expected ones, which other kernels it agrees with, its faces, its mesh and its STL to download);

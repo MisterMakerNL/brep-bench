@@ -1,6 +1,7 @@
 // The overview: the kernels, the categories by kernels, and a strip of every case.
 import { load, tally, words, bar, legend, esc, casePage, kernelPage, groupOf, markColours,
          failed, placeTip, solved, secondsText, megabytesText } from './board.js';
+import { sortable } from './sort.js';
 
 // The least time a run's own time is taken as, for the mean of their logarithms: a time of 0 is
 // under the clock's resolution (the performance page's floor).
@@ -52,6 +53,7 @@ function draw(b) {
     <p class=legend>${legend()}</p>
     <div class=strip><canvas role=img aria-label='The outcome each kernel had of every case. The explorer lists them as a table.'></canvas></div>
     <div class=tip hidden></div>`;
+  sortable(main);
   strip(b, main.querySelector('.strip canvas'), main.querySelector('.tip'));
 }
 
@@ -64,7 +66,7 @@ function kernels(b) {
     }
     if (k.outcomes) name += `<small class=muted>${esc(k.version)} · run ${esc(k.run.slice(0, 10))}</small>`;
     if (k.note) name += `<small class=muted>${esc(k.note)}</small>`;
-    const about = `<td class=kernel>${name}</td><td>${esc(k.backend || '')}</td>
+    const about = `<td class=kernel data-v='${esc(k.name)}'>${name}</td><td>${esc(k.backend || '')}</td>
       <td class=wrap>${esc(k.frontend || '')}</td><td class=wrap>${esc(k.license || '')}</td>`;
     if (!k.outcomes) {
       return `<tr>${about}<td class=muted colspan=7>awaiting an implementation</td></tr>`;
@@ -72,9 +74,9 @@ function kernels(b) {
     const t = tally(k);
     const worked = k.workaround.filter((w, i) => w && (k.outcomes[i] === 'pass' ||
                                                        k.outcomes[i] === 'built')).length;
-    return `<tr>${about}<td class=num>${total - t.missing} <span class=muted>of ${total}</span></td>
-      <td>${bar(t)}</td><td class=counts>${esc(words(t))}</td>
-      <td class='num muted'>${worked || ''}</td>${timeCell(k)}${locCell(k)}${sizeCell(k)}</tr>`;
+    return `<tr>${about}<td class=num data-v=${total - t.missing}>${total - t.missing} <span class=muted>of ${total}</span></td>
+      <td data-v=${t.pass + t.built}>${bar(t)}</td><td class=counts>${esc(words(t))}</td>
+      <td class='num muted' data-v=${worked}>${worked || ''}</td>${timeCell(k)}${locCell(k)}${sizeCell(k)}</tr>`;
   });
   return `<div class=scroll><table><tr><th>kernel</th>
     <th title='the language the kernel is written in'>back end</th>
@@ -95,21 +97,21 @@ function timeCell(k) {
   if (!m) return dash;
   const start = k.start.measured ? `, start-up of ${secondsText(k.start.seconds)} left out`
     : ', its fastest run left out as start-up';
-  return `<td class=num title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}${
+  return `<td class=num data-v=${m.seconds} title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}${
     esc(start)}'>${secondsText(m.seconds)}</td>`;
 }
 
 function locCell(k) {
   const m = meanLoc(k);
   if (!m) return dash;
-  return `<td class=num title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}'>${
+  return `<td class=num data-v=${m.lines} title='geometric mean over ${m.n} case${m.n === 1 ? '' : 's'}'>${
     Math.round(m.lines)}</td>`;
 }
 
 function sizeCell(k) {
   if (!k.binary) return dash;
   const files = `${k.binary.files} file${k.binary.files === 1 ? '' : 's'}`;
-  return `<td class=num title='${esc(files)}'>${megabytesText(k.binary.bytes / 1e6)}</td>`;
+  return `<td class=num data-v=${k.binary.bytes} title='${esc(files)}'>${megabytesText(k.binary.bytes / 1e6)}</td>`;
 }
 
 // The implementations each kernel's authors call elegant (its elegance.toml), kernel by kernel in
@@ -117,11 +119,9 @@ function sizeCell(k) {
 function elegance(b) {
   const rows = [];
   for (const k of b.ran) {
-    const mine = b.cases.filter((c) => k.elegance[c.i]);
-    mine.forEach((c, j) => rows.push(`<tr>${j ? '' : `<th rowspan=${mine.length} class=kernel>
-      <a href='${kernelPage(k.name)}#elegance'>${esc(k.name)}</a></th>`}
-      <td class=case><a href='${casePage(c.id, k.name)}'>${esc(c.title)}</a>
-      <small class=muted>${esc(c.id)}</small></td><td class=why>${esc(k.elegance[c.i])}</td></tr>`));
+    for (const c of b.cases.filter((x) => k.elegance[x.i])) rows.push(`<tr><td><a href='${kernelPage(k.name)}#elegance'>${
+      esc(k.name)}</a></td><td class=case><a href='${casePage(c.id, k.name)}'>${esc(c.title)}</a>
+      <small class=muted>${esc(c.id)}</small></td><td class=why>${esc(k.elegance[c.i])}</td></tr>`);
   }
   if (!rows.length) return '';
   return `<h2 id=elegance>Elegance</h2>
@@ -135,18 +135,19 @@ function elegance(b) {
 function categories(b) {
   const head = b.ran.map((k) =>
     `<th class=k><a href='${kernelPage(k.name)}'>${esc(k.name)}</a></th>`).join('');
-  const row = (label, href, indices) => {
+  const row = (label, href, indices, fixed) => {
     const cells = b.ran.map((k) => {
       const t = tally(k, indices);
       const good = t.pass + t.built;
-      return `<td class=c title='${esc(k.name)}: ${esc(words(t))}'><a href='${href}'>${bar(t)}
+      return `<td class=c data-v='${indices.length ? good / indices.length : ''}'
+        title='${esc(k.name)}: ${esc(words(t))}'><a href='${href}'>${bar(t)}
         <span class=n>${good}/${indices.length}</span></a></td>`;
     }).join('');
-    return `<tr><th><a href='${href}'>${esc(label)}</a></th>
+    return `<tr${fixed ? ' data-fixed' : ''}><th><a href='${href}'>${esc(label)}</a></th>
       <td class='num muted'>${indices.length}</td>${cells}</tr>`;
   };
   const all = b.cases.map((c) => c.i);
-  const rows = [row('every case', 'explore.html', all)].concat(b.categories.map((c) =>
+  const rows = [row('every case', 'explore.html', all, true)].concat(b.categories.map((c) =>
     row(c.name, `explore.html?cat=${encodeURIComponent(c.name)}`, c.cases)));
   return `<div class=scroll><table class=grid-cats><tr><th>category</th>
     <th class=num>cases</th>${head}</tr>${rows.join('')}</table></div>`;

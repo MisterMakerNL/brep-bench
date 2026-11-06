@@ -39,6 +39,13 @@ th, td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: le
          white-space: nowrap; vertical-align: middle; }
 th { font-weight: 600; }
 td.num, th.num { text-align: right; }
+/* a sortable table's heads (sort.js): an arrow beside each, the accent's where it sorts the table */
+th.sortable { cursor: pointer; }
+th button.sort { font: inherit; font-size: 0.85em; font-weight: normal; line-height: 1;
+                 padding: 0 2px; border: 0; background: none; color: var(--muted);
+                 cursor: pointer; opacity: 0.6; }
+th button.sort:hover, th button.sort:focus-visible { opacity: 1; }
+th[aria-sort] button.sort { color: var(--accent); opacity: 1; }
 td.cell { text-align: center; font-size: 0.85em; }
 td.cell a, table.entries [data-k] a { text-decoration: none; display: block; }
 td.pass, .badge.pass { background: var(--pass); }
@@ -54,7 +61,6 @@ td.case small { display: block; color: var(--muted); }
 details { margin: 0 0 12px; } summary { cursor: pointer; font-weight: 600; }
 .description { max-width: 70ch; font-size: 1.05em; }
 td.why { white-space: normal; min-width: 240px; font-size: 0.9em; }
-table.elegance th.kernel { vertical-align: top; }
 table.elegance td.why { font-size: 1em; max-width: 70ch; }
 .muted { color: var(--muted); }
 a { color: inherit; }

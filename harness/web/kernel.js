@@ -3,6 +3,7 @@
 // long it took.
 import { load, tally, bar, legend, esc, casePage, kernelPage, OUTCOMES,
          failed, secondsText, megabytesText, quantile } from './board.js';
+import { sortable } from './sort.js';
 
 const main = document.getElementById('kernel');
 load().then(draw, (e) => failed(main, e));
@@ -49,8 +50,8 @@ function draw(b) {
     </tr>${b.categories.map((c) => {
       const ct = tally(k, c.cases);
       return `<tr><td><a href='${explore({ cat: c.name })}'>${esc(c.name)}</a></td>
-        <td class='num muted'>${c.cases.length}</td><td>${bar(ct)}</td>${OUTCOMES.map((o) =>
-          `<td class=num>${counted(o, ct[o], { cat: c.name })}</td>`).join('')}</tr>`;
+        <td class='num muted'>${c.cases.length}</td><td data-v=${(ct.pass + ct.built) / c.cases.length}>${bar(ct)}</td>${OUTCOMES.map((o) =>
+          `<td class=num data-v=${ct[o]}>${counted(o, ct[o], { cat: c.name })}</td>`).join('')}</tr>`;
     }).join('')}</table></div>`;
 
   const link = (i) => `<a href='${casePage(b.cases[i].id, k.name)}'>${esc(b.cases[i].title)}</a>
@@ -128,12 +129,13 @@ function draw(b) {
       left out.</p>
       <div class=scroll><table><tr><th>slowest</th><th class=num>time</th>
       <th class=num>CPU time</th><th class=num>memory</th><th>outcome</th></tr>
-      ${slowest.map((i) => `<tr><td class=case>${link(i)}</td><td class=num>${
-        secondsText(k.seconds[i])}</td><td class=num>${secondsText(k.cpu[i])}</td>
-        <td class=num>${megabytesText(k.mb[i])}</td><td class='cell ${k.outcomes[i]}'>${
+      ${slowest.map((i) => `<tr><td class=case>${link(i)}</td><td class=num data-v='${k.seconds[i] ?? ''}'>${
+        secondsText(k.seconds[i])}</td><td class=num data-v='${k.cpu[i] ?? ''}'>${secondsText(k.cpu[i])}</td>
+        <td class=num data-v='${k.mb[i] ?? ''}'>${megabytesText(k.mb[i])}</td><td class='cell ${k.outcomes[i]}'>${
         k.outcomes[i]}</td></tr>`).join('')}</table></div>`;
   }
   main.innerHTML = out;
+  sortable(main);
   // drawn after the page loaded: a section the address names (#elegance) is scrolled to now
   if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 }
