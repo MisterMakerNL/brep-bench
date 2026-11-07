@@ -24,7 +24,8 @@ changed decides it:
 
 With no base, or a base that is not an ancestor of HEAD (history rewritten), the whole suite runs.
 Under GitHub Actions it also writes the step outputs `build` (the kernels to build, space
-separated: those with an implementation of a case they are to run), `draw` ("all", case ids, or empty) and `work` ("true" when anything runs or is drawn).
+separated: those with an implementation of a case they are to run), `draw` ("all", case ids, or
+empty) and `work` ("true" when anything runs or is drawn).
 Standard library only.
 """
 import argparse
