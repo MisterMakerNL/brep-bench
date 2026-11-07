@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.11
+# brep-bench specification, version 1.12
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -69,6 +69,15 @@ How a description is written:
 - **It says what to build, not how.** Hints that keep a construction away from an accidental
   degeneracy are allowed ("if you cut the hole with a cylinder, make it run past both faces"). So is
   saying which operation a case is about ("drill them one after another, each hole its own cut").
+- **It defines its solid directly.** A case states its solid by well-defined geometry and
+  parameters and the operations that make a solid of them (primitives, sweeps, lofts, Booleans,
+  blends, offsets and the like), applied reasonably directly: not as a path through other solids
+  that a direct construction of the same result would skip, such as a solid built only so that
+  some of its faces can be deleted or given new surfaces. The grading sees only the result, so a
+  description that must forbid the direct construction ("do not use a box") to keep its case
+  meaningful is asking about a path the grading cannot see, and is not a case. The geometry a
+  solid is bounded by is part of its definition, not a path: a ball bounded by one NURBS face is
+  not a sphere primitive.
 - **It must be unambiguous enough to have one answer.** If two careful readers could build
   different solids from it, that is a bug in the case.
 - **Where blends meet at a corner, it says what the corner is, as a composition.** Chamfers or
@@ -270,6 +279,8 @@ One entry per kernel:
 
 ## Versions
 
+- **1.12:** a case defines its solid directly, from its geometry and parameters, not as a path
+  through other solids that a direct construction of the result would skip. Grading is as in 1.9.
 - **1.11:** families are removed, and with them a runner's PARAMS argument: twenty runs a case
   cost much CPU time for little coverage the cases they varied did not already give. Grading is as
   in 1.9.

@@ -139,33 +139,13 @@ more than first order. Faces that coincide over part of their extent: two half b
 their poles a quarter turn apart, and two half tori of one torus. A saddle cut level through its
 saddle point, where the plane meets it in two lines that cross. Every one has a closed form.
 
-## Faces moved, deleted and replaced: direct edits (`edit/`)
+## Faces moved: direct edits (`edit/`)
 
 A finished solid changed by moving some of its faces rather than by redoing the steps that made it,
 the faces beside them extended or trimmed to meet them, as a draft does. A drilled block's top is
 raised and the hole runs on with it, an L's step is pushed out, a hole's wall is offset to widen
-it, and a top is raised carrying its round along rather than stretching it.
-
-Faces are also deleted, the faces around them extended along their own surfaces to heal the gap
-(a round, a through hole, a blind hole with its drill point, a boss), and given new surfaces, the
-faces around them trimmed or extended to meet: a box's top made a barrel vault, a cylinder's top a
-dome, and a hole's wall a cone. Every one has a closed form.
-
-## Sewing and healing (`sew/`)
-
-Solids made from faces built one by one and sewn into a closed shell: a box from six rectangles, a
-cylinder from its side and two disks, and a torus from four quarters, each wrapped round on its
-own seam. The last is a box whose faces arrive a ten-thousandth apart, as a file from a less
-precise system might hand them over, sewn within a tolerance and healed so that the faces meet
-exactly; sewn but not healed, it misses the box's area by more than a pass allows.
-
-## Splits and imprints (`split/`, `imprint/`)
-
-A solid split by sheets with every piece kept, each with its own face where it was cut: a block
-split by a cylindrical sheet into a post and a holed block, and a ball split into three by two
-planes at once, the pieces then moved apart. And curves imprinted on a face, splitting it without
-changing the solid, after which one of the new faces is moved: a circle imprinted on a top and
-pushed in to make a pocket, and a line imprinted across a top and one side pulled up into a step.
+it, and a top is raised carrying its round along rather than stretching it. Every one has a closed
+form.
 
 ## Filled surfaces (`fill/`)
 
