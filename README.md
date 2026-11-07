@@ -15,7 +15,7 @@ shared yardstick: hard cases whose answers no single kernel chose, and every ker
 
 ## Cases and grading
 
-Over 200 cases, from textbook primitives, Booleans, sweeps and fillets to tangent contact,
+Over 300 cases, from textbook primitives, Booleans, sweeps and fillets to tangent contact,
 self-intersecting curves, chamfers, splines, NURBS, quadrics and pinched tori, solid sweeps, lofts,
 offsets, thickened sheets, shells, drafts, form features, singular points, direct edits and real
 parts ([a tour](docs/cases.md)).

@@ -26,6 +26,34 @@ Everything a tool passes through as it moves, from a ball swung through a block 
 a wheel screwed along a rod, a rack rolled around a gear blank and a torus tumbling through space,
 whose walls are envelopes no kernel here can yet build.
 
+## Solid sweeps at their hardest (`swept/`, `nurbs/`, from geomsolver's sweep epic)
+
+The degenerate contacts and trims that
+[geomsolver's exact-sweep epic](https://github.com/bmander/geomsolver/issues/721) found, each a
+solid of its own, its `origin` naming the box it comes from. Where the swept solid has a closed
+form it is given (Steiner's formula over a zonotope, Pappus over a shadow, a helicoid's area in
+logarithms); most of the rest are unsettled.
+
+- **Contacts that degenerate:** a flat end kept in its plane, a ring in contact all round, a sharp
+  rim met edge on, a characteristic closed on itself, a bar's side touching along a whole line, an
+  edge whose fan holds the turn's axis, a ring lying flat slid past its hole and short of it, a
+  turn's axis passing through a flat or through the tool, a ball reaching across it.
+- **Tools beyond lines and circles:** vertices (a short bar and a tetrahedron screwed), rounded
+  blocks, an apex on the axis (a V bit, a cone's point), an end mill's round rim under a screw, an
+  annular shadow that leaves a loose core, a wheel with an elliptic meridian, a bar whose section is
+  a periodic B-spline, a coil spring that is itself a sweep, a drafted slot.
+- **Sweeps that stop inside:** drums, bull-noses, drills, domed mills, a half drum and bars swung
+  partway into a curved block, a bar and a drum plunged aslant, a thread stopped short and one run
+  out by a second motion.
+- **Motions beyond a screw:** paths of pieces, frames along a spline (a key, a leaning bull-nose, a
+  wheel), a lead that grows, a cube tumbling, a square on a planet carrier, a spline that loops over
+  itself.
+- **Trims and folds:** a ring pushed in past the lean where its outline cusps, a ball screwed round a
+  helix tighter than itself, a thread so fine its crests are sharp, a cube spun about its diagonal
+  into a sealed void of two cones and a hyperboloid, a helical tunnel sealed inside a rod.
+- **Coincidences:** a NURBS sleeve on a drum's cylinder, and two flat B-spline patches overlapping in
+  one plane.
+
 ## Lofts (`loft/`)
 
 Lofts beyond two sections joined edge to edge: a square lofted to an octagon and to a circle, each
