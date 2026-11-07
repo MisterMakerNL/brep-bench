@@ -1,7 +1,9 @@
 //! The solid the box from (0, 0, 0) to (10, 6, 4) fills as it slides without turning along
 //! (8, 5, 3), to the box from (8, 5, 3) to (18, 11, 7).
 //!
-//! cadrs has no sweep of a solid, so the solid is built as what it is: the box where it starts,
+//! cadrs's sweep of a solid (`Kernel::sweep_solid`) moves a prism exactly only in its section's
+//! plane (it meshes what other rigid motions fill), so the solid is built as what it is: the box
+//! where it starts,
 //! and what each of its three faces facing along the slide (x = 10, y = 6, z = 4) sweeps as it
 //! slides, the face's rectangle sketched on its plane and extruded along the slide, an oblique
 //! prism. Every point the box passes leaves it, going along the slide, through one of those
