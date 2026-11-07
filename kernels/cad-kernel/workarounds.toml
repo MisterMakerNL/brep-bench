@@ -34,5 +34,3 @@
 "sweep/mitered-pipe-on-cube-edges" = "no sweep along a path with corners"
 "sweep/round-cornered-pipe" = "no sweep along a path with corners"
 "swept/ball-along-spline-groove" = "no sweep of a solid along a curve"
-"swept/torus-slid-through-rod" = "no sweep of a curved solid"
-"swept/two-beads-slid-through-rod" = "no sweep of a curved solid"
