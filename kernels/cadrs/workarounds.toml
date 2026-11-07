@@ -28,3 +28,6 @@
 "swept/torus-slid-through-rod" = "no sweep of a solid"
 "swept/two-beads-slid-through-rod" = "no sweep of a solid"
 "loft/twisted-tapering-square" = "no loft along guides"
+"swept/torus-turned-across-block" = "no sweep of a solid over part of a turn"
+"swept/torus-screwed-through-rod" = "no sweep of a solid over part of a screw"
+"swept/v-wheel-screwed-through-rod" = "no sweep of a solid over part of a screw"
