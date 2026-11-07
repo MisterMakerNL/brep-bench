@@ -160,5 +160,6 @@ three holes' axes, where three cylinders cross square to each other (twenty-seve
 crossings, nine of them inside a tricylinder); three bodies nested in each other's hollows, a
 hollow ball inside a hollow ball, none of them concentric; twelve balls on a ring, joined one after
 another; a hoof cut from a cylinder through a diameter of its base, whose curved side narrows to
-nothing where base, top and side meet; and a tube bored off center, its wall a millionth of its
-radius thick on one side.
+nothing where base, top and side meet; a tube bored off center, its wall a millionth of its
+radius thick on one side; and a lens of two unequal balls and a napkin ring, each placed aslant to
+every axis.
