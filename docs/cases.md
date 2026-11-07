@@ -115,7 +115,7 @@ corner's outside with a quarter ball.
 A cut or an intersection that runs through the one point where a surface's parameters pinch, a
 sphere's pole or a cone's apex: a ball halved through its poles or cut aslant through one, two
 balls whose circle passes through a pole of each, a napkin ring whose ball has its poles on the
-rims, a cone halved or cut aslant through its apex, and two spherical sectors sharing their apex,
+rims and one whose poles lie a hair outside them, a cone halved or cut aslant through its apex, and two spherical sectors sharing their apex,
 whose cones meet in two rulings from it. Each case says where the poles go, since a kernel free to
 choose would turn them out of the way.
 
@@ -161,5 +161,5 @@ crossings, nine of them inside a tricylinder); three bodies nested in each other
 hollow ball inside a hollow ball, none of them concentric; twelve balls on a ring, joined one after
 another; a hoof cut from a cylinder through a diameter of its base, whose curved side narrows to
 nothing where base, top and side meet; a tube bored off center, its wall a millionth of its
-radius thick on one side; and a lens of two unequal balls and a napkin ring, each placed aslant to
-every axis.
+radius thick on one side; and a lens of two unequal balls, the line through their centers aslant
+to every axis.
