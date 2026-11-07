@@ -19,7 +19,10 @@ NURBS surfaces in Booleans; tangent and near-tangent contact; intersection curve
 themselves (Viviani's figure eight, where a cylinder touches a ball from inside, and Villarceau's
 circles, where a plane touches a torus twice); fillets and chamfers that consume faces; chamfers
 meeting at a corner, three or four to it, mitered or cut flat; a conic blend whose section is a
-parabola, not a circle; and splines.
+parabola, not a circle; three concave rounds meeting at a notch's inside corner in an eighth of a
+sphere; rounds on freeform faces, a NURBS cylinder's rim and an edge of a Bézier dome; the
+junction of a tee of two cylinders, whose round is no torus; and splines. Two NURBS balls meet in
+their common lens, every point of the intersection on two freeform faces.
 
 ## Solid sweeps (`swept/`)
 
@@ -44,7 +47,9 @@ that far inside it. They run from a box grown or shrunk and a cylinder's rims ro
 concave edges kept sharp or rounded and the oblique corners of a tetrahedron and a cone's apex, to
 offsets that cross themselves: a groove grown shut, a flange shrunk away, and a torus grown past
 its hole into an apple. A ball bounded by one NURBS face is grown too, its offset run through the
-poles where the face's parameters pinch.
+poles where the face's parameters pinch, and an elliptic cylinder is grown and shrunk, its side
+offset to a curve that is no conic: shrunk within its least radius of curvature it has a closed
+form, and shrunk past it the offset turns back on itself in swallowtails that must be trimmed.
 
 ## Thickened sheets (`thicken/`)
 
