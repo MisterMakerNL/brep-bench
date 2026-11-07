@@ -157,9 +157,10 @@ fn write_stl(path: &str, mesh: &cadrs_kernel::TriMesh) -> std::io::Result<()> {
 }
 
 /// The reply for a body built: its measures, once its triangles are written. The mesh is the
-/// coarsest of a ladder of chords that bounds the body's exact volume to 1/200 (the harness asks
+/// coarsest of a ladder of chords that bounds the body's exact volume to 1/100 (the harness asks
 /// 1/50): from a thousandth of the body's size, or a twentieth of its thickness (its volume over
-/// its area) where that is less, at 15°, each step a quarter of the chord before and half the
+/// its area) where that is less, at 15°, each step a chord where the volume would be off 0.7 of
+/// that (in proportion to how far off this one is, a half to a sixteenth of it) and half the
 /// angle (to 5°), down to a hundred-thousandth of the size.
 fn measured(k: &DefaultKernel, body: BodyId, out: &str) -> Result<String, Refusal> {
     let timing = std::env::var_os("BREP_TIMING").is_some();
@@ -204,10 +205,13 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str) -> Result<String, Refusa
                 (bound - volume).abs() / volume.abs()
             );
         }
-        if (bound - volume).abs() <= 5e-3 * volume.abs() || deflection <= finest {
+        let off = (bound - volume).abs() / volume.abs();
+        if off <= 1e-2 || deflection <= finest {
             break mesh;
         }
-        deflection = (deflection / 4.0).max(finest);
+        // (A mesh's volume is off about in proportion to its chord: the next chord where it
+        // would be off 0.7 of the bound, from a half to a sixteenth of this one.)
+        deflection = (deflection * (0.7e-2 / off).clamp(1.0 / 16.0, 0.5)).max(finest);
         angle = (angle / 2.0).max(5f64.to_radians());
     };
     lap("tessellate", &mut t);
@@ -217,7 +221,15 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str) -> Result<String, Refusa
             *per.entry(f.0).or_insert(0) += 1;
         }
         for (f, n) in per {
-            eprintln!("face {f} {:?}: {n} triangles", kind(&native.faces()[f as usize].surf));
+            let surf = &native.faces()[f as usize].surf;
+            let spans = match surf {
+                cadrs_kernel::native::Surface::Nurbs(ns) => {
+                    let count = |k: &[f64]| k.windows(2).filter(|w| w[1] > w[0]).count();
+                    format!(", degrees {}×{}, spans {}×{}", ns.du, ns.dv, count(&ns.ku), count(&ns.kv))
+                }
+                _ => String::new(),
+            };
+            eprintln!("face {f} {:?}: {n} triangles{spans}", kind(surf));
         }
     }
     write_stl(out, &mesh).map_err(|e| format!("{out} not written: {e}"))?;
@@ -251,6 +263,15 @@ fn main() -> ExitCode {
     if let Some(n) = std::env::var("BREP_REPEAT_BUILD").ok().and_then(|n| n.parse::<usize>().ok()) {
         for _ in 0..n {
             let _ = build(&mut DefaultKernel::new());
+        }
+    }
+    // (Profiling: built and measured over and over, each time in a new session.)
+    if let Some(n) = std::env::var("BREP_REPEAT_FRESH").ok().and_then(|n| n.parse::<usize>().ok()) {
+        for _ in 0..n {
+            let mut k = DefaultKernel::new();
+            if let Ok(body) = build(&mut k) {
+                let _ = measured(&k, body, out);
+            }
         }
     }
     let mut k = DefaultKernel::new();

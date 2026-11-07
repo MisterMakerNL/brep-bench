@@ -1,10 +1,11 @@
 //! A ball of radius 10 at the origin with 62 dimples, each cut by its own ball of radius 1.2
 //! centered 10.6 out toward a vertex, an edge's midpoint or a face's center of the icosahedron
 //! with vertices (0, ±1, ±φ), (±1, ±φ, 0) and (±φ, 0, ±1). Every ball is cadrs's sphere
-//! primitive, its poles on the vertical through its center, as the case asks.
-use crate::bench::{ball, cut, p3, V3};
+//! primitive, its poles on the vertical through its center, as the case asks. The dimples are
+//! cut in one boolean with all 62 balls as its tools.
+use crate::bench::{ball, boolean, p3, V3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, BoolOp, DefaultKernel};
 
 /// The 62 directions, as unit vectors: the icosahedron's 12 vertices, its 30 edges' midpoints and
 /// its 20 faces' centers.
@@ -39,10 +40,11 @@ fn directions() -> Vec<V3> {
 }
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let mut golf = ball(k, p3(0.0, 0.0, 0.0), 10.0)?;
-    for d in directions() {
-        let dimple = ball(k, p3(0.0, 0.0, 0.0) + d * 10.6, 1.2)?;
-        golf = cut(k, golf, dimple)?;
-    }
-    Ok(golf)
+    let golf = ball(k, p3(0.0, 0.0, 0.0), 10.0)?;
+    let dimples = directions()
+        .into_iter()
+        .map(|d| ball(k, p3(0.0, 0.0, 0.0) + d * 10.6, 1.2))
+        .collect::<Result<Vec<_>, _>>()?;
+    // (One cut by all the dimples' balls at once: they are apart.)
+    boolean(k, BoolOp::Subtract, golf, &dimples)
 }
