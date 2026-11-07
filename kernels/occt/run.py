@@ -2,11 +2,10 @@
 """The brep-bench runner for Open CASCADE (OCCT), through the OCP Python bindings.
 
     python3 kernels/occt/run.py CASE OUT.stl     # CASE is an id, e.g. boolean/napkin-ring
-    python3 kernels/occt/run.py CASE OUT.stl PARAMS    # a family's variation: PARAMS is JSON
     python3 kernels/occt/run.py --version
 
 Loads the case's implementation, `cases/<category>/<name_snake>.py` beside this file, calls its
-`build()` (a family's `build(p)`, `p` its variation's parameters by name), and measures the solid it returns with OCCT's own tools: its volume and area
+`build()`, and measures the solid it returns with OCCT's own tools: its volume and area
 (BRepGProp), its faces by surface kind, its validity (BRepCheck_Analyzer). It meshes the solid
 and writes the triangles to OUT.stl, then prints one line of JSON (SPEC.md, "A runner"). The
 runner never reads the case's description: the implementation is the whole of the case here.
@@ -103,13 +102,11 @@ def measure(shape, out_stl):
 
 
 def main():
-    if len(sys.argv) not in (3, 4):
-        sys.exit("usage: run.py CASE OUT.stl [PARAMS]")
+    if len(sys.argv) != 3:
+        sys.exit("usage: run.py CASE OUT.stl")
     case_id, out_stl = sys.argv[1], sys.argv[2]
-    params = json.loads(sys.argv[3]) if len(sys.argv) == 4 else None
     try:
-        case = implementation(case_id)
-        reply = measure(case.build() if params is None else case.build(params), out_stl)
+        reply = measure(implementation(case_id).build(), out_stl)
     except Refused as why:
         reply = {"status": "refused", "reason": str(why)}
     print(json.dumps(reply))

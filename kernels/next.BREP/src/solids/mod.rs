@@ -16,7 +16,6 @@ pub fn polygon(corners: &[Vec3]) -> Result<Vec<NurbsCurve>, String> {
 pub mod boolean;
 pub mod draft;
 pub mod fillet;
-pub mod fuzz;
 pub mod geometry;
 pub mod offset;
 pub mod shell;

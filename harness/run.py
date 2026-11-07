@@ -7,8 +7,7 @@
     python3 harness/run.py --plan plan.json    # what harness/changed.py says changed
 
 A kernel's runner is asked for each case it has an implementation of (SPEC.md); a case it has none
-of is missing. A family (a case over parameters) is asked for once for each of its variations,
-their parameters after OUT.stl, and its outcome is its worst variation's. Writes results/<kernel>.json after a run of the whole suite (not of a part,
+of is missing. Writes results/<kernel>.json after a run of the whole suite (not of a part,
 `--case`), or folds a plan's runs into the last one (`--plan`), and keeps each result's triangles
 as results/meshes/<kernel>/<case>.stl for the drawings and the viewer.
 
@@ -36,7 +35,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stl  # noqa: E402
-from suite import ROOT, SEED, cases, kernels, source  # noqa: E402
+from suite import ROOT, cases, kernels, source  # noqa: E402
 
 # How near a measure must be to the expected value, relative to it.
 EXACT = 1e-6
@@ -52,15 +51,16 @@ def near(got, want, rel):
     return got is not None and abs(got - want) <= rel * max(abs(want), 1e-12)
 
 
-def grade(exp, reply, mesh):
-    """The outcome of one run against the expected measures `exp` (None for an unsettled case):
-    pass (built for an unsettled case), refused, wrong (with why) or crashed."""
+def grade(case, reply, mesh):
+    """The outcome of one run: pass (built for an unsettled case), refused, wrong (with why) or
+    crashed."""
     status = reply.get("status")
     if status == "refused":
         return "refused", reply.get("reason", "")
     if status != "ok":
         return "crashed", f"status {status!r}"
     why = []
+    exp = case["expect"]
     if exp is None:
         # unsettled: no answer to grade against, only whether the solid is sound
         if mesh is None:
@@ -162,18 +162,11 @@ def execute(argv, timeout, core=None):
             return Ran(code, o.read(), e.read(), seconds, cpu, peak)
 
 
-def argv(command, case, out_stl, params=None):
-    """The runner's command line for a case, and for a family's variation its parameters, as one
-    JSON object after OUT.stl (SPEC.md, "A runner")."""
-    return command + [case["id"], out_stl] + ([json.dumps(params)] if params is not None else [])
-
-
-def run_one(command, case, timeout, keep, params=None, exp=None):
-    """Run and grade one case, or with `params` a family's variation expecting `exp`: (outcome,
-    why, reply, mesh, how it ran)."""
+def run_one(command, case, timeout, keep):
+    """Run and grade one case: (outcome, why, reply, mesh, how it ran)."""
     with tempfile.TemporaryDirectory() as tmp:
         out_stl = os.path.join(tmp, "result.stl")
-        ran = execute(argv(command, case, out_stl, params), timeout)
+        ran = execute(command + [case["id"], out_stl], timeout)
         if ran.code is None:
             return "timeout", f"over {timeout} s", None, None, ran
         if ran.code != 0:
@@ -191,69 +184,15 @@ def run_one(command, case, timeout, keep, params=None, exp=None):
             # kept for the drawings and the viewer (results/meshes, not committed)
             os.makedirs(os.path.dirname(keep), exist_ok=True)
             shutil.copyfile(out_stl, keep)
-        return (*grade(case["expect"] if exp is None else exp, reply, mesh), reply, mesh, ran)
-
-
-# the outcomes of a run, best first (SPEC.md, "Grading"): a family's is its worst variation's
-RANKED = ("pass", "built", "refused", "wrong", "crashed", "timeout")
-
-
-def show(params):
-    """A variation's parameters in a line, as the reason for its outcome names them."""
-    return ", ".join(f"{k} = {v:g}" if isinstance(v, (int, float)) else f"{k} = {v}"
-                     for k, v in params.items())
-
-
-def run_family(command, case, timeout, keep):
-    """Run and grade each of a family's variations, and fold them into one result: (outcome, why,
-    reply, mesh, how it ran, variations). Its outcome is its worst variation's, and the first
-    variation with that outcome is the one its reason, measures and mesh are of; its time and
-    CPU time are the variations' sums, and its peak memory their largest."""
-    rows, runs = [], []
-    for i, v in enumerate(case["family"]["variations"]):
-        exp = {k: {"value": x} for k, x in v["expect"].items()}
-        with tempfile.TemporaryDirectory() as tmp:
-            mine = os.path.join(tmp, "result.stl")
-            outcome, why, reply, mesh, ran = run_one(command, case, timeout, mine, v["params"], exp)
-            runs.append((outcome, why, reply, mesh, ran, mine if os.path.exists(mine) else None))
-            if i == 0 or RANKED.index(outcome) > RANKED.index(rows[worst]["outcome"]):
-                worst = i
-                if runs[-1][5]:
-                    os.makedirs(os.path.dirname(keep), exist_ok=True)
-                    shutil.copyfile(mine, keep)
-                elif os.path.exists(keep):
-                    os.remove(keep)
-        rows.append({"outcome": outcome, "why": why,
-                     "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
-                     "mesh_volume": mesh and mesh["volume"], "mesh_area": mesh and mesh["area"],
-                     "closed": mesh and mesh["closed"], "seconds": rounded(ran.seconds, 3)})
-        print(f"{'':<14} {outcome:<8} {case['id'] + f' #{i}':<44} {ran.seconds:8.3f} s "
-              f"{why[:70]}", flush=True)
-    outcome, why, reply, mesh, _, _ = runs[worst]
-    passed = sum(r["outcome"] in ("pass", "built") for r in rows)
-    said = f"{passed} of {len(rows)} variations pass"
-    if outcome not in ("pass", "built"):
-        said += f"; #{worst} ({show(case['family']['variations'][worst]['params'])}): {why}"
-    cpu = [r[4].cpu for r in runs]
-    peak = [r[4].peak_mb for r in runs]
-    total = Ran(0, "", "", sum(r[4].seconds for r in runs),
-                None if None in cpu else sum(cpu), None if None in peak else max(peak))
-    return outcome, said, reply, mesh, total, rows
+        return (*grade(case, reply, mesh), reply, mesh, ran)
 
 
 def one_core_seconds(command, case, timeout, core):
-    """The wall-clock time of the case run again on `core` alone (a family's variations, each),
-    or None if it ran out of time or failed. Nothing of the run but its time is kept."""
-    total = 0
-    for params in ([v["params"] for v in case["family"]["variations"]] if case.get("family")
-                   else [None]):
-        with tempfile.TemporaryDirectory() as tmp:
-            ran = execute(argv(command, case, os.path.join(tmp, "result.stl"), params), timeout,
-                          core)
-        if ran.code != 0:
-            return None
-        total += ran.seconds
-    return round(total, 3)
+    """The wall-clock time of the case run again on `core` alone, or None if it ran out of time or
+    failed. Nothing of the run but its time is kept."""
+    with tempfile.TemporaryDirectory() as tmp:
+        ran = execute(command + [case["id"], os.path.join(tmp, "result.stl")], timeout, core)
+    return round(ran.seconds, 3) if ran.code == 0 else None
 
 
 def rounded(x, places):
@@ -353,11 +292,8 @@ def run_kernel(k, chosen, timeout, one_core=None):
         keep = os.path.join(ROOT, "results", "meshes", k["name"], c["id"] + ".stl")
         if os.path.exists(keep):
             os.remove(keep)
-        variations = None
         if not implemented(k, c):
             outcome, why, reply, mesh, ran = "missing", "no implementation", None, None, None
-        elif c.get("family"):
-            outcome, why, reply, mesh, ran, variations = run_family(k["command"], c, timeout, keep)
         else:
             outcome, why, reply, mesh, ran = run_one(k["command"], c, timeout, keep)
         row = {
@@ -368,8 +304,6 @@ def run_kernel(k, chosen, timeout, one_core=None):
             "volume": (reply or {}).get("volume"), "area": (reply or {}).get("area"),
             "faces": (reply or {}).get("faces"), "mesh": mesh,
         }
-        if variations is not None:
-            row["variations"] = variations
         if one_core is not None and outcome in ("pass", "built", "wrong"):
             row["one_core_seconds"] = one_core_seconds(k["command"], c, timeout, one_core)
         rows.append(row)
@@ -440,8 +374,6 @@ def record(k, rows, start, size, last=None):
               "run": last["run"] if last else time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "host": last.get("host") if last else host(),
               "startup": start, "binary": size,
-              # what a family's variations were drawn from (SPEC.md, "A family")
-              "seed": SEED,
               "tally": tally(rows), "cases": rows}
     with open(os.path.join(ROOT, "results", k["name"] + ".json"), "w") as f:
         json.dump(result, f, indent=1)

@@ -18,8 +18,7 @@ shared yardstick: hard cases whose answers no single kernel chose, and every ker
 Over 200 cases, from textbook primitives, Booleans, sweeps and fillets to tangent contact,
 self-intersecting curves, chamfers, splines, NURBS, quadrics and pinched tori, solid sweeps, lofts,
 offsets, thickened sheets, shells, drafts, form features, singular points, direct edits and real
-parts ([a tour](docs/cases.md)). Some are *families*: one description over parameters, graded at
-twenty variations drawn from a fixed seed, which pass only if every variation does.
+parts ([a tour](docs/cases.md)).
 
 A runner builds the case, writes its triangles as STL, and reports the solid's volume and area. It
 **passes** when:

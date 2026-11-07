@@ -115,7 +115,7 @@ corner's outside with a quarter ball.
 A cut or an intersection that runs through the one point where a surface's parameters pinch, a
 sphere's pole or a cone's apex: a ball halved through its poles or cut aslant through one, two
 balls whose circle passes through a pole of each, a napkin ring whose ball has its poles on the
-rims, a cone halved or cut aslant through its apex, and two spherical sectors sharing their apex,
+rims and one whose poles lie a hair outside them, a cone halved or cut aslant through its apex, and two spherical sectors sharing their apex,
 whose cones meet in two rulings from it. Each case says where the poles go, since a kernel free to
 choose would turn them out of the way.
 
@@ -153,19 +153,6 @@ flange, a pulley, a tray, a star handle, a turned shaft, ducts swept along a ben
 forms. Where one has none, its answer is accepted only when two kernels, each built independently
 from the case's words alone, agree; that agreement also shows the words describe one solid.
 
-## Families (`fuzz/`)
-
-Eleven cases from the suite stated over their parameters and graded at twenty variations each,
-drawn from a fixed seed ([SPEC.md](../SPEC.md#a-family)): a napkin ring bored in any direction
-anywhere, a lens of unequal balls from nearly nested to nearly apart, two cylinders crossed at any
-angle from 30° to square, a box rounded on every edge from a hair to nearly half its least side, a
-box's top chamfered unequally down to nearly its whole height, a helical pipe of either hand and
-any part of a turn, a disk bored and drilled on a bolt circle of three to twelve holes, a torus
-sliced at any height through its tube, a cylinder's rim rounded to nearly the whole of its top, a
-slab drilled at any slant to 60°, and a box stood on part of another. Most are turned about an axis
-through the origin, so nothing is left aligned with x, y or z. A family passes only where every
-variation does: an implementation tuned to one set of numbers shows here.
-
 ## More of the hardest ground (`boolean/`, `singular/`, `tangent/`)
 
 A cube drilled through by fifteen holes of one radius on a grid three ways, nine points each on
@@ -173,5 +160,6 @@ three holes' axes, where three cylinders cross square to each other (twenty-seve
 crossings, nine of them inside a tricylinder); three bodies nested in each other's hollows, a
 hollow ball inside a hollow ball, none of them concentric; twelve balls on a ring, joined one after
 another; a hoof cut from a cylinder through a diameter of its base, whose curved side narrows to
-nothing where base, top and side meet; and a tube bored off center, its wall a millionth of its
-radius thick on one side.
+nothing where base, top and side meet; a tube bored off center, its wall a millionth of its
+radius thick on one side; and a lens of two unequal balls, the line through their centers aslant
+to every axis.
