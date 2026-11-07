@@ -18,7 +18,8 @@ a case is written and graded is in [SPEC.md](../SPEC.md).
 NURBS surfaces in Booleans; tangent and near-tangent contact; intersection curves that cross
 themselves (Viviani's figure eight, where a cylinder touches a ball from inside, and Villarceau's
 circles, where a plane touches a torus twice); fillets and chamfers that consume faces; chamfers
-meeting at a corner, three or four to it, mitered or cut flat; and splines.
+meeting at a corner, three or four to it, mitered or cut flat; a conic blend whose section is a
+parabola, not a circle; and splines.
 
 ## Solid sweeps (`swept/`)
 
@@ -42,7 +43,8 @@ Solids grown or shrunk by a distance, to every point within that distance of the
 that far inside it. They run from a box grown or shrunk and a cylinder's rims rounded, through
 concave edges kept sharp or rounded and the oblique corners of a tetrahedron and a cone's apex, to
 offsets that cross themselves: a groove grown shut, a flange shrunk away, and a torus grown past
-its hole into an apple.
+its hole into an apple. A ball bounded by one NURBS face is grown too, its offset run through the
+poles where the face's parameters pinch.
 
 ## Thickened sheets (`thicken/`)
 
@@ -137,13 +139,41 @@ more than first order. Faces that coincide over part of their extent: two half b
 their poles a quarter turn apart, and two half tori of one torus. A saddle cut level through its
 saddle point, where the plane meets it in two lines that cross. Every one has a closed form.
 
-## Faces moved: direct edits (`edit/`)
+## Faces moved, deleted and replaced: direct edits (`edit/`)
 
 A finished solid changed by moving some of its faces rather than by redoing the steps that made it,
 the faces beside them extended or trimmed to meet them, as a draft does. A drilled block's top is
 raised and the hole runs on with it, an L's step is pushed out, a hole's wall is offset to widen
-it, and a top is raised carrying its round along rather than stretching it. Every one has a closed
-form.
+it, and a top is raised carrying its round along rather than stretching it.
+
+Faces are also deleted, the faces around them extended along their own surfaces to heal the gap
+(a round, a through hole, a blind hole with its drill point, a boss), and given new surfaces, the
+faces around them trimmed or extended to meet: a box's top made a barrel vault, a cylinder's top a
+dome, and a hole's wall a cone. Every one has a closed form.
+
+## Sewing and healing (`sew/`)
+
+Solids made from faces built one by one and sewn into a closed shell: a box from six rectangles, a
+cylinder from its side and two disks, and a torus from four quarters, each wrapped round on its
+own seam. The last is a box whose faces arrive a ten-thousandth apart, as a file from a less
+precise system might hand them over, sewn within a tolerance and healed so that the faces meet
+exactly; sewn but not healed, it misses the box's area by more than a pass allows.
+
+## Splits and imprints (`split/`, `imprint/`)
+
+A solid split by sheets with every piece kept, each with its own face where it was cut: a block
+split by a cylindrical sheet into a post and a holed block, and a ball split into three by two
+planes at once, the pieces then moved apart. And curves imprinted on a face, splitting it without
+changing the solid, after which one of the new faces is moved: a circle imprinted on a top and
+pushed in to make a pocket, and a line imprinted across a top and one side pulled up into a step.
+
+## Filled surfaces (`fill/`)
+
+A surface made to fill a loop of edges, the bilinearly blended Coons patch, capping a block: four
+straight edges, whose patch is a hyperbolic paraboloid with a closed form, and four parabolas, which
+make a saddle with none. Kernels' fills differ: one that minimizes an energy, or a Coons patch
+blended by cubic rather than linear functions, makes another surface, of the same volume over the
+straight edges but not the same area.
 
 ## Real parts (`parts/`, and some in `sweep/`, `swept/` and `boolean/`)
 

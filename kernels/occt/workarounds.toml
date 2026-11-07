@@ -2,7 +2,11 @@
 # (SPEC.md, "A workaround is flagged").
 
 "chamfer/octahedron-all-edges-mitered" = "no miter where four chamfers meet"
+"edit/box-top-replaced-by-a-cylinder" = "no replacement of a face's surface"
+"edit/cylinder-top-replaced-by-a-sphere" = "no replacement of a face's surface"
+"edit/hole-wall-replaced-by-a-cone" = "no replacement of a face's surface"
 "edit/rounded-block-top-moved-up" = "no move of a face that carries its round"
+"fillet/conic-edge" = "no conic blend"
 "geometry/ellipsoid" = "no ellipsoid"
 "geometry/ellipsoid-half" = "no ellipsoid"
 "loft/slab-pinched-on-four-guides" = "no loft along guides"
