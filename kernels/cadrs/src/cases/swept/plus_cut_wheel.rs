@@ -2,18 +2,30 @@
 //! cut by a plus (arms 30 long and 8 wide along ±x and ±y, from z = −10 to 0) turning about the
 //! z axis by t while the wheel turns by −2t/3 about its own axis, over t from 0° to 540°.
 //!
-//! Refused. cadrs has no sweep of a solid: its `sweep_body` carries points, wires and sheets
-//! one kind higher, only straight along a vector or about one axis. Seen from the wheel the plus
-//! rolls in its plane, so the cut is bounded by the envelopes of its sides under that roll and
-//! the trochoids its corners trace, curves the kernel has no form of and does not compute;
-//! fitted to points of the envelope here, they would be geometry made outside the kernel.
+//! The wheel is a circle extruded. Seen from it, the plus turns by t about the z axis and then,
+//! with the frame, by 2t/3 about the wheel's axis: cadrs's `Kernel::sweep_solid` with that planar
+//! motion (its sides' envelopes and its corners' paths, the region they bound extruded through
+//! the plus's height) gives what the plus fills, cut from the wheel.
+use crate::bench::{cut, extrude, p3, polygon, round, sketch, xy};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel, PlanarStep, SolidMotion};
+use std::f64::consts::PI;
 
-pub fn build(_k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    Err(Refusal::from(
-        "cadrs has no sweep of a solid, and sweeps points, wires and sheets only straight or \
-         about one axis: the wheel's flanks are the envelope of the plus's sides as it rolls in \
-         mesh with the wheel and the trochoids its corners trace, which it cannot build",
-    ))
+pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
+    let wheel = extrude(k, &sketch(xy(-8.0), vec![round((-50.0, 0.0), 40.0)]), 6.0)?;
+    let plus = [
+        (30.0, -4.0), (30.0, 4.0), (4.0, 4.0), (4.0, 30.0), (-4.0, 30.0), (-4.0, 4.0),
+        (-30.0, 4.0), (-30.0, -4.0), (-4.0, -4.0), (-4.0, -30.0), (4.0, -30.0), (4.0, -4.0),
+    ];
+    let tool = extrude(k, &sketch(xy(-10.0), vec![polygon(&plus)]), 10.0)?;
+    let motion = SolidMotion::Planar {
+        normal: crate::bench::unit(crate::bench::v3(0.0, 0.0, 1.0)),
+        steps: vec![
+            PlanarStep::Turn { about: p3(0.0, 0.0, 0.0), from: 0.0, to: 3.0 * PI },
+            PlanarStep::Turn { about: p3(-50.0, 0.0, 0.0), from: 0.0, to: 2.0 * PI },
+        ],
+    };
+    let swept = k.sweep_solid(tool, &motion)?;
+    let swept = swept.bodies.first().copied().ok_or_else(|| Refusal::from("the sweep made no body"))?;
+    cut(k, wheel, swept)
 }
