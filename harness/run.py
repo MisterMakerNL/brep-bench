@@ -35,7 +35,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stl  # noqa: E402
-from suite import ROOT, cases, kernels, source  # noqa: E402
+from suite import ROOT, cases, implements, kernels, source  # noqa: E402
 
 # How near a measure must be to the expected value, relative to it.
 EXACT = 1e-6
@@ -268,8 +268,7 @@ def binary(k):
 
 def implemented(k, c):
     """Whether kernel `k` has an implementation of case `c` (or keeps none apart from its runner)."""
-    src = source(k, c["id"])
-    return not src or os.path.exists(src)
+    return implements(k, c["id"])
 
 
 def overhead(k, timeout, one_core):
@@ -401,17 +400,19 @@ def run_plan(plan, timeout, one_core=None):
             mesh = os.path.join(ROOT, "results", "meshes", name, cid + ".stl")
             if os.path.exists(mesh):
                 os.remove(mesh)
+        # whether its runner is asked for anything: if not, it was not built (changed.py)
+        asked = any(implemented(k, c) for c in wanted)
         # measured again when the kernel's whole suite runs (its runner changed) or they never
         # were, and the runner is to build something; a plan of a few cases keeps the last
-        if (any(implemented(k, c) for c in wanted)
-                and (len(wanted) == len(current) or not last.get("startup"))):
+        if asked and (len(wanted) == len(current) or not last.get("startup")):
             start, size = overhead(k, timeout, one_core)
         else:
             start, size = last.get("startup"), last.get("binary")
         rows.update({row["case"]: row for row in run_kernel(k, wanted, timeout, one_core)})
-        # with nothing run (only cases dropped), the runner may not be built: keep its version
+        # with nothing run (cases dropped, or only ones it has no implementation of), the runner
+        # was not built: keep the last run's version
         record(k, [rows[cid] for cid in current if cid in rows], start, size,
-               None if wanted else last)
+               None if asked or "run" not in last else last)
         print(f"{name}: {tally(rows.values())}; {spent(rows.values())}")
 
 
