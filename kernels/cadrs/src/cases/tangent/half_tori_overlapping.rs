@@ -1,8 +1,7 @@
 //! Two halves of the torus about the z axis (the middle circle of its tube of radius 10, the tube
 //! of radius 3), united: the half with z ≥ 0, and the half with x ≥ 0 of the torus turned a quarter
-//! turn about z, so that its seam is elsewhere. Each torus is the tube's section revolved a whole
-//! turn (the kernel has no torus primitive), each half cut from it by a block on a plane through
-//! the origin.
+//! turn about z, so that its seam is elsewhere. Each torus is cadrs's torus primitive, each half
+//! cut from it by a block on a plane through the origin.
 use crate::bench::{axis, p3, torus, turned, union, V3};
 use crate::shared::singular::cut_beyond;
 use crate::Refusal;

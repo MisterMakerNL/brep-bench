@@ -1,21 +1,14 @@
 //! What the cadrs implementations of the tangent cases share: the ball and the cylinder of the
 //! three Viviani cases, each sketched so that its seam (and the ball's poles) stay off Viviani's
 //! curve, as the cases ask.
-use crate::bench::{arc, axis, chain, extrude, line, p2, p3, plane, revolve, round, sketch, v3};
+use crate::bench::{extrude, p3, plane, round, sketch, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
 
 /// The ball of radius 10 about the origin with its poles on the y axis and its seam through
-/// (−10, 0, 0): the half disc on the −x side of the y axis, sketched on the plane z = 0 (sketch
-/// x along −x, sketch y along +y), revolved a whole turn about the y axis (the kernel has no
-/// sphere primitive).
+/// (−10, 0, 0) (cadrs's sphere primitive).
 pub fn viviani_ball(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let on = plane(p3(0.0, 0.0, 0.0), v3(-1.0, 0.0, 0.0), v3(0.0, 0.0, -1.0));
-    let half = chain(vec![
-        arc(p2(0.0, 0.0), 10.0, -90.0, 180.0),
-        line(p2(0.0, 10.0), p2(0.0, -10.0)),
-    ]);
-    revolve(k, &sketch(on, vec![half]), axis(p3(0.0, 0.0, 0.0), v3(0.0, 1.0, 0.0)), None)
+    crate::bench::ball_oriented(k, p3(0.0, 0.0, 0.0), 10.0, v3(0.0, 1.0, 0.0), v3(-1.0, 0.0, 0.0))
 }
 
 /// The cylinder of radius 5 about the line x = 5, y = 0, from z = −12 to z = 12: the circle on

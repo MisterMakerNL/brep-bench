@@ -1,6 +1,5 @@
 //! A solid torus centered on the origin, about the z axis, of radius 10 to the middle of its tube
-//! and 2 across the tube: the circle of radius 2 about (10, 0) on the Front plane, revolved a
-//! whole turn about z (the kernel has no torus primitive).
+//! and 2 across the tube: cadrs's torus primitive, its seam in the plane x = 0 on the side y > 0.
 use crate::bench::{p3, torus, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

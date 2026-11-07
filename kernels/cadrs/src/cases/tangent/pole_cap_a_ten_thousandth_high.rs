@@ -1,6 +1,6 @@
 //! A ball of radius 5 about the origin, its poles on the z axis, with everything below the plane
 //! z = 4.9999 cut away by a block on that plane: the cap 10⁻⁴ high around the top pole. The ball
-//! is a half disc revolved a whole turn about z (the kernel has no sphere primitive).
+//! is cadrs's sphere primitive.
 use crate::bench::{ball, p3, V3};
 use crate::shared::singular::cut_beyond;
 use crate::Refusal;

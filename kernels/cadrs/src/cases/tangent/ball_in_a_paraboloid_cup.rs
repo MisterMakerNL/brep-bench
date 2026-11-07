@@ -3,8 +3,7 @@
 //!
 //! The cup is the parabola x² = 10z of the xz plane, from its vertex to (√50, 5), drawn as the
 //! quadratic Bézier it is (its tangents meet at (√50/2, 0)), closed by the top edge and the axis,
-//! and turned a whole turn about z. The ball is a half disc revolved a whole turn about the z
-//! axis (the kernel has no sphere primitive), so its poles are on the z axis.
+//! and turned a whole turn about z. The ball is cadrs's sphere primitive, its poles on the z axis.
 use crate::bench::{ball, p3, union, xz};
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;

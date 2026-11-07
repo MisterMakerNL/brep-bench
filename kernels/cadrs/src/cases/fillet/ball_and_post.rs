@@ -3,9 +3,8 @@
 //! at z = √84) rounded to radius 2, adding material: a torus about the z axis tangent to the
 //! ball and to the post.
 //!
-//! The ball is a half disc revolved a whole turn (cadrs has no sphere primitive), the post a
-//! circle extruded, the two united; the circle where they meet is picked by a point on it and
-//! filleted, radius 2.
+//! The ball is cadrs's sphere primitive, the post a circle extruded, the two united; the circle
+//! where they meet is picked by a point on it and filleted, radius 2.
 use crate::bench::{ball, cylinder, edge_at, p3, union, v3};
 use crate::shared::fillet::fillet;
 use crate::Refusal;

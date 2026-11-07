@@ -2,8 +2,7 @@
 //! the solid of every point within 1 of the cone. The base moves down to z = −1, the side out to
 //! a cone of the same angle, the rim becomes a piece of a torus and the apex a cap of a ball.
 //!
-//! cadrs has no cone primitive: the cone is its triangular section revolved about the z axis.
-//! Then cadrs's offset with rounded edges.
+//! The cone is cadrs's cone primitive. Then cadrs's offset with rounded edges.
 use crate::bench::{cone, p3, v3};
 use crate::shared::offset::grown;
 use crate::Refusal;

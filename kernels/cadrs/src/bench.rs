@@ -1,19 +1,20 @@
 //! What the cadrs implementations share: sketches on planes, the solids cadrs's Part Studio
-//! makes from them (an extrude, a revolve), booleans, rigid motions, and picking a face or an
-//! edge by a point on it, as a user picks one in the viewport.
+//! makes from them (an extrude, a revolve), the kernel's primitives, booleans, rigid motions,
+//! and picking a face or an edge by a point on it, as a user picks one in the viewport.
 //!
-//! cadrs's kernel has no primitives: like Onshape, a part starts from a sketch. A block is a
-//! rectangle extruded and a cylinder a circle extruded (the natural construction in a
-//! sketch-based modeller); a ball, a cone and a torus are sections revolved, which a case flags
-//! as a workaround (`workarounds.toml`: "no sphere primitive" and so on).
+//! A block is a rectangle extruded and a cylinder a circle extruded, as a sketch-based modeller
+//! such as Onshape makes them; a ball, a cone and a torus are the kernel's primitives
+//! (`Kernel::primitive`). A torus whose tube is as wide as its ring or wider, which the primitive
+//! refuses, is its section revolved, which its case flags as a workaround (`workarounds.toml`:
+//! "no torus primitive").
 //!
 //! Lengths are the cases' units (cadrs reads them as mm); angles here are in degrees, as the
 //! cases give them, and turned into the kernel's radians.
 use crate::Refusal;
 use cadrs_kernel::{
     Axis, BoolOp, BodyId, Curve2, DefaultKernel, DistanceLocation, DistanceTarget, EdgeId,
-    EdgeInfo, ExtrudeSpec, FaceId, FaceInfo, Kernel, Loop, Motion, Plane, Profile, Region,
-    RevolveSpec, Transform,
+    EdgeInfo, ExtrudeSpec, FaceId, FaceInfo, Kernel, Loop, Motion, Plane, Primitive, Profile,
+    Region, RevolveSpec, Transform,
 };
 use nalgebra::{Point2, Point3, Unit, Vector3};
 
@@ -214,19 +215,27 @@ pub fn through_axis(origin: P3, dir: V3) -> Plane {
     plane(origin, x, x.cross(&d))
 }
 
-/// The ball of `radius` about `center`: the half disc on the right of its axis (up z) revolved
-/// a whole turn.
+/// The ball of `radius` about `center` (cadrs's sphere primitive), its poles on the z axis
+/// through its centre and its seam toward +x.
 pub fn ball(k: &mut DefaultKernel, center: P3, radius: f64) -> Result<BodyId, Refusal> {
-    let half = chain(vec![
-        arc(p2(0.0, 0.0), radius, -90.0, 180.0),
-        line(p2(0.0, radius), p2(0.0, -radius)),
-    ]);
-    let s = sketch(through_axis(center, V3::z()), vec![half]);
-    revolve(k, &s, axis(center, V3::z()), None)
+    ball_oriented(k, center, radius, V3::z(), V3::x())
+}
+
+/// The ball of `radius` about `center` (cadrs's sphere primitive), its poles along `axis` from
+/// its centre and its seam toward `seam` from that axis.
+pub fn ball_oriented(
+    k: &mut DefaultKernel,
+    center: P3,
+    radius: f64,
+    axis: V3,
+    seam: V3,
+) -> Result<BodyId, Refusal> {
+    let (axis, seam) = (unit(axis), unit(seam));
+    first(k.primitive(&Primitive::Sphere { center, radius, axis, seam })?)
 }
 
 /// The cone frustum on the axis from `base` along `dir`, `length` long, of radius `r0` at its
-/// base and `r1` at its top (either may be 0): its section beside the axis revolved.
+/// base and `r1` at its top (either may be 0; cadrs's cone primitive).
 pub fn cone(
     k: &mut DefaultKernel,
     base: P3,
@@ -235,20 +244,13 @@ pub fn cone(
     r1: f64,
     length: f64,
 ) -> Result<BodyId, Refusal> {
-    let mut pts = vec![(0.0, 0.0)];
-    if r0 > 0.0 {
-        pts.push((r0, 0.0));
-    }
-    if r1 > 0.0 {
-        pts.push((r1, length));
-    }
-    pts.push((0.0, length));
-    let s = sketch(through_axis(base, dir), vec![polygon(&pts)]);
-    revolve(k, &s, axis(base, dir), None)
+    let axis = unit(dir);
+    first(k.primitive(&Primitive::Cone { base, axis, base_radius: r0, top_radius: r1, height: length })?)
 }
 
 /// The torus about the axis through `center` along `dir`, the circle through its tube's middle
-/// of radius `major` and its tube of radius `minor`: the tube's section revolved.
+/// of radius `major` and its tube of radius `minor` (cadrs's torus primitive; a tube as wide as
+/// its ring or wider, which the primitive refuses, is its section revolved).
 pub fn torus(
     k: &mut DefaultKernel,
     center: P3,
@@ -256,6 +258,9 @@ pub fn torus(
     major: f64,
     minor: f64,
 ) -> Result<BodyId, Refusal> {
+    if minor < major {
+        return first(k.primitive(&Primitive::Torus { center, axis: unit(dir), major, minor })?);
+    }
     let s = sketch(through_axis(center, dir), vec![round((major, 0.0), minor)]);
     revolve(k, &s, axis(center, dir), None)
 }

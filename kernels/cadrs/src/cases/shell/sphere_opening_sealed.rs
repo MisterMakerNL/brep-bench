@@ -3,9 +3,9 @@
 //! its flat face: the sphere moved 1 inward, of radius 4, lies wholly below the plane, so the cavity
 //! never reaches the opening, the flat face stays, and the cavity is the closed ball of radius 4.
 //!
-//! The ball is a half disc beside the z axis revolved a whole turn (cadrs has no sphere primitive),
-//! less the block above the plane (a rectangle on that plane extruded up); cadrs's Shell feature
-//! (inward), the flat face picked as the face to remove.
+//! The ball is cadrs's sphere primitive, its poles on the z axis, less the block above the plane
+//! (a rectangle on that plane extruded up); cadrs's Shell feature (inward), the flat face picked
+//! as the face to remove.
 use crate::bench::{ball, block, cut, p3};
 use crate::shared::shell::{shell_inward, Joins};
 use crate::Refusal;

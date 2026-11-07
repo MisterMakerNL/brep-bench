@@ -5,8 +5,7 @@
 //!
 //! cadrs has no sweep of a solid, so the wheel's sweep is built as what it is: the union of
 //! each bead's sweep ([`torus_slid`]: the torus at each end and the stadium it covers seen along
-//! the slide, extruded along it). The kernel has no torus primitive: each torus is a circle
-//! revolved.
+//! the slide, extruded along it). Each torus is cadrs's torus primitive.
 use crate::bench::{cut_each, p3};
 use crate::shared::swept::{rod, torus_slid};
 use crate::Refusal;

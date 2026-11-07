@@ -1,7 +1,7 @@
 //! A torus about the z axis (the middle circle of its tube of radius 10, the tube of radius 3),
 //! turned 45° about z so that its seam is off the points of contact, united with a slab from
-//! (−13, −13, −1) to (13, 13, 1) whose four sides its outer equator touches. The torus is the
-//! tube's section revolved a whole turn (the kernel has no torus primitive).
+//! (−13, −13, −1) to (13, 13, 1) whose four sides its outer equator touches. The torus is
+//! cadrs's torus primitive.
 use crate::bench::{axis, block, p3, torus, turned, union, V3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

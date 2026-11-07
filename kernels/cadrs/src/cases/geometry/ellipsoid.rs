@@ -2,7 +2,7 @@
 //! every point with x²/36 + y²/16 + z²/9 ≤ 1. No two semi-axes are equal, so it is no surface of
 //! revolution.
 //!
-//! A ball of radius 1 (a half disc revolved) stretched by 6, 4 and 3 along x, y and z with
+//! A ball of radius 1 (cadrs's sphere primitive) stretched by 6, 4 and 3 along x, y and z with
 //! cadrs's `Kernel::scale_axes` (Onshape's Transform, Scale non-uniformly): the sphere becomes
 //! its exact rational B-spline, stretched.
 use crate::bench::{ball, p3, v3};

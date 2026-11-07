@@ -6,7 +6,7 @@
 //! its center's path, the disk of radius 1 square to the helix where it starts swept along the
 //! helix (drawn as cadrs's Helix feature draws one, which the sweep follows by its screw
 //! motion), and the ball at each end, whose half beyond the tube closes it (both clear of the
-//! rod). The kernel has no sphere primitive: each ball is a half disc revolved.
+//! rod). Each ball is cadrs's sphere primitive.
 use crate::bench::{ball, cut, p3, round, sketch, square_to, union_each};
 use crate::shared::sweep::{helix, helix_at, sweep};
 use crate::shared::swept::rod;

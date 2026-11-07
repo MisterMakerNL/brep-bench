@@ -1,5 +1,5 @@
-//! A solid ball of radius 5 centered on the origin: a half disc beside the z axis revolved a whole
-//! turn about it (the kernel has no sphere primitive).
+//! A solid ball of radius 5 centered on the origin: cadrs's sphere primitive, its poles on the z
+//! axis and its seam toward +x.
 use crate::bench::{ball, p3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

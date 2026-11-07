@@ -1,7 +1,6 @@
 //! A cylinder of radius 5 on the z axis from z = 0 to z = 10, less a ball of radius 5 centered
 //! at (0, 0, 10), the middle of its top: the hemispherical dish meets the wall tangentially
-//! along the top rim, a knife edge. The ball is a half disc revolved (the kernel has no sphere
-//! primitive).
+//! along the top rim, a knife edge. The ball is cadrs's sphere primitive.
 use crate::bench::{ball, cut, cylinder, p3, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

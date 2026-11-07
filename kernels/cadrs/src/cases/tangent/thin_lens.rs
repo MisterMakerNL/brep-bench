@@ -1,6 +1,6 @@
 //! Two balls of radius 5, one about the origin and one about (9.999999, 0, 0), overlapping to a
-//! depth of 10⁻⁶: their common part, a lens a millionth thick. Each ball is a half disc revolved
-//! (the kernel has no sphere primitive).
+//! depth of 10⁻⁶: their common part, a lens a millionth thick. Each ball is cadrs's sphere
+//! primitive.
 //!
 //! The lens is as thick as cadrs's default merge distance (10⁻⁶ mm, under which two points are
 //! one), so the session is set to model a hundred times finer first, as a user does for a part

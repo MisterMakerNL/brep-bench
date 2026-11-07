@@ -1,8 +1,7 @@
 //! Five balls, each inside the one before: the first (radius 10 about the origin) less the second
 //! (8 about (1, 0, 0)), joined with the third (6 about (1, 1, 0)) less the fourth (4 about
 //! (1, 1, 1)), joined with the fifth (2 about (1, 1.5, 1.5)): three bodies, none touching, each in
-//! the hollow of the one around it. Each ball is a half disc revolved a whole turn (the kernel has
-//! no sphere primitive).
+//! the hollow of the one around it. Each ball is cadrs's sphere primitive.
 use crate::bench::{ball, cut, p3, union};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

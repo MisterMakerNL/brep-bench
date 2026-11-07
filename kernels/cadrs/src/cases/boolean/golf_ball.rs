@@ -1,8 +1,7 @@
 //! A ball of radius 10 at the origin with 62 dimples, each cut by its own ball of radius 1.2
 //! centered 10.6 out toward a vertex, an edge's midpoint or a face's center of the icosahedron
-//! with vertices (0, ±1, ±φ), (±1, ±φ, 0) and (±φ, 0, ±1). Every ball is a half disc revolved a
-//! whole turn about the vertical through its center (the kernel has no sphere primitive), so its
-//! poles are on that vertical, as the case asks.
+//! with vertices (0, ±1, ±φ), (±1, ±φ, 0) and (±φ, 0, ±1). Every ball is cadrs's sphere
+//! primitive, its poles on the vertical through its center, as the case asks.
 use crate::bench::{ball, cut, p3, V3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

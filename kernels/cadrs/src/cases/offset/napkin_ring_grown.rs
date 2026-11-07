@@ -3,8 +3,8 @@
 //! radius 6, the bore narrows to radius 2, and each rim becomes a piece of a torus's tube of
 //! radius 1.
 //!
-//! cadrs has no sphere primitive: the ball is a half disc revolved about the z axis. The bore is
-//! a circle extruded through it and cut. Then cadrs's offset with rounded edges.
+//! The ball is cadrs's sphere primitive, its poles on the z axis. The bore is a circle extruded
+//! through it and cut. Then cadrs's offset with rounded edges.
 use crate::bench::{ball, cut, cylinder, p3, v3};
 use crate::shared::offset::grown;
 use crate::Refusal;

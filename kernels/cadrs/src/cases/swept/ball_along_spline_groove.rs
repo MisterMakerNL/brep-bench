@@ -5,8 +5,7 @@
 //! cadrs has no sweep of a solid, so the ball's sweep is built as what it is: the tube about
 //! its center's path, the disk of radius 3 on the Right plane (square to the curve where it
 //! starts, along +x) swept along the curve drawn on the Top plane, and the ball at each end of
-//! the curve, whose half beyond the tube closes it. The kernel has no sphere primitive: each
-//! ball is a half disc revolved.
+//! the curve, whose half beyond the tube closes it. Each ball is cadrs's sphere primitive.
 use crate::bench::{ball, block, cut_each, p2, p3, round, sketch, xy, yz};
 use crate::shared::sweep::{on, sweep};
 use crate::Refusal;

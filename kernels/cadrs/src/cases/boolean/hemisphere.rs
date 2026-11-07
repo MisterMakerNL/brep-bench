@@ -1,5 +1,5 @@
 //! A ball of radius 5 centered on the origin with everything below the xy plane cut away by a
-//! block. The ball is a half disc revolved a whole turn (the kernel has no sphere primitive).
+//! block. The ball is cadrs's sphere primitive.
 use crate::bench::{ball, block, cut, p3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

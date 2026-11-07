@@ -1,6 +1,5 @@
 //! The lens common to a ball of radius 5.511 about the origin and one of radius 3.317 about
-//! (4.231, 3.467, 2.653). Each ball is a half disc revolved a whole turn (the kernel has no
-//! sphere primitive).
+//! (4.231, 3.467, 2.653). Each ball is cadrs's sphere primitive.
 use crate::bench::{ball, common, p3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

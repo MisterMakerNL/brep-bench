@@ -2,8 +2,8 @@
 //! radius 6 at z = 0 and its apex at (0, 0, 8), shelled inward to a wall 1 thick, open at its base:
 //! the cone less the cone of the same half-angle whose apex is 5/3 lower.
 //!
-//! The cone is its triangular section revolved (cadrs has no cone primitive); cadrs's Shell feature
-//! (inward), the base picked as the face to remove.
+//! The cone is cadrs's cone primitive; cadrs's Shell feature (inward), the base picked as the face
+//! to remove.
 use crate::bench::{cone, p3, V3};
 use crate::shared::shell::{shell_inward, Joins};
 use crate::Refusal;

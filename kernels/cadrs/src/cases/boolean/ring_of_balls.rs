@@ -1,6 +1,6 @@
 //! Twelve balls of radius 3, their centers every 30° on the circle of radius 10 about the z axis
-//! (the first at (10, 0, 0)), joined one after another into a ring. Each ball is a half disc
-//! revolved a whole turn (the kernel has no sphere primitive).
+//! (the first at (10, 0, 0)), joined one after another into a ring. Each ball is cadrs's sphere
+//! primitive.
 use crate::bench::{ball, p3, union_each};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

@@ -2,8 +2,7 @@
 //! tube has radius 5, and the tube has radius 4.99, so its hole is a circle of radius 0.01 about
 //! the axis.
 //!
-//! The tube's section, the disk of radius 4.99 about (5, 0, 0) on the Front (xz) plane, revolved
-//! a whole turn about z (cadrs has no torus primitive).
+//! The torus is cadrs's torus primitive, its seam in the plane x = 0 on the side y > 0.
 use crate::bench::{p3, torus, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
