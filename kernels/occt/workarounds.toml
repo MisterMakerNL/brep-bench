@@ -4,6 +4,8 @@
 "chamfer/octahedron-all-edges-mitered" = "no miter where four chamfers meet"
 "edit/rounded-block-top-moved-up" = "no move of a face that carries its round"
 "fillet/conic-edge" = "no conic blend"
+"fillet/octahedron-all-edges" = "no rolling-ball corner where four rounds meet"
+"fillet/rectangular-pyramid-all-edges" = "no valid corner where four rounds meet"
 "geometry/ellipsoid" = "no ellipsoid"
 "geometry/ellipsoid-half" = "no ellipsoid"
 "loft/slab-pinched-on-four-guides" = "no loft along guides"

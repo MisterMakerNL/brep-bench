@@ -24,6 +24,14 @@ sphere; rounds on freeform faces, a NURBS cylinder's rim and an edge of a Bézie
 junction of a tee of two cylinders, whose round is no torus; and splines. Two NURBS balls meet in
 their common lens, every point of the intersection on two freeform faces.
 
+Rounds meet at the hardest corners: four at each corner of an octahedron, closed by the one ball
+that touches all four faces; four at the apex of a pyramid on a rectangle, where no ball touches
+all four, so the apex splits into two patches of sphere and a round along a ridge the pyramid
+never had; a convex round turned around the end of a concave one, at an L-block's inside corner;
+and concave rounds turned around a square boss's rounded corners at its root. The first two are
+stated as the union of every ball inside the solid, the last two as their rounds made one after
+another, since rounds of opposite convexity can close a corner more than one way.
+
 ## Solid sweeps (`swept/`)
 
 Everything a tool passes through as it moves, from a ball swung through a block (a closed form) to
