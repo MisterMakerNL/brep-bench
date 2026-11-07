@@ -33,3 +33,16 @@ def face_through(solid, point):
         faces.Next()
     assert len(found) == 1, f"{len(found)} faces through {point}"
     return found[0]
+
+
+def other_case(case_id):
+    """The module implementing another case, `category/name`, to build on the solid it builds."""
+    import importlib.util
+    import os
+    category, name = case_id.split("/")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cases", category,
+                        name.replace("-", "_") + ".py")
+    spec = importlib.util.spec_from_file_location(f"cases.{category}.{name}", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module

@@ -18,7 +18,11 @@ a case is written and graded is in [SPEC.md](../SPEC.md).
 NURBS surfaces in Booleans; tangent and near-tangent contact; intersection curves that cross
 themselves (Viviani's figure eight, where a cylinder touches a ball from inside, and Villarceau's
 circles, where a plane touches a torus twice); fillets and chamfers that consume faces; chamfers
-meeting at a corner, three or four to it, mitered or cut flat; and splines.
+meeting at a corner, three or four to it, mitered or cut flat; a conic blend whose section is a
+parabola, not a circle; three concave rounds meeting at a notch's inside corner in an eighth of a
+sphere; rounds on freeform faces, a NURBS cylinder's rim and an edge of a Bézier dome; the
+junction of a tee of two cylinders, whose round is no torus; and splines. Two NURBS balls meet in
+their common lens, every point of the intersection on two freeform faces.
 
 ## Solid sweeps (`swept/`)
 
@@ -42,7 +46,10 @@ Solids grown or shrunk by a distance, to every point within that distance of the
 that far inside it. They run from a box grown or shrunk and a cylinder's rims rounded, through
 concave edges kept sharp or rounded and the oblique corners of a tetrahedron and a cone's apex, to
 offsets that cross themselves: a groove grown shut, a flange shrunk away, and a torus grown past
-its hole into an apple.
+its hole into an apple. A ball bounded by one NURBS face is grown too, its offset run through the
+poles where the face's parameters pinch, and an elliptic cylinder is grown and shrunk, its side
+offset to a curve that is no conic: shrunk within its least radius of curvature it has a closed
+form, and shrunk past it the offset turns back on itself in swallowtails that must be trimmed.
 
 ## Thickened sheets (`thicken/`)
 
@@ -144,6 +151,14 @@ the faces beside them extended or trimmed to meet them, as a draft does. A drill
 raised and the hole runs on with it, an L's step is pushed out, a hole's wall is offset to widen
 it, and a top is raised carrying its round along rather than stretching it. Every one has a closed
 form.
+
+## Filled surfaces (`fill/`)
+
+A surface made to fill a loop of edges, the bilinearly blended Coons patch, capping a block: four
+straight edges, whose patch is a hyperbolic paraboloid with a closed form, and four parabolas, which
+make a saddle with none. Kernels' fills differ: one that minimizes an energy, or a Coons patch
+blended by cubic rather than linear functions, makes another surface, of the same volume over the
+straight edges but not the same area.
 
 ## Real parts (`parts/`, and some in `sweep/`, `swept/` and `boolean/`)
 

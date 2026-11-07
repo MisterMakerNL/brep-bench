@@ -3,6 +3,7 @@
 
 "chamfer/octahedron-all-edges-mitered" = "no miter where four chamfers meet"
 "edit/rounded-block-top-moved-up" = "no move of a face that carries its round"
+"fillet/conic-edge" = "no conic blend"
 "geometry/ellipsoid" = "no ellipsoid"
 "geometry/ellipsoid-half" = "no ellipsoid"
 "loft/slab-pinched-on-four-guides" = "no loft along guides"
