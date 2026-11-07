@@ -20,3 +20,11 @@ lto = "fat"
 codegen-units = 1
 panic = "abort"
 strip = true
+
+# For sampling the runner's stacks (`cargo build --profile profiling`): line tables, no LTO.
+[profile.profiling]
+inherits = "release"
+debug = "line-tables-only"
+strip = false
+lto = false
+codegen-units = 16

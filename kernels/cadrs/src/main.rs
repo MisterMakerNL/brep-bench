@@ -159,7 +159,7 @@ fn write_stl(path: &str, mesh: &cadrs_kernel::TriMesh) -> std::io::Result<()> {
 /// The reply for a body built: its measures, once its triangles are written. The mesh is the
 /// coarsest of a ladder of chords that bounds the body's exact volume to 1/200 (the harness asks
 /// 1/50): from a thousandth of the body's size, or a twentieth of its thickness (its volume over
-/// its area) where that is less, at 10°, each step a quarter of the chord before and half the
+/// its area) where that is less, at 15°, each step a quarter of the chord before and half the
 /// angle (to 5°), down to a hundred-thousandth of the size.
 fn measured(k: &DefaultKernel, body: BodyId, out: &str) -> Result<String, Refusal> {
     let timing = std::env::var_os("BREP_TIMING").is_some();
@@ -190,12 +190,20 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str) -> Result<String, Refusa
     let size = k.bounding_box(body)?.diagonal();
     let thickness = if area > 0.0 && volume > 0.0 { volume / area } else { size };
     let mut deflection = (1e-3 * size).min(5e-2 * thickness).max(1e-10);
-    let mut angle = 10f64.to_radians();
+    let mut angle = 15f64.to_radians();
     let finest = (1e-5 * size).min(5e-4 * thickness).max(1e-10);
     let mesh = loop {
         let quality = Tessellation { deflection, angle };
         let mesh = k.tessellate(body, quality).map_err(|e| format!("not meshed: {e}"))?;
         let bound = mesh_volume(&mesh, |i| mesh.positions[i].into());
+        if timing {
+            eprintln!(
+                "rung: chord {deflection:.3e} angle {:.1}° {} triangles, volume off {:.2e}",
+                angle.to_degrees(),
+                mesh.indices.len(),
+                (bound - volume).abs() / volume.abs()
+            );
+        }
         if (bound - volume).abs() <= 5e-3 * volume.abs() || deflection <= finest {
             break mesh;
         }
@@ -237,11 +245,25 @@ fn main() -> ExitCode {
         eprintln!("no implementation of `{case}`");
         return ExitCode::from(2);
     };
+    // Each body is meshed once: no faces' meshes kept for a next time.
+    cadrs_kernel::native::keep_meshes(false);
+    // (Profiling: the case built over and over, each time in a new session, to sample.)
+    if let Some(n) = std::env::var("BREP_REPEAT_BUILD").ok().and_then(|n| n.parse::<usize>().ok()) {
+        for _ in 0..n {
+            let _ = build(&mut DefaultKernel::new());
+        }
+    }
     let mut k = DefaultKernel::new();
     let t = std::time::Instant::now();
     let built = build(&mut k);
     if std::env::var_os("BREP_TIMING").is_some() {
         eprintln!("build: {:.1} ms", t.elapsed().as_secs_f64() * 1e3);
+    }
+    // (Profiling: the measures and the mesh made over and over, to sample.)
+    if let (Ok(body), Some(n)) = (&built, std::env::var("BREP_REPEAT").ok().and_then(|n| n.parse::<usize>().ok())) {
+        for _ in 1..n {
+            let _ = measured(&k, *body, out);
+        }
     }
     let reply = match built.and_then(|body| measured(&k, body, out)) {
         Ok(reply) => reply,
