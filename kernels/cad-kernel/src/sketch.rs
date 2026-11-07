@@ -197,3 +197,16 @@ pub fn mitred(section: &Profile, path: &[V], closed: bool, reach: f64) -> Result
     }
     pipe.ok_or_else(|| "a path of no runs".into())
 }
+
+/// The unit direction (sin θ cos φ, sin θ sin φ, cos θ), θ and φ in degrees, as a family names an
+/// axis.
+pub fn direction(theta: f64, phi: f64) -> V {
+    let (t, f) = (theta.to_radians(), phi.to_radians());
+    [t.sin() * f.cos(), t.sin() * f.sin(), t.cos()]
+}
+
+/// `b` turned by `psi` degrees, right-handed, about the axis through the origin with direction
+/// (`theta`, `phi`), as a family places its solid.
+pub fn turned_by(b: &Brep, theta: f64, phi: f64, psi: f64) -> Brep {
+    b.moved(&Rigid::turn([0., 0., 0.], direction(theta, phi), psi.to_radians()))
+}

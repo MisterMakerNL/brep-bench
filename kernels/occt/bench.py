@@ -5,12 +5,14 @@ A case's module defines `build()`, which returns the solid as a `TopoDS_Shape`, 
 something OCCT cannot do. `run.py` measures what comes back. A face is picked by a point on it,
 as a description names a face by where it is (`face_through`).
 """
-from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
+import math
+
+from OCP.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, BRepBuilderAPI_Transform
 from OCP.BRepExtrema import BRepExtrema_DistShapeShape
 from OCP.TopAbs import TopAbs_FACE
 from OCP.TopExp import TopExp_Explorer
 from OCP.TopoDS import TopoDS
-from OCP.gp import gp_Pnt
+from OCP.gp import gp_Ax1, gp_Dir, gp_Pnt, gp_Trsf
 
 # How near a point must be to a face to pick it.
 FACE_TOLERANCE = 1e-7
@@ -33,3 +35,17 @@ def face_through(solid, point):
         faces.Next()
     assert len(found) == 1, f"{len(found)} faces through {point}"
     return found[0]
+
+
+def direction(theta, phi):
+    """The unit direction (sin θ cos φ, sin θ sin φ, cos θ), θ and φ in degrees, as a family's
+    description names an axis."""
+    t, f = math.radians(theta), math.radians(phi)
+    return (math.sin(t) * math.cos(f), math.sin(t) * math.sin(f), math.cos(t))
+
+
+def turned(shape, theta, phi, psi):
+    """`shape` turned by ψ degrees about the axis through the origin with direction (θ, φ)."""
+    trsf = gp_Trsf()
+    trsf.SetRotation(gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(*direction(theta, phi))), math.radians(psi))
+    return BRepBuilderAPI_Transform(shape, trsf, True).Shape()

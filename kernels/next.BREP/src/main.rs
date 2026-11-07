@@ -2,6 +2,7 @@
 //! (https://github.com/mmiscool/next.BREP.io_RUST_BREP_KERNEL, `BREP_kernel` on crates.io).
 //!
 //!     brep-bench-next-brep CASE OUT.stl
+//!     brep-bench-next-brep CASE OUT.stl PARAMS     (a family's variation: PARAMS is JSON)
 //!     brep-bench-next-brep --version
 //!
 //! Builds the case `CASE` (`boolean/napkin-ring`) with its implementation,
@@ -21,8 +22,26 @@ use std::process::ExitCode;
 #[allow(dead_code)]
 mod solids;
 
-/// A case's implementation: the solid it builds, or why it was not built.
-type Build = fn() -> Result<BrepSolid, Refusal>;
+/// A case's implementation: the solid it builds, or why it was not built. A family's is given its
+/// variation's parameters; any other case's ignores them.
+type Build = fn(&Params) -> Result<BrepSolid, Refusal>;
+
+/// A family's variation: its parameters by name, as the harness gives them (SPEC.md, "A family").
+pub struct Params(serde_json::Map<String, Value>);
+
+impl Params {
+    /// The number `name`.
+    pub fn num(&self, name: &str) -> Result<f64, Refusal> {
+        self.0.get(name).and_then(Value::as_f64)
+            .ok_or_else(|| Refusal(format!("no number `{name}` among the parameters")))
+    }
+
+    /// The text `name`.
+    pub fn text(&self, name: &str) -> Result<&str, Refusal> {
+        self.0.get(name).and_then(Value::as_str)
+            .ok_or_else(|| Refusal(format!("no text `{name}` among the parameters")))
+    }
+}
 
 /// Why a case was not built: the kernel's refusal, in its own words, or a case that refuses in its
 /// own because the kernel has no operation for what it describes.
@@ -109,15 +128,25 @@ fn main() -> ExitCode {
                  env!("CARGO_PKG_VERSION"));
         return ExitCode::SUCCESS;
     }
-    let [case, out] = &args[..] else {
-        eprintln!("usage: brep-bench-next-brep CASE OUT.stl | --version");
-        return ExitCode::from(2);
+    let (case, out, params) = match &args[..] {
+        [case, out] => (case, out, Params(Default::default())),
+        [case, out, params] => match serde_json::from_str(params) {
+            Ok(Value::Object(map)) => (case, out, Params(map)),
+            _ => {
+                eprintln!("PARAMS is not a JSON object: {params}");
+                return ExitCode::from(2);
+            }
+        },
+        _ => {
+            eprintln!("usage: brep-bench-next-brep CASE OUT.stl [PARAMS] | --version");
+            return ExitCode::from(2);
+        }
     };
     let Some(&(_, build)) = cases::CASES.iter().find(|(id, _)| id == case) else {
         eprintln!("no implementation of `{case}`");
         return ExitCode::from(2);
     };
-    let reply = match build().and_then(|solid| report(&solid, out)) {
+    let reply = match build(&params).and_then(|solid| report(&solid, out)) {
         Ok(reply) => reply,
         Err(e) => refused(e),
     };
