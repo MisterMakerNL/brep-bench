@@ -12,5 +12,11 @@ publish = false
 cadrs_kernel = { git = "https://github.com/rvdende/cadrs", rev = "26cdea68b59b56ad9323188c756f035b6ea27d88" }
 nalgebra = "0.35"
 
+# The runner is built once and run once per case: whole-program optimisation for its speed,
+# no unwinding (a panic is a crash either way) and no symbols, for its size and start.
 [profile.release]
 debug = 0
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true

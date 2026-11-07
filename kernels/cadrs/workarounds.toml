@@ -90,3 +90,6 @@
 "tangent/half-tori-overlapping" = "no torus primitive"
 "tangent/pole-cap-a-ten-thousandth-high" = "no sphere primitive"
 "tangent/torus-through-a-square-slab" = "no torus primitive"
+"geometry/ellipsoid" = "no sphere primitive"
+"geometry/ellipsoid-half" = "no sphere primitive"
+"loft/twisted-tapering-square" = "no loft along guides"
