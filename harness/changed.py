@@ -24,7 +24,7 @@ changed decides it:
 
 With no base, or a base that is not an ancestor of HEAD (history rewritten), the whole suite runs.
 Under GitHub Actions it also writes the step outputs `build` (the kernels to build, space
-separated), `draw` ("all", case ids, or empty) and `work` ("true" when anything runs or is drawn).
+separated: those with an implementation of a case they are to run), `draw` ("all", case ids, or empty) and `work` ("true" when anything runs or is drawn).
 Standard library only.
 """
 import argparse
@@ -35,7 +35,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from suite import ROOT, cases, kernels  # noqa: E402
+from suite import ROOT, cases, implements, kernels  # noqa: E402
 
 WHOLE_SUITE = {"harness/run.py", "harness/measure.py", "harness/stl.py", "harness/suite.py",
                "harness/build.py"}
@@ -150,7 +150,11 @@ def main():
         draw = "all"
         print("the whole suite runs", file=sys.stderr)
     else:
-        build = list(p["run"])
+        # a kernel with no implementation of any case it is to run is not built: its runner is
+        # asked for nothing, and those cases are only recorded as missing
+        by_name = {k["name"]: k for k in kernels()}
+        build = [name for name, got in p["run"].items()
+                 if any(implements(by_name[name], cid) for cid in got)]
         draw = p["draw"] if p["draw"] == "all" else " ".join(p["draw"])
         for name, got in p["run"].items():
             print(f"{name}: {len(got)} cases", file=sys.stderr)

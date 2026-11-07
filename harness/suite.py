@@ -56,3 +56,9 @@ def source(kernel, cid):
     category, _, name = cid.rpartition("/")
     return os.path.join(ROOT, pattern.format(case=cid, category=category, name=name,
                                              name_snake=name.replace("-", "_")))
+
+
+def implements(kernel, cid):
+    """Whether `kernel` has an implementation of case `cid` (or keeps none apart from its runner)."""
+    src = source(kernel, cid)
+    return not src or os.path.exists(src)
