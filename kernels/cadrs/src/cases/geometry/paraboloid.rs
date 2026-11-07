@@ -2,10 +2,10 @@
 //! plane z = 8: every point with x² + y² ≤ 8z and z ≤ 8. It is the parabola x² = 8z of the xz
 //! plane (from its vertex to x = 8) turned a whole turn about the z axis.
 //!
-//! cadrs's sketch has no parabola, so the section is drawn as a wire on the Front (xz) plane: the
-//! parabola's arc as the quadratic Bézier it is (its ends (0, 0) and (8, 8) and the point (4, 0)
-//! where their tangents meet), the top edge from (8, 8) to (0, 8) and the axis back down. The
-//! wire is filled with its plane, and the sheet turned a whole turn about z.
+//! The section is sketched on the Front (xz) plane: the parabola's arc as the quadratic Bézier it
+//! is, a sketch spline (`Curve2::Spline`: its ends (0, 0) and (8, 8) and the point (4, 0) where
+//! their tangents meet), the top edge from (8, 8) to (0, 8) and the axis back down, revolved a
+//! whole turn about z.
 use crate::bench::xz;
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;

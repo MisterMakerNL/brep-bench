@@ -3,12 +3,11 @@
 //! z²/9 − x²/16 = 1 of the xz plane (its branch with z > 0, from its vertex (0, 0, 3) to
 //! x = 4√3) turned a whole turn about the z axis, which it meets at its vertex.
 //!
-//! cadrs's sketch has no hyperbola, so the section is drawn as a wire on the Front (xz) plane:
-//! the hyperbola's arc from its vertex (0, 3) to (4√3, 6) as the rational quadratic it is, the
-//! top edge back to the axis and the axis down to the vertex. The arc x = 4 sinh t,
-//! z = 3 cosh t for 0 ≤ t ≤ T, cosh T = 2, has its end tangents meeting at (4/√3, 3), weighted
-//! cosh(T/2) = √(3/2) there. The wire is filled with its plane, and the sheet turned a whole
-//! turn about z.
+//! The section is sketched on the Front (xz) plane: the hyperbola's arc from its vertex (0, 3) to
+//! (4√3, 6) as the rational quadratic it is (a sketch spline, `Curve2::Spline`), the top edge back
+//! to the axis and the axis down to the vertex. The arc x = 4 sinh t, z = 3 cosh t for
+//! 0 ≤ t ≤ T, cosh T = 2, has its end tangents meeting at (4/√3, 3), weighted cosh(T/2) = √(3/2)
+//! there. The section is revolved a whole turn about z.
 use crate::bench::xz;
 use crate::shared::geometry::{turned_about_z, Section};
 use crate::Refusal;

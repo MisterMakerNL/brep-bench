@@ -1,19 +1,11 @@
 //! What the cadrs implementations of the geometry cases share: ellipses in sketches; closed
-//! sections drawn with curves a sketch cannot hold (conics, quadratic Béziers), filled and swept;
-//! B-spline surfaces from their control nets, put in place of a face; the saddle drum.
-//!
-//! A cadrs sketch holds lines, arcs, circles, ellipses and cubic Béziers, but no parabola,
-//! hyperbola or rational curve. cadrs draws those as 3D curves instead (`PathCurve::Bezier3`, a
-//! Bézier with weights): the section is a wire of them (`Kernel::create_wire`), filled with its
-//! plane (`Kernel::fill`, Onshape's Fill), and the flat sheet swept one kind higher into a solid
-//! (`Kernel::sweep_body`: turned about an axis, or slid along a vector).
+//! sections with conics and B-splines in them (a sketch's spline, `Curve2::Spline`, rational or
+//! not: a parabola, a hyperbola or a quadratic Bézier exactly), extruded or revolved; B-spline
+//! surfaces from their control nets, put in place of a face; the saddle drum.
 use crate::bench::{p2, p3, P2, P3, V3};
 use crate::Refusal;
 use cadrs_kernel::native::{NurbsSurface, Surface};
-use cadrs_kernel::{
-    Axis, BodyId, BodySweep, Curve2, DefaultKernel, FaceReplacement, FillCurve, FillSpec, Kernel,
-    Loop, PathCurve, Plane,
-};
+use cadrs_kernel::{BodyId, Curve2, DefaultKernel, FaceReplacement, Kernel, Loop, Plane};
 use std::sync::Arc;
 
 /// The whole ellipse about `center` with semi-axes `a` along the sketch's x and `b` along its y.
@@ -43,10 +35,11 @@ pub fn ellipse_arc(center: (f64, f64), a: f64, b: f64, start: f64, sweep: f64) -
     }
 }
 
-/// A closed section on a plane, its curves in the plane's coordinates, one after another.
+/// A closed section on a plane, its curves in the plane's coordinates, one after another: a
+/// sketch's region.
 pub struct Section {
     plane: Plane,
-    curves: Vec<PathCurve>,
+    curves: Vec<Curve2>,
 }
 
 impl Section {
@@ -54,24 +47,23 @@ impl Section {
         Section { plane, curves: Vec::new() }
     }
 
-    /// The point of the plane at sketch coordinates `(x, y)`.
-    fn at(&self, (x, y): (f64, f64)) -> P3 {
-        let pl = &self.plane;
-        let ydir = pl.normal.cross(&pl.x_dir);
-        pl.origin + pl.x_dir.into_inner() * x + ydir * y
-    }
-
     /// The segment from `a` to `b`: a sketch line.
     pub fn line(mut self, a: (f64, f64), b: (f64, f64)) -> Self {
-        let curve = Curve2::Line { a: P2::new(a.0, a.1), b: P2::new(b.0, b.1), source: None };
-        self.curves.push(PathCurve::Sketch { plane: self.plane, curve });
+        self.curves.push(Curve2::Line { a: P2::new(a.0, a.1), b: P2::new(b.0, b.1), source: None });
         self
     }
 
-    /// The Bézier curve with these control points and weights (empty: a polynomial curve).
+    /// The Bézier curve with these control points and weights (empty: a polynomial curve): a
+    /// sketch spline of one span, its knots clamped.
     pub fn bezier(mut self, poles: &[(f64, f64)], weights: &[f64]) -> Self {
-        let poles = poles.iter().map(|&q| self.at(q)).collect();
-        self.curves.push(PathCurve::Bezier3 { poles, weights: weights.to_vec() });
+        let degree = poles.len() - 1;
+        self.curves.push(Curve2::Spline {
+            degree,
+            knots: bezier_knots(degree),
+            poles: poles.iter().map(|&(x, y)| P2::new(x, y)).collect(),
+            weights: weights.to_vec(),
+            source: None,
+        });
         self
     }
 
@@ -81,29 +73,48 @@ impl Section {
         self.bezier(&[a, m, b], &[1.0, w, 1.0])
     }
 
-    /// The flat sheet the section bounds: its curves made a wire, filled with their plane.
-    pub fn sheet(&self, k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-        let wire = first(k.create_wire(&self.curves)?)?;
-        let curves = k
-            .edges(wire)?
-            .into_iter()
-            .map(|e| FillCurve::Edge { body: wire, edge: e.id })
-            .collect();
-        first(k.fill(&FillSpec { curves, source: 1 })?)
+    /// The B-spline of this degree on these knots, poles and weights (empty: a polynomial
+    /// curve).
+    pub fn spline(
+        mut self,
+        degree: usize,
+        knots: &[f64],
+        poles: &[(f64, f64)],
+        weights: &[f64],
+    ) -> Self {
+        self.curves.push(Curve2::Spline {
+            degree,
+            knots: knots.to_vec(),
+            poles: poles.iter().map(|&(x, y)| P2::new(x, y)).collect(),
+            weights: weights.to_vec(),
+            source: None,
+        });
+        self
     }
 
-    /// The solid the section's sheet sweeps turned a whole turn about the axis through `origin`
-    /// along `dir`.
+    /// A whole closed curve: the periodic B-spline of this degree on these poles (taken in
+    /// order, closing back on the first), its knots evenly spaced.
+    pub fn periodic(mut self, degree: usize, poles: &[(f64, f64)]) -> Self {
+        let mut ps: Vec<P2> = poles.iter().map(|&(x, y)| P2::new(x, y)).collect();
+        ps.extend_from_within(..degree);
+        let knots = (0..ps.len() + degree + 1).map(|i| i as f64).collect();
+        self.curves.push(Curve2::Spline { degree, knots, poles: ps, weights: vec![], source: None });
+        self
+    }
+
+    fn sketch(&self) -> cadrs_kernel::Profile {
+        crate::bench::sketch(self.plane, vec![Loop { curves: self.curves.clone() }])
+    }
+
+    /// The solid the section's region sweeps turned a whole turn about the axis through `origin`
+    /// along `dir` (cadrs's Revolve).
     pub fn turned(&self, k: &mut DefaultKernel, origin: P3, dir: V3) -> Result<BodyId, Refusal> {
-        let sheet = self.sheet(k)?;
-        let axis = Axis { origin, dir: crate::bench::unit(dir) };
-        first(k.sweep_body(sheet, &BodySweep::Rotate { axis, angle: std::f64::consts::TAU })?)
+        crate::bench::revolve(k, &self.sketch(), crate::bench::axis(origin, dir), None)
     }
 
-    /// The solid the section's sheet sweeps slid along `v`.
+    /// The solid the section's region sweeps slid along `v` (cadrs's Extrude).
     pub fn slid(&self, k: &mut DefaultKernel, v: V3) -> Result<BodyId, Refusal> {
-        let sheet = self.sheet(k)?;
-        first(k.sweep_body(sheet, &BodySweep::Translate(v))?)
+        crate::bench::extrude_along(k, &self.sketch(), v, v.norm())
     }
 }
 
