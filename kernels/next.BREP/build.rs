@@ -1,8 +1,7 @@
 //! Finds the case implementations and the next.BREP kernel version for the runner.
 //!
 //! Every `src/cases/<category>/<name_snake>.rs` is one case, `<category>/<name>` with the name's
-//! underscores as hyphens, and must define `pub fn build() -> Result<BrepSolid, E>` (a family's,
-//! `pub fn build(p: &Params) -> Result<BrepSolid, E>`, given its variation's parameters), where `E` is
+//! underscores as hyphens, and must define `pub fn build() -> Result<BrepSolid, E>`, where `E` is
 //! a `KernelRefusal`, the kernel's `String` error or, for a case that refuses in its own words, the
 //! runner's `Refusal`. This
 //! writes `$OUT_DIR/cases.rs`: a module per file (a raw identifier, so `box.rs` is one) and
@@ -45,14 +44,10 @@ fn main() {
                 file.display().to_string()
             )
             .unwrap();
-            // a family's build takes its variation's parameters (SPEC.md, "A family")
-            let family = fs::read_to_string(file).expect("a case reads").contains("&Params) -> Result");
             writeln!(
                 table,
-                "    ({:?}, |{}| {category}::r#{name}::build({}).map_err(Refusal::from)),",
-                format!("{category}/{}", name.replace('_', "-")),
-                if family { "p" } else { "_" },
-                if family { "p" } else { "" }
+                "    ({:?}, || {category}::r#{name}::build().map_err(Refusal::from)),",
+                format!("{category}/{}", name.replace('_', "-"))
             )
             .unwrap();
         }

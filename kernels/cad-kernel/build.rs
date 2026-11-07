@@ -27,17 +27,12 @@ fn main() {
         for file in files {
             let name = file.file_stem().unwrap().to_str().unwrap().to_string();
             writeln!(modules, "    #[path = {:?}]\n    pub mod r#{name};", file.display().to_string()).unwrap();
-            // a family's build takes its variation's parameters (SPEC.md, "A family"); any other
-            // case's is called without them
-            let family = std::fs::read_to_string(&file).expect("a case reads").contains("&Params) -> Result");
-            let call = if family { format!("|p| r#{category}::r#{name}::build(p)") }
-                       else { format!("|_| r#{category}::r#{name}::build()") };
-            writeln!(table, "    (\"{category}/{}\", {call}),", name.replace('_', "-")).unwrap();
+            writeln!(table, "    (\"{category}/{}\", r#{category}::r#{name}::build),", name.replace('_', "-")).unwrap();
         }
         writeln!(modules, "}}").unwrap();
     }
     let out = format!("{modules}\n/// Every case by its id, and the function that builds it.\n\
-        pub const CASES: &[(&str, fn(&crate::Params) -> Result<cad_kernel::topo::Brep, String>)] = &[\n{table}];\n");
+        pub const CASES: &[(&str, fn() -> Result<cad_kernel::topo::Brep, String>)] = &[\n{table}];\n");
     let out_dir = std::env::var("OUT_DIR").unwrap();
     std::fs::write(Path::new(&out_dir).join("cases.rs"), out).unwrap();
 

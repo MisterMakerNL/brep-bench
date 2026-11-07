@@ -26,7 +26,7 @@ import urllib.parse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from highlight import highlight, loc  # noqa: E402
 from run import FROM_MESH  # noqa: E402
-from suite import ROOT, SEED, cases as read_cases, kernels as read_kernels, source  # noqa: E402
+from suite import ROOT, cases as read_cases, kernels as read_kernels, source  # noqa: E402
 SITE = os.path.join(ROOT, "site")
 REPO = "https://github.com/bmander/brep-bench"
 WEB = os.path.join(ROOT, "harness", "web")
@@ -254,10 +254,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
     out.append(f"<h1>{e(c['title'])}</h1><p class=muted>{e(cid)} · {tags}</p>")
     out.append(f"<div class=description>{paragraphs(c['description'])}</div>")
     exp = c["expect"]
-    family = c.get("family")
-    if family:
-        out += variations_drawn(c)
-    elif exp is None:
+    if exp is None:
         out.append("<p><strong>Unsettled.</strong> This solid has no closed form, and no two kernels "
                    "yet agree on it to 1e-8, so it has no answer to grade against. Below is what each "
                    "kernel builds: <em>built</em> means a watertight, consistently oriented solid, "
@@ -342,25 +339,16 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
             if m is None:
                 return ""
             return relative(m[i], exp[KEYS[i]]["value"]) if exp else f"{m[i]:.6g}"
-
-        def passed(en):
-            ran = (en["row"] or {}).get("variations")
-            if not ran:
-                return ""
-            return f"{sum(v['outcome'] == 'pass' for v in ran)}/{len(ran)}"
         # each row's head, its cells' tag, class and content, and the field of a result's row its
         # cells sort by (sort.js), where their text is in units
-        measured = ([("<th scope=row title='variations passed, of those drawn'>passed</th>", "td",
-                       None, passed, None)] if family else [
-            ("<th scope=row title='relative error'>volume err.</th>" if exp
-             else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0), None),
-            ("<th scope=row title='relative error'>area err.</th>" if exp
-             else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1), None)])
         rows = [
             ("<th></th>", "th", lambda en: "k", lambda en: e(en["name"]), None),
             ("<th scope=row>outcome</th>", "td", lambda en: f"cell {en['outcome']}",
              lambda en: e(en["label"]), None),
-            *measured,
+            ("<th scope=row title='relative error'>volume err.</th>" if exp
+             else "<th scope=row>volume</th>", "td", None, lambda en: value(en, 0), None),
+            ("<th scope=row title='relative error'>area err.</th>" if exp
+             else "<th scope=row>area</th>", "td", None, lambda en: value(en, 1), None),
             ("<th scope=row>time</th>", "td", None, lambda en: spent(en, "seconds", " s"),
              "seconds"),
             ("<th scope=row title='user and system time, over every thread'>CPU time</th>", "td",
@@ -396,7 +384,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
                        "<p class=muted>Drag to turn, scroll or pinch to zoom, right-drag to move. "
                        "Black lines are where the surface turns sharply; red ones, seen through "
                        "the solid, are open edges, where the mesh is not closed.</p></div>")
-        out += [entry(en, exp, family) for en in entries]
+        out += [entry(en, exp) for en in entries]
         out.append(PICK)
         # the table of entries sorted by a click on a row's head (the board's sort.js)
         out.append(f"<script type=module>import {{ sortable }} from '{up}sort.js{v}'; "
@@ -406,7 +394,7 @@ def case_page(c, registry, results, drawing, prev=None, after=None, v=""):
                "the case as written.</p>")
     if has_mesh:
         out.append(VIEWER.replace("{cdn}", THREE))
-    if exp and any(exp[k]["tex"] for k in exp) or family:
+    if exp and any(exp[k]["tex"] for k in exp):
         out.append(TEX.replace("{cdn}", KATEX))
     out.append("</body></html>")
     path = os.path.join(SITE, "cases", cid + ".html")
@@ -419,13 +407,7 @@ KEYS = ("volume", "area")
 
 
 def measures(row):
-    """A result's (volume, area, from its mesh), or None where it built no solid to measure; of a
-    family's result, a list of each variation's, None for each it did not build."""
-    if row and row.get("variations"):
-        return [None if v["outcome"] not in ("pass", "built", "wrong")
-                else ((v.get("mesh_volume"), v.get("mesh_area"), True)
-                      if row.get("measured") == "mesh" else (v["volume"], v["area"], False))
-                for v in row["variations"]]
+    """A result's (volume, area, from its mesh), or None where it built no solid to measure."""
     if not row or row["outcome"] not in ("pass", "built", "wrong"):
         return None
     from_mesh = row.get("measured") == "mesh"
@@ -440,78 +422,8 @@ def agree(a, b):
     either was measured from its mesh."""
     if a is None or b is None:
         return False
-    if isinstance(a, list) or isinstance(b, list):
-        # a family's: every variation, built by both, agrees
-        return (isinstance(a, list) and isinstance(b, list) and len(a) == len(b)
-                and all(agree(x, y) for x, y in zip(a, b)))
-    if None in a[:2] or None in b[:2]:
-        return False
     tol = FROM_MESH if a[2] or b[2] else 1e-8
     return all(abs(x - y) <= tol * max(abs(x), abs(y), 1e-12) for x, y in zip(a[:2], b[:2]))
-
-
-def variations_drawn(c):
-    """A family's parameters as each is drawn, and each variation drawn: its parameters and the
-    measures its closed forms give there, as HTML."""
-    e = html.escape
-    family, exp = c["family"], c["expect"]
-
-    def spec(x):
-        if isinstance(x, list):
-            return f"a real from {x[0]} to {x[1]}"
-        if "int" in x:
-            return f"a whole number from {x['int'][0]} to {x['int'][1]}"
-        return "one of " + ", ".join(str(v) for v in x["choice"])
-
-    out = [f"<p><strong>A family.</strong> This case is graded at {len(family['variations'])} "
-           f"variations, their parameters drawn from the seed <code>{e(SEED)}</code> "
-           "the same every run. It passes where every variation passes; else its outcome is its "
-           "worst variation's.</p>"]
-    out.append("<div class=scroll><table data-nosort><tr><th>parameter</th><th>drawn as</th></tr>"
-               + "".join(f"<tr><td><code>{e(k)}</code></td><td>{e(spec(x))}</td></tr>"
-                         for k, x in family["params"].items())
-               + "".join(f"<tr><td><code>{e(k)}</code></td><td>= <code>{e(str(x))}</code></td></tr>"
-                         for k, x in family["let"].items())
-               + "".join(f"<tr><td class=muted>require</td><td><code>{e(r)}</code></td></tr>"
-                         for r in family["require"]) + "</table></div>")
-    out.append("<div class=scroll><table data-nosort><tr><th></th><th>closed form</th></tr>")
-    for key in KEYS:
-        x = exp[key]
-        form = (f"<span class=tex data-tex='{e(x['tex'])}'>{e(x['exact'])}</span>" if x["tex"]
-                else e(x["exact"]))
-        out.append(f"<tr><td>{key}</td><td class=closed title='{e(x['exact'])}'>{form}</td></tr>")
-    out.append("</table></div>")
-    names = list(family["params"])
-    out.append("<details><summary>The variations</summary><div class=scroll><table data-nosort>"
-               "<tr><th>#</th>" + "".join(f"<th>{e(k)}</th>" for k in names) +
-               "<th>volume</th><th>area</th></tr>")
-    for i, v in enumerate(family["variations"]):
-        cells = "".join(f"<td>{v['params'][k]:g}</td>" if isinstance(v["params"][k], (int, float))
-                        else f"<td>{e(str(v['params'][k]))}</td>" for k in names)
-        out.append(f"<tr><td>{i}</td>{cells}<td>{v['expect']['volume']:.10g}</td>"
-                   f"<td>{v['expect']['area']:.10g}</td></tr>")
-    out.append("</table></div></details>")
-    return out
-
-
-def variations_run(row, family):
-    """A kernel's result of each of a family's variations, as an HTML table: its outcome, and its
-    measures' relative errors."""
-    e = html.escape
-    from_mesh = row.get("measured") == "mesh"
-    out = ["<div class=scroll><table data-nosort><tr><th>#</th><th>outcome</th>"
-           "<th title='relative error'>volume err.</th><th title='relative error'>area err.</th>"
-           "<th>time</th><th>why</th></tr>"]
-    for i, (v, drawn) in enumerate(zip(row["variations"], family["variations"])):
-        got = ((v.get("mesh_volume"), v.get("mesh_area")) if from_mesh
-               else (v.get("volume"), v.get("area")))
-        errs = "".join(f"<td>{relative(x, drawn['expect'][k]) if x is not None else ''}</td>"
-                       for x, k in zip(got, KEYS))
-        out.append(f"<tr><td>{i}</td><td class='cell {v['outcome']}'>{e(v['outcome'])}</td>"
-                   f"{errs}<td>{cost(v.get('seconds'), ' s')}</td>"
-                   f"<td class='muted why'>{e(v.get('why') or '')}</td></tr>")
-    out.append("</table></div>")
-    return "".join(out)
 
 
 # what each outcome means, said where a result gives no reason of its own
@@ -527,10 +439,9 @@ MEANS = {
 }
 
 
-def entry(en, exp, family=None):
+def entry(en, exp):
     """One kernel's entry for a case, as HTML, hidden: the page's script shows the one picked.
-    Its triangles are drawn by the page's one viewer, above it; of a family, the triangles of the
-    variation its outcome is of."""
+    Its triangles are drawn by the page's one viewer, above it."""
     e = html.escape
     name, row, o = en["name"], en["row"], en["outcome"]
     out = [f"<section class=entry data-k='{e(name)}' data-src='{en['stl'] or ''}' hidden "
@@ -556,13 +467,7 @@ def entry(en, exp, family=None):
 
     out.append("<h3>Data</h3>")
     facts = []
-    if family and row and row.get("variations"):
-        out.append(variations_run(row, family))
-        facts.append(("agrees with", e(", ".join(en["friends"])) or
-                      "<span class=muted>no other kernel, in every variation</span>"))
-    elif family and row:
-        out.append("<p class=muted>No measures: it built no solid to measure.</p>")
-    elif en["measures"]:
+    if en["measures"]:
         *got, from_mesh = en["measures"]
         whose = "its triangles'" if from_mesh else "measured"
         table = [f"<tr><th></th><th>{whose}</th>"

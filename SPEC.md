@@ -1,4 +1,4 @@
-# brep-bench specification, version 1.10
+# brep-bench specification, version 1.11
 
 brep-bench works like Rosetta Code. Each **case** describes a solid in plain words and gives its
 volume and area as closed forms. Each **kernel** has its own **implementation** of each case,
@@ -92,73 +92,6 @@ How a description is written:
   states the result exactly, as a composition with one answer: the solid less its cavity, given
   as a solid, or for a wall grown outward the solid grown less the solid.
 
-## A family
-
-A case can be stated over parameters instead of numbers: a **family**, graded at many variations
-of one description. A kernel that passes a case at the numbers its author tried can still fail at
-others, where two faces come within a hair of each other, a parameter of a curve lands near a seam,
-or a solid turned off the axes leaves nothing aligned. A family asks for the same solid at twenty
-places in its range, so that an implementation has to build the description and not one instance
-of it.
-
-A family's header adds `[params]`, how each parameter is drawn, and gives each measure as a
-`formula` of them, beside its closed form in words:
-
-```
-+++
-title = "A napkin ring bored aslant, twenty ways"
-tags = ["fuzz", "boolean", "cut", "analytic"]
-
-[params]
-R = [3, 15]                   # a real, uniform from 3 to 15
-r = ["0.1*R", "0.9*R"]        # bounds may be formulas of the parameters drawn before
-theta = [0, 180]
-phi = [0, 360]
-
-[let]
-h = "2*sqrt(R**2 - r**2)"     # a quantity named for the formulas, in order
-
-[volume]
-formula = "pi*h**3/6"
-exact = "πh³/6, h = 2√(R² − r²)"
-tex = '\tfrac{\pi h^3}{6},\quad h = 2\sqrt{R^2 - r^2}'
-
-[area]
-formula = "2*pi*R*h + 2*pi*r*h"
-exact = "2πRh + 2πrh"
-tex = '2\pi R h + 2\pi r h'
-+++
-
-A ball of radius `R` centered on the origin, with a hole of radius `r` bored right through it along
-the line through its center with direction (sin `theta` cos `phi`, sin `theta` sin `phi`,
-cos `theta`). …
-```
-
-- **A parameter** is drawn as `[low, high]`, a real uniform between them rounded to three decimal
-  places; `{ int = [low, high] }`, a whole number, both ends included; or `{ choice = [...] }`,
-  one of those values. Bounds may be formulas of the parameters before it, in the header's order.
-- **`[family]`** may say `variations` (20 unless it says), `digits` (the decimal places a real is
-  rounded to) and `require`, a list of formulas that must all hold: a variation whose draw fails one
-  is drawn again. A family's ranges and requirements keep every variation one definite solid, as a
-  description must be: nothing touches that the description does not say touches, and nothing
-  vanishes.
-- **A formula** is arithmetic (`+ - * / ** %`, comparisons, `and`, `or`) over numbers, the
-  parameters, the quantities `[let]` names, `pi`, and the functions `sqrt cbrt exp log abs min max
-  hypot floor ceil sin cos tan asin acos atan atan2 radians degrees`, and `sind cosd tand` of an
-  angle in degrees. Nothing else is evaluated.
-- **A family is settled.** Its answer at every variation is its closed form, which no kernel chose,
-  so it has no `value`. The harness evaluates it at each variation.
-- **The variations are the same every run.** Variation `i` of the case `fuzz/napkin-ring-aslant` is
-  drawn by Python's `random.Random`, seeded with the string `"brep-bench 1.10/<case>/<i>"`; the
-  seed changes only with this file's version. The case's page lists every variation and what it
-  expects.
-
-A family's description names its parameters in `code`, and says what each is. Many families also
-turn the solid they describe about an axis through the origin, by `psi` degrees about the direction
-(sin `theta` cos `phi`, sin `theta` sin `phi`, cos `theta`), right-handed: the measures do not
-change, but nothing is left on the axes. The families are in `cases/fuzz/`, each naming the case it
-varies.
-
 ## An implementation
 
 Each kernel lives in `kernels/<kernel>/`, listed in `kernels.json`. The directory holds a runner and
@@ -219,11 +152,6 @@ An implementation builds the described solid the way a user of its kernel would:
   Only a result that passes or builds is flagged, and never a workaround. The board marks the
   implementation's result ✦ and lists every kernel's on its overview and each kernel's on its
   page. Like a workaround's, the flag changes no grade.
-- **A family's implementation** reads its parameters as the runner is given them, and builds the
-  description from them, as it would from numbers written into a case. It may not test which
-  variation it was given, nor take any path but the one it would take for any parameters in the
-  family's ranges: refusing, say, where a parameter is small is a refusal of the family, and its
-  file says so for every variation alike.
 - **A case the kernel cannot do** still has a file. The file refuses, saying precisely why (for
   example, "the kernel has no helical curve, and sweeps only by translation and rotation"). That result
   is graded as *refused*.
@@ -237,14 +165,7 @@ The harness runs a kernel's `command` from `kernels.json` once per case:
 <command> CASE OUT.stl
 ```
 
-`CASE` is the case's id. For a family's variation the harness adds the parameters, as one JSON
-object (`{"R": 6.148, "r": 2.987, "theta": 147.735, "phi": 44.555}`):
-
-```
-<command> CASE OUT.stl PARAMS
-```
-
-The runner builds that case with its implementation, writes the result's
+`CASE` is the case's id. The runner builds that case with its implementation, writes the result's
 triangles to `OUT.stl` (binary or ASCII), and prints one line of JSON as the last line of its
 standard output:
 
@@ -293,13 +214,6 @@ Each case and kernel get one outcome. The outcomes, best first:
 | **crashed** | it exited non-zero, or printed no JSON |
 | **timeout** | it ran past the time limit (60 s by default) |
 | **missing** | the kernel has no implementation of the case; not ranked |
-
-A family is run once for each of its variations, each graded as a case of its own against its
-closed form there. The family's outcome is the worst of theirs, in the order of this table (an
-unsettled case's built ranks with pass); its reason says how many variations passed and names
-the first with that worst outcome, its parameters and why, and the measures and triangles kept are
-of that variation (of the first, where every one passed). Its time and CPU time are the
-variations' summed; its peak memory, the largest of theirs.
 
 An unsettled case has no answer to meet, so a sound result is graded **built** instead of pass:
 the runner answered `ok`, and its triangles are closed and consistently oriented. Triangles that are
@@ -356,9 +270,11 @@ One entry per kernel:
 
 ## Versions
 
-- **1.10:** a case may be a family, stated over parameters and graded at twenty variations drawn
-  from a fixed seed: a runner is given a variation's parameters after OUT.stl, and the family's
-  outcome is its worst variation's. Every other case is graded as before.
+- **1.11:** families are removed, and with them a runner's PARAMS argument: twenty runs a case
+  cost much CPU time for little coverage the cases they varied did not already give. Grading is as
+  in 1.9.
+- **1.10:** a case could be a family, stated over parameters and graded at twenty variations drawn
+  from a fixed seed, its outcome its worst variation's.
 - **1.9:** an implementation may be flagged elegant in its kernel's `elegance.toml`, and the board
   marks and lists it. Grading is unchanged.
 - **1.8:** the harness measures each run's CPU time and peak memory beside its time, and, asked,

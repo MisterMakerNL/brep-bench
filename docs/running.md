@@ -24,10 +24,6 @@ times. A CI run of only some of a kernel's cases keeps its last start-up and bin
 speedup on all of them (Linux only). Each result file also records its machine and the size of
 the kernel's binary, as `binary` in `kernels.json` names it.
 
-A family (`cases/fuzz/`) runs its runner once for each of its twenty variations, each given its
-parameters as a third argument: `RUNNER fuzz/napkin-ring-aslant OUT.stl '{"R": 6.148, …}'`, which
-is also how to run one variation by hand. The case's page lists every variation's parameters.
-
 CI does not run on pull requests, so run a change locally before proposing it.
 
 The harness uses only Python's standard library (3.11 or later). The runners need their own
