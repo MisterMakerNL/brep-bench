@@ -1,6 +1,7 @@
 //! The brep-bench runner for cad-kernel (https://crates.io/crates/cad-kernel).
 //!
 //!     brep-bench-cad-kernel CASE OUT.stl      (CASE as `boolean/napkin-ring`)
+//!     brep-bench-cad-kernel CASE OUT.stl PARAMS   (a family's variation: PARAMS is JSON)
 //!     brep-bench-cad-kernel --version
 //!
 //! Builds the case with its own file, `src/cases/<category>/<name_snake>.rs`, then measures the
@@ -16,6 +17,27 @@ use cad_kernel::util::space::{cross, sub, unit};
 use std::collections::BTreeMap;
 
 mod sketch;
+
+/// A family's variation: its parameters by name, as the harness gives them (SPEC.md, "A family").
+pub struct Params(Json);
+
+impl Params {
+    /// The number `name`.
+    pub fn num(&self, name: &str) -> Result<f64, String> {
+        match self.0.get(name) {
+            Some(x @ (Json::Num(_) | Json::Int(_))) => Ok(x.as_f64()),
+            _ => Err(format!("no number `{name}` among the parameters")),
+        }
+    }
+
+    /// The text `name`.
+    pub fn text(&self, name: &str) -> Result<&str, String> {
+        match self.0.get(name) {
+            Some(Json::Str(s)) => Ok(s),
+            _ => Err(format!("no text `{name}` among the parameters")),
+        }
+    }
+}
 
 /// Every case file, found by `build.rs`.
 mod cases {
@@ -86,15 +108,25 @@ fn main() {
         println!("cad-kernel {} (brep-bench runner {})", env!("CAD_KERNEL_REV"), env!("CARGO_PKG_VERSION"));
         return;
     }
-    let [_, case, out] = &args[..] else {
-        eprintln!("usage: brep-bench-cad-kernel CASE OUT.stl");
-        std::process::exit(2);
+    let (case, out, params) = match &args[..] {
+        [_, case, out] => (case, out, Params(Json::obj())),
+        [_, case, out, params] => match cad_kernel::util::json::parse(params) {
+            Ok(j @ Json::Obj(_)) => (case, out, Params(j)),
+            _ => {
+                eprintln!("PARAMS is not a JSON object: {params}");
+                std::process::exit(2);
+            }
+        },
+        _ => {
+            eprintln!("usage: brep-bench-cad-kernel CASE OUT.stl [PARAMS]");
+            std::process::exit(2);
+        }
     };
     let Some(&(_, build)) = cases::CASES.iter().find(|(id, _)| id == case) else {
         eprintln!("no implementation of `{case}`");
         std::process::exit(2);
     };
-    let reply = match build() {
+    let reply = match build(&params) {
         Ok(solid) => measured(&solid, out),
         Err(why) => refused(why),
     };
