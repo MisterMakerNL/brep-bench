@@ -1,7 +1,14 @@
 +++
 title = "Two crossed cylinders barely overlapping"
 tags = ["tangent", "boolean", "common", "ssi", "near-degenerate", "sliver"]
-settled = false
+
+[volume]
+value = 0.0015700108780411634
+exact = "no closed form (the intersection of two cylinders' walls bounds it): cadrs and kentron, built independently from this description, agree to 1e-9"
+
+[area]
+value = 0.6281614113696172
+exact = "no closed form (patches of two cylinders bounded by their curve of intersection): cadrs and kentron, built independently from this description, agree to 7e-10"
 +++
 
 Two solid cylinders of radius 5 and length 30 that cross at right angles and barely overlap. The
