@@ -1,8 +1,7 @@
 //! A solid torus about the z axis, its tube's middle circle of radius 10 in the xy plane and the
 //! tube of radius 3, united with a drum, the cylinder of radius 13 on the z axis from z = −1 to
-//! 1: the torus touches the drum's wall from inside along its outer equator. The torus is the
-//! tube's section revolved about z (the kernel has no torus primitive); the drum a circle
-//! extruded.
+//! 1: the torus touches the drum's wall from inside along its outer equator. The torus is
+//! cadrs's torus primitive; the drum a circle extruded.
 use crate::bench::{cylinder, p3, torus, union, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

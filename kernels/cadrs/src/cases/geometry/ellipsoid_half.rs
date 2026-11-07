@@ -2,15 +2,16 @@
 //! everything below the plane z = 0 cut away: a dome on the flat ellipse x²/36 + y²/16 ≤ 1,
 //! rising to 3.
 //!
-//! cadrs cannot make the ellipsoid (see `geometry/ellipsoid`): it has no ellipsoid, and no
-//! non-uniform scale to stretch a ball with. Its half is refused for the same reason.
+//! The upper half of a ball of radius 1 (the ball cut by a block below z = 0), stretched by 6, 4
+//! and 3 along x, y and z with cadrs's `Kernel::scale_axes`: the floor stays in z = 0.
+use crate::bench::{ball, block, cut, p3, v3};
 use crate::Refusal;
-use cadrs_kernel::{BodyId, DefaultKernel};
+use cadrs_kernel::{BodyId, DefaultKernel, Kernel};
 
-pub fn build(_k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    Err(Refusal::from(
-        "cadrs has no ellipsoid, and no non-uniform scale to stretch a ball into one \
-         (Kernel::scale is uniform, a Transform is a rigid motion); a revolve makes only \
-         spheroids",
-    ))
+pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
+    let b = ball(k, p3(0.0, 0.0, 0.0), 1.0)?;
+    let below = block(k, p3(-2.0, -2.0, -2.0), p3(2.0, 2.0, 0.0))?;
+    let half = cut(k, b, below)?;
+    let r = k.scale_axes(half, p3(0.0, 0.0, 0.0), v3(6.0, 4.0, 3.0))?;
+    r.bodies.first().copied().ok_or_else(|| Refusal::from("the scale made no body"))
 }

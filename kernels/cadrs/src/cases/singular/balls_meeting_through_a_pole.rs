@@ -3,8 +3,8 @@
 //! the vertical through its center, so the circle passes through (0, 0, 5), a pole of the first,
 //! and through (4.8, 0, −1.4), a pole of the second.
 //!
-//! Each ball is the half disc beside the vertical through its center revolved a whole turn about
-//! it (cadrs has no sphere primitive); the two are united.
+//! Each ball is cadrs's sphere primitive, its poles on the vertical through its center; the two
+//! are united.
 use crate::bench::{ball, p3, union};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

@@ -1,5 +1,5 @@
-//! Two balls of radius 5, centered on the origin and at (6, 0, 0), united. Each ball is a half
-//! disc revolved a whole turn (the kernel has no sphere primitive).
+//! Two balls of radius 5, centered on the origin and at (6, 0, 0), united. Each ball is cadrs's
+//! sphere primitive.
 use crate::bench::{ball, p3, union};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

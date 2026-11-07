@@ -93,36 +93,95 @@ fn refused(why: &str) -> String {
     format!("{{\"status\":\"refused\",\"reason\":{}}}", quoted(why))
 }
 
-/// The triangles written as binary STL. The tessellator samples each edge once, so the faces
-/// either side of it share its points exactly.
+/// The volume the triangles bound (by the divergence theorem), their points rounded by `at`.
+fn mesh_volume(mesh: &cadrs_kernel::TriMesh, at: impl Fn(usize) -> [f64; 3]) -> f64 {
+    mesh.indices
+        .iter()
+        .map(|t| {
+            let [a, b, c] = t.map(|i| at(i as usize));
+            (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0])
+                + a[2] * (b[0] * c[1] - b[1] * c[0]))
+                / 6.0
+        })
+        .sum()
+}
+
+/// The triangles written as STL: binary (single precision) when that keeps every point the
+/// mesher made apart from every other and the volume they bound as it was, else ASCII with each
+/// coordinate in full (the shortest decimal that reads back as the same double). The tessellator
+/// samples each edge once, so the faces either side of it share its points exactly; single
+/// precision rounds points a millionth apart at x = 5 together.
 fn write_stl(path: &str, mesh: &cadrs_kernel::TriMesh) -> std::io::Result<()> {
-    let mut out = Vec::with_capacity(84 + 50 * mesh.indices.len());
-    out.extend_from_slice(&[0u8; 80]);
-    out.extend_from_slice(&(mesh.indices.len() as u32).to_le_bytes());
+    let single = |i: usize| mesh.positions[i].map(|x| x as f32);
+    let mut seen = std::collections::HashSet::with_capacity(mesh.positions.len());
+    let mut distinct = std::collections::HashSet::with_capacity(mesh.positions.len());
+    let mut apart = true;
+    for (i, p) in mesh.positions.iter().enumerate() {
+        if distinct.insert([p.x.to_bits(), p.y.to_bits(), p.z.to_bits()]) {
+            let q = single(i);
+            apart &= seen.insert([q.x.to_bits(), q.y.to_bits(), q.z.to_bits()]);
+        }
+    }
+    let rounded = mesh_volume(mesh, |i| single(i).map(f64::from).into());
+    let exact = mesh_volume(mesh, |i| mesh.positions[i].into());
+    if apart && (rounded - exact).abs() <= 1e-4 * exact.abs() {
+        let mut out = Vec::with_capacity(84 + 50 * mesh.indices.len());
+        out.extend_from_slice(&[0u8; 80]);
+        out.extend_from_slice(&(mesh.indices.len() as u32).to_le_bytes());
+        for t in &mesh.indices {
+            let [a, b, c] = t.map(|i| mesh.positions[i as usize]);
+            let n = (b - a).cross(&(c - a));
+            let n = if n.norm() > 0.0 { n.normalize() } else { n };
+            for x in [n.x, n.y, n.z, a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z] {
+                out.extend_from_slice(&(x as f32).to_le_bytes());
+            }
+            out.extend_from_slice(&[0u8; 2]);
+        }
+        return std::fs::write(path, out);
+    }
+    use std::fmt::Write as _;
+    let mut out = String::with_capacity(16 + 160 * mesh.indices.len());
+    out.push_str("solid cadrs\n");
     for t in &mesh.indices {
         let [a, b, c] = t.map(|i| mesh.positions[i as usize]);
         let n = (b - a).cross(&(c - a));
         let n = if n.norm() > 0.0 { n.normalize() } else { n };
-        for x in [n.x, n.y, n.z, a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z] {
-            out.extend_from_slice(&(x as f32).to_le_bytes());
+        let _ = writeln!(out, "facet normal {:e} {:e} {:e}\nouter loop", n.x, n.y, n.z);
+        for p in [a, b, c] {
+            let _ = writeln!(out, "vertex {:e} {:e} {:e}", p.x, p.y, p.z);
         }
-        out.extend_from_slice(&[0u8; 2]);
+        out.push_str("endloop\nendfacet\n");
     }
+    out.push_str("endsolid cadrs\n");
     std::fs::write(path, out)
 }
 
-/// The reply for a body built: its measures, once its triangles are written. The mesh keeps
-/// within a ten-thousandth of the body's size, or 1/200 of its thickness (its volume over its
-/// area) where that is less: the reference runner's rule (`kernels/occt/run.py`).
+/// The reply for a body built: its measures, once its triangles are written. The mesh is the
+/// coarsest of a ladder of chords that bounds the body's exact volume to 1/100 (the harness asks
+/// 1/50): from a thousandth of the body's size, or a twentieth of its thickness (its volume over
+/// its area) where that is less, at 15°, each step a chord where the volume would be off 0.7 of
+/// that (in proportion to how far off this one is, a half to a sixteenth of it) and half the
+/// angle (to 5°), down to a hundred-thousandth of the size.
 fn measured(k: &DefaultKernel, body: BodyId, out: &str) -> Result<String, Refusal> {
+    let timing = std::env::var_os("BREP_TIMING").is_some();
+    let t0 = std::time::Instant::now();
+    let lap = |what: &str, t: &mut std::time::Instant| {
+        if timing {
+            eprintln!("{what}: {:.1} ms", t.elapsed().as_secs_f64() * 1e3);
+        }
+        *t = std::time::Instant::now();
+    };
+    let mut t = t0;
     match k.body_class(body)? {
         BodyClass::Solid => {}
         other => return Err(format!("the result is not a solid but {other:?}").into()),
     }
     let m = k.mass_properties(body)?;
     let (volume, area) = (m.volume, m.surface_area);
+    lap("mass", &mut t);
     let native = k.get(body)?;
     let valid = native.check_with(CheckLevel::Full).is_empty();
+    lap("check", &mut t);
     let mut faces = BTreeMap::new();
     for f in native.faces() {
         *faces.entry(kind(&f.surf)).or_insert(0) += 1;
@@ -131,10 +190,50 @@ fn measured(k: &DefaultKernel, body: BodyId, out: &str) -> Result<String, Refusa
 
     let size = k.bounding_box(body)?.diagonal();
     let thickness = if area > 0.0 && volume > 0.0 { volume / area } else { size };
-    let deflection = (1e-4 * size).min(5e-3 * thickness).max(2e-7);
-    let quality = Tessellation { deflection, angle: 5f64.to_radians() };
-    let mesh = k.tessellate(body, quality).map_err(|e| format!("not meshed: {e}"))?;
+    let mut deflection = (1e-3 * size).min(5e-2 * thickness).max(1e-10);
+    let mut angle = 15f64.to_radians();
+    let finest = (1e-5 * size).min(5e-4 * thickness).max(1e-10);
+    let mesh = loop {
+        let quality = Tessellation { deflection, angle };
+        let mesh = k.tessellate(body, quality).map_err(|e| format!("not meshed: {e}"))?;
+        let bound = mesh_volume(&mesh, |i| mesh.positions[i].into());
+        if timing {
+            eprintln!(
+                "rung: chord {deflection:.3e} angle {:.1}° {} triangles, volume off {:.2e}",
+                angle.to_degrees(),
+                mesh.indices.len(),
+                (bound - volume).abs() / volume.abs()
+            );
+        }
+        let off = (bound - volume).abs() / volume.abs();
+        if off <= 1e-2 || deflection <= finest {
+            break mesh;
+        }
+        // (A mesh's volume is off about in proportion to its chord: the next chord where it
+        // would be off 0.7 of the bound, from a half to a sixteenth of this one.)
+        deflection = (deflection * (0.7e-2 / off).clamp(1.0 / 16.0, 0.5)).max(finest);
+        angle = (angle / 2.0).max(5f64.to_radians());
+    };
+    lap("tessellate", &mut t);
+    if std::env::var_os("BREP_FACES").is_some() {
+        let mut per: BTreeMap<u64, usize> = BTreeMap::new();
+        for f in &mesh.triangle_faces {
+            *per.entry(f.0).or_insert(0) += 1;
+        }
+        for (f, n) in per {
+            let surf = &native.faces()[f as usize].surf;
+            let spans = match surf {
+                cadrs_kernel::native::Surface::Nurbs(ns) => {
+                    let count = |k: &[f64]| k.windows(2).filter(|w| w[1] > w[0]).count();
+                    format!(", degrees {}×{}, spans {}×{}", ns.du, ns.dv, count(&ns.ku), count(&ns.kv))
+                }
+                _ => String::new(),
+            };
+            eprintln!("face {f} {:?}: {n} triangles{spans}", kind(surf));
+        }
+    }
     write_stl(out, &mesh).map_err(|e| format!("{out} not written: {e}"))?;
+    lap(&format!("write {} triangles", mesh.indices.len()), &mut t);
     Ok(format!(
         "{{\"status\":\"ok\",\"volume\":{volume:e},\"area\":{area:e},\"faces\":{{{faces}}},\"valid\":{valid}}}"
     ))
@@ -158,8 +257,36 @@ fn main() -> ExitCode {
         eprintln!("no implementation of `{case}`");
         return ExitCode::from(2);
     };
+    // Each body is meshed once: no faces' meshes kept for a next time.
+    cadrs_kernel::native::keep_meshes(false);
+    // (Profiling: the case built over and over, each time in a new session, to sample.)
+    if let Some(n) = std::env::var("BREP_REPEAT_BUILD").ok().and_then(|n| n.parse::<usize>().ok()) {
+        for _ in 0..n {
+            let _ = build(&mut DefaultKernel::new());
+        }
+    }
+    // (Profiling: built and measured over and over, each time in a new session.)
+    if let Some(n) = std::env::var("BREP_REPEAT_FRESH").ok().and_then(|n| n.parse::<usize>().ok()) {
+        for _ in 0..n {
+            let mut k = DefaultKernel::new();
+            if let Ok(body) = build(&mut k) {
+                let _ = measured(&k, body, out);
+            }
+        }
+    }
     let mut k = DefaultKernel::new();
-    let reply = match build(&mut k).and_then(|body| measured(&k, body, out)) {
+    let t = std::time::Instant::now();
+    let built = build(&mut k);
+    if std::env::var_os("BREP_TIMING").is_some() {
+        eprintln!("build: {:.1} ms", t.elapsed().as_secs_f64() * 1e3);
+    }
+    // (Profiling: the measures and the mesh made over and over, to sample.)
+    if let (Ok(body), Some(n)) = (&built, std::env::var("BREP_REPEAT").ok().and_then(|n| n.parse::<usize>().ok())) {
+        for _ in 1..n {
+            let _ = measured(&k, *body, out);
+        }
+    }
+    let reply = match built.and_then(|body| measured(&k, body, out)) {
         Ok(reply) => reply,
         Err(why) => refused(&why.to_string()),
     };

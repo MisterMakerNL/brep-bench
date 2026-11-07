@@ -18,20 +18,15 @@ pub fn cut_beyond(
     cut(k, body, tool)
 }
 
-/// The ball of `radius` about `center` with its poles on the axis through `center` along `dir`:
-/// the half disc beside that axis, sketched on a plane through it, revolved a whole turn about
-/// it (cadrs has no sphere primitive).
+/// The ball of `radius` about `center` with its poles on the axis through `center` along `dir`
+/// (cadrs's sphere primitive, its seam on the side the sketch plane through that axis would put
+/// it).
 pub fn ball_about(
     k: &mut DefaultKernel,
     center: P3,
     dir: V3,
     radius: f64,
 ) -> Result<BodyId, Refusal> {
-    use crate::bench::{arc, axis, chain, line, p2, revolve, through_axis};
-    let half = chain(vec![
-        arc(p2(0.0, 0.0), radius, -90.0, 180.0),
-        line(p2(0.0, radius), p2(0.0, -radius)),
-    ]);
-    let s = sketch(through_axis(center, dir), vec![half]);
-    revolve(k, &s, axis(center, dir), None)
+    let seam = crate::bench::through_axis(center, dir).x_dir.into_inner();
+    crate::bench::ball_oriented(k, center, radius, dir, seam)
 }

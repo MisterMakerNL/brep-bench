@@ -1,6 +1,6 @@
 //! A cube of side 10 between the origin and (10, 10, 10), and the ball of radius 5 at its
 //! center, which touches each of its faces at one point: their common part, the whole ball. The
-//! ball is a half disc revolved (the kernel has no sphere primitive).
+//! ball is cadrs's sphere primitive.
 use crate::bench::{ball, block, common, p3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

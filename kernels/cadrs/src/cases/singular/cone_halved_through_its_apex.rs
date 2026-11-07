@@ -3,9 +3,8 @@
 //! The cutting plane holds the axis, so it passes through the apex and meets the side in two
 //! rulings.
 //!
-//! The cone is its section beside the z axis (the triangle (0, 0), (5, 0), (0, 10)) revolved a
-//! whole turn (cadrs has no cone primitive). The half x < 0 is cut with a block sketched on the
-//! yz plane and extruded toward −x.
+//! The cone is cadrs's cone primitive. The half x < 0 is cut with a block sketched on the yz
+//! plane and extruded toward −x.
 use crate::bench::{cone, p3, v3};
 use crate::shared::singular::cut_beyond;
 use crate::Refusal;

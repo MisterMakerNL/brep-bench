@@ -73,3 +73,18 @@ pub fn helix_at(origin: P3, radius: f64, pitch: f64, start: f64, t: f64) -> (P3,
         V3::new(-radius * t.sin(), radius * t.cos(), pitch / TAU),
     )
 }
+
+/// The solid `profile`'s regions sweep along `path`, twisting by `twist` (radians,
+/// right-handed about the path) and scaling by `scale` (its size at the end over the start)
+/// about the path's point, both in proportion to the length travelled (cadrs's
+/// `Kernel::sweep_with_law`).
+pub fn sweep_law(
+    k: &mut DefaultKernel,
+    profile: &Profile,
+    path: Vec<PathCurve>,
+    twist: f64,
+    scale: f64,
+) -> Result<BodyId, Refusal> {
+    let spec = SweepSpec { body: BodyKind::Solid, path, control: SweepControl::None, faces: vec![] };
+    first(k.sweep_with_law(profile, &spec, &cadrs_kernel::SweepLaw { twist, scale })?)
+}

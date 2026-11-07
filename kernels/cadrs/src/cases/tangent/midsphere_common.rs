@@ -1,7 +1,7 @@
 //! A cube of side 10 from (−5, −5, −5) to (5, 5, 5), and the ball about the origin of radius
 //! 5√2 that touches each of its twelve edges at the midpoint: their common part, six disks
-//! touching at the edge midpoints and eight three-sided sphere patches. The ball is a half disc
-//! revolved (the kernel has no sphere primitive).
+//! touching at the edge midpoints and eight three-sided sphere patches. The ball is cadrs's
+//! sphere primitive.
 use crate::bench::{ball, block, common, p3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

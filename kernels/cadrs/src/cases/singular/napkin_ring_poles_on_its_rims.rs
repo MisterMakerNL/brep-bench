@@ -3,9 +3,8 @@
 //! z = ±4. The ball's poles are on the line through the origin along (3, 0, 4): at (3, 0, 4), on
 //! the upper rim, and at (−3, 0, −4), on the lower one.
 //!
-//! The ball is the half disc beside that line, sketched on a plane through it, revolved a whole
-//! turn about it (cadrs has no sphere primitive). The hole is cut with a cylinder of radius 3
-//! about the z axis from z = −6 to z = 6, past both ends of the ball.
+//! The ball is cadrs's sphere primitive, its poles on that line. The hole is cut with a cylinder
+//! of radius 3 about the z axis from z = −6 to z = 6, past both ends of the ball.
 use crate::bench::{cut, cylinder, p3, v3};
 use crate::shared::singular::ball_about;
 use crate::Refusal;

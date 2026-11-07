@@ -3,24 +3,20 @@
 //! shelled inward to a wall 1 thick, open at its hemisphere: the side moved 1 inward runs on up into
 //! the dome until it meets the sphere at z = 13, the bottom moved is z = 1.
 //!
-//! The capsule's end is its section revolved (cadrs has no sphere primitive to join to a cylinder);
+//! The capsule's end is cadrs's cylinder primitive united with its sphere primitive;
 //! cadrs's Shell feature (inward), the dome picked as the face to remove.
-use crate::bench::{arc, axis, chain, line, p2, p3, revolve, sketch, through_axis, V3};
+use crate::bench::{ball, cylinder, p3, union, V3};
 use crate::shared::shell::{shell_inward, Joins};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
 
-/// The capsule's end: its section beside the z axis (the side's line, the dome's quarter arc about
-/// (0, 0, 10)) revolved a whole turn.
+/// The capsule's end: cadrs's cylinder of radius 5 from z = 0 to z = 10 united with its ball of
+/// radius 5 about (0, 0, 10), the dome the ball's upper half (its lower half within the
+/// cylinder).
 fn capsule_end(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let section = chain(vec![
-        line(p2(0.0, 0.0), p2(5.0, 0.0)),
-        line(p2(5.0, 0.0), p2(5.0, 10.0)),
-        arc(p2(0.0, 10.0), 5.0, 0.0, 90.0),
-        line(p2(0.0, 15.0), p2(0.0, 0.0)),
-    ]);
-    let s = sketch(through_axis(p3(0.0, 0.0, 0.0), V3::z()), vec![section]);
-    revolve(k, &s, axis(p3(0.0, 0.0, 0.0), V3::z()), None)
+    let side = cylinder(k, p3(0.0, 0.0, 0.0), V3::z(), 5.0, 10.0)?;
+    let dome = ball(k, p3(0.0, 0.0, 10.0), 5.0)?;
+    union(k, side, dome)
 }
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {

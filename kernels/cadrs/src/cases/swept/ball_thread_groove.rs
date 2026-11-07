@@ -2,11 +2,12 @@
 //! cut by a ball of radius 1 whose center follows the helix of radius 5 about the z axis from
 //! (5, 0, −2), right-handed, rising 4 a turn, six whole turns to (5, 0, 22).
 //!
-//! cadrs has no sweep of a solid, so the ball's sweep is built as what it is: the tube about
+//! cadrs's sweep of a solid (`Kernel::sweep_solid`) fits a screwed body's outline with splines,
+//! so the ball's sweep is built as what it is, exactly: the tube about
 //! its center's path, the disk of radius 1 square to the helix where it starts swept along the
 //! helix (drawn as cadrs's Helix feature draws one, which the sweep follows by its screw
 //! motion), and the ball at each end, whose half beyond the tube closes it (both clear of the
-//! rod). The kernel has no sphere primitive: each ball is a half disc revolved.
+//! rod). Each ball is cadrs's sphere primitive.
 use crate::bench::{ball, cut, p3, round, sketch, square_to, union_each};
 use crate::shared::sweep::{helix, helix_at, sweep};
 use crate::shared::swept::rod;

@@ -6,12 +6,11 @@
 //!
 //! cadrs makes no face from a bare surface (its `face_from_surface` takes a face of a body, and
 //! putting the net in place of a ball's sphere with `replace_faces` fails), so the ball is made
-//! and its surface converted: the half disc beside the z axis on the Front plane revolved a whole
-//! turn (cadrs has no sphere primitive), then healed with `HealOp::ToBSpline`, which gives every
-//! curved surface as its exact B-spline. The sphere's is the standard biquadratic net above: the
-//! same control points and weights, its knots in radians (0 to 2π around, −π/2 to π/2 along the
-//! meridian) where the description's run from 0 to 1. It is one face, closed on its seam, with
-//! a pole at each end.
+//! and its surface converted: cadrs's sphere primitive, its poles on the z axis and its seam
+//! toward +x, healed with `HealOp::ToBSpline`, which gives every curved surface as its exact
+//! B-spline. The sphere's is the standard biquadratic net above: the same control points and
+//! weights, its knots in radians (0 to 2π around, −π/2 to π/2 along the meridian) where the
+//! description's run from 0 to 1. It is one face, closed on its seam, with a pole at each end.
 use crate::bench::{ball, p3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel, HealOp, Kernel};

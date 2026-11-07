@@ -1,6 +1,6 @@
 //! A ball of radius 5 centered on the origin, bored right through along the z axis by a hole of
-//! radius 3: a circle extruded from z = −6 to z = 6, cut away. The ball is a half disc revolved a
-//! whole turn (the kernel has no sphere primitive).
+//! radius 3: a circle extruded from z = −6 to z = 6, cut away. The ball is cadrs's sphere
+//! primitive.
 use crate::bench::{ball, cut, cylinder, p3, V3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

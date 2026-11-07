@@ -1,7 +1,7 @@
 //! A ball of radius 15 centered on the origin, united with a solid cone on the z axis whose apex
 //! is at (0, 0, −25) and whose base is the disk of radius 12 in the plane z = −9: the cone's side
-//! is tangent to the sphere along the rim of its base. The ball is a half disc revolved about z
-//! and the cone its triangular section revolved (the kernel has no sphere or cone primitive).
+//! is tangent to the sphere along the rim of its base. The ball is cadrs's sphere primitive, its
+//! poles on the z axis, and the cone cadrs's cone primitive.
 use crate::bench::{ball, cone, p3, union, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

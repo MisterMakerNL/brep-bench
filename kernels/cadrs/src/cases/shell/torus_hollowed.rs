@@ -2,8 +2,7 @@
 //! middle circle of radius 6, hollowed to a wall 0.5 thick with no opening: the torus less the torus
 //! of tube radius 1.5.
 //!
-//! The torus is the tube's circle revolved a whole turn about the z axis (cadrs has no torus
-//! primitive); cadrs's Shell feature with Hollow set (no face removed).
+//! The torus is cadrs's torus primitive; cadrs's Shell feature with Hollow set (no face removed).
 use crate::bench::{p3, torus, V3};
 use crate::shared::shell::hollow;
 use crate::Refusal;

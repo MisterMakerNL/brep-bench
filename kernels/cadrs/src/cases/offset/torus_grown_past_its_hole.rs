@@ -3,8 +3,7 @@
 //! would cross the axis, so the solid is an apple, one face meeting the axis in two dimples at
 //! (0, 0, ±3).
 //!
-//! cadrs has no torus primitive: the torus is the tube's circular section revolved about the
-//! z axis. Then cadrs's offset with rounded edges.
+//! The torus is cadrs's torus primitive. Then cadrs's offset with rounded edges.
 use crate::bench::{p3, torus, v3};
 use crate::shared::offset::grown;
 use crate::Refusal;

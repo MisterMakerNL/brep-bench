@@ -2,11 +2,11 @@
 //! follows the cubic Bézier curve in the top face with control points (0, 0, 0), (10, 0, 0),
 //! (20, 20, 0) and (30, 20, 0): everything the ball passes through cut from the block.
 //!
-//! cadrs has no sweep of a solid, so the ball's sweep is built as what it is: the tube about
+//! cadrs's sweep of a solid (`Kernel::sweep_solid`) has no motion along a curve, so the ball's
+//! sweep is built as what it is: the tube about
 //! its center's path, the disk of radius 3 on the Right plane (square to the curve where it
 //! starts, along +x) swept along the curve drawn on the Top plane, and the ball at each end of
-//! the curve, whose half beyond the tube closes it. The kernel has no sphere primitive: each
-//! ball is a half disc revolved.
+//! the curve, whose half beyond the tube closes it. Each ball is cadrs's sphere primitive.
 use crate::bench::{ball, block, cut_each, p2, p3, round, sketch, xy, yz};
 use crate::shared::sweep::{on, sweep};
 use crate::Refusal;

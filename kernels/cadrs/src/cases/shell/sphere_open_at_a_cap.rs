@@ -3,9 +3,9 @@
 //! its flat face: the sphere moved 1 inward, the sphere of radius 4, runs on to meet the plane z = 3
 //! in the circle of radius √7.
 //!
-//! The ball is a half disc beside the z axis revolved a whole turn (cadrs has no sphere primitive),
-//! less the block above the plane (a rectangle on that plane extruded up); cadrs's Shell feature
-//! (inward), the flat face picked as the face to remove.
+//! The ball is cadrs's sphere primitive, its poles on the z axis, less the block above the plane
+//! (a rectangle on that plane extruded up); cadrs's Shell feature (inward), the flat face picked
+//! as the face to remove.
 use crate::bench::{ball, block, cut, p3};
 use crate::shared::shell::{shell_inward, Joins};
 use crate::Refusal;

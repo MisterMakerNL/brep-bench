@@ -3,24 +3,20 @@
 //! second the first turned 60° about the y axis. The solid common to both. Their caps lie on the
 //! same sphere, and the two cones' sides meet in two straight lines from the apex.
 //!
-//! The first sector is its section beside the z axis, sketched on the Front (xz) plane, revolved
-//! a whole turn about z (cadrs has no sphere or cone primitive): from the apex along the cone's
-//! ruling to (10 sin 45°, 10 cos 45°), along the sphere's arc to the pole (0, 10), and down the
-//! axis. The second is a copy turned 60° about y; the two are intersected.
-use crate::bench::{arc, axis, chain, common, line, p2, p3, revolve, sketch, turned, v3, xz};
+//! The first sector is cadrs's sphere primitive in common with its cone primitive (apex at the
+//! centre, 10 up z, its rim of radius 10 clear of the ball's cap). The second is a copy turned
+//! 60° about y; the two are intersected.
+use crate::bench::{axis, ball, common, cone, p3, turned, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
 
 pub fn build(k: &mut DefaultKernel) -> Result<BodyId, Refusal> {
-    let rim = p2(10.0 * 45f64.to_radians().sin(), 10.0 * 45f64.to_radians().cos());
-    let section = chain(vec![
-        line(p2(0.0, 0.0), rim),
-        arc(p2(0.0, 0.0), 10.0, 45.0, 45.0),
-        line(p2(0.0, 10.0), p2(0.0, 0.0)),
-    ]);
-    let s = sketch(xz(0.0), vec![section]);
+    // the sector: the ball within the cone of half-angle 45° up z from its centre (the cone
+    // 10 high, its rim of radius 10 above the ball's cap)
     let origin = p3(0.0, 0.0, 0.0);
-    let first = revolve(k, &s, axis(origin, v3(0.0, 0.0, 1.0)), None)?;
+    let b = ball(k, origin, 10.0)?;
+    let within = cone(k, origin, v3(0.0, 0.0, 1.0), 0.0, 10.0, 10.0)?;
+    let first = common(k, b, within)?;
     let second = turned(k, first, axis(origin, v3(0.0, 1.0, 0.0)), 60.0)?;
     common(k, first, second)
 }

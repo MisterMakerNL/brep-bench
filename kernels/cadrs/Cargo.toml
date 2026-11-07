@@ -9,8 +9,22 @@ publish = false
 # cadrs's kernel (the crate cadrs_kernel) is not on crates.io, so it comes from cadrs's
 # repository at one commit: the board says which, and moving to another is a change made here.
 [dependencies]
-cadrs_kernel = { git = "https://github.com/rvdende/cadrs", rev = "26cdea68b59b56ad9323188c756f035b6ea27d88" }
+cadrs_kernel = { git = "https://github.com/rvdende/cadrs", rev = "8561822385eaa4bed9fd174ffc9426c3b0d73531" }
 nalgebra = "0.35"
 
+# The runner is built once and run once per case: whole-program optimisation for its speed,
+# no unwinding (a panic is a crash either way) and no symbols, for its size and start.
 [profile.release]
 debug = 0
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+# For sampling the runner's stacks (`cargo build --profile profiling`): line tables, no LTO.
+[profile.profiling]
+inherits = "release"
+debug = "line-tables-only"
+strip = false
+lto = false
+codegen-units = 16

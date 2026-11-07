@@ -2,8 +2,7 @@
 //! circle of radius 10, shrunk by 1.5: the solid of every point at least 1.5 from its outside,
 //! the torus about the same middle circle with a tube of radius 1.5.
 //!
-//! cadrs has no torus primitive: the torus is the tube's circular section revolved about the
-//! z axis. Then cadrs's offset inward.
+//! The torus is cadrs's torus primitive. Then cadrs's offset inward.
 use crate::bench::{p3, torus, v3};
 use crate::shared::offset::shrunk;
 use crate::Refusal;

@@ -3,9 +3,9 @@
 //! ball's poles are on the z axis, so the rim of the cut passes through the pole at (0, 0, 5),
 //! crossing every meridian there.
 //!
-//! The ball is the half disc beside the z axis revolved a whole turn about it (cadrs has no
-//! sphere primitive), its poles at (0, 0, ±5). The cap is cut with a block sketched on the plane
-//! x + z = 5 (through (2.5, 0, 2.5), normal (1, 0, 1)) and extruded away from the center.
+//! The ball is cadrs's sphere primitive, its poles at (0, 0, ±5). The cap is cut with a block
+//! sketched on the plane x + z = 5 (through (2.5, 0, 2.5), normal (1, 0, 1)) and extruded away
+//! from the center.
 use crate::bench::{ball, p3, v3};
 use crate::shared::singular::cut_beyond;
 use crate::Refusal;

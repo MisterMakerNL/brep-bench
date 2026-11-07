@@ -1,6 +1,6 @@
 //! A torus about the z axis centered on the origin, its tube's center circle of radius 10 and its
-//! tube of radius 2, with everything where x < 0 cut away by a block. The torus is the tube's
-//! section, a circle, revolved a whole turn (the kernel has no torus primitive).
+//! tube of radius 2, with everything where x < 0 cut away by a block. The torus is cadrs's
+//! torus primitive.
 use crate::bench::{block, cut, p3, torus, V3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

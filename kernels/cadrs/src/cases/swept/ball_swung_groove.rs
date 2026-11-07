@@ -2,11 +2,11 @@
 //! center swings a quarter turn about the z axis in the top face, from (12, 0, 0) to (0, 12, 0):
 //! everything the ball passes through cut from the block.
 //!
-//! cadrs has no sweep of a solid, so the ball's sweep is built as what it is: the tube about
-//! its center's path, the disk of radius 3 about (12, 0, 0) on the Front plane (square to the
-//! arc there) revolved the quarter turn about the z axis, and the ball at each end of the path,
-//! whose half beyond the tube closes it. The kernel has no sphere primitive: each ball is a half
-//! disc revolved.
+//! cadrs's sweep of a solid (`Kernel::sweep_solid`) turns a body exactly only whole turns (it
+//! meshes what other rigid motions fill), so the ball's sweep is built as what it is: the tube
+//! about its center's path, the disk of radius 3 about (12, 0, 0) on the Front plane (square to
+//! the arc there) revolved the quarter turn about the z axis, and the ball at each end of the
+//! path, whose half beyond the tube closes it. Each ball is cadrs's sphere primitive.
 use crate::bench::{axis, ball, block, cut_each, p3, revolve, round, sketch, v3, xz};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};

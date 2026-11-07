@@ -2,9 +2,10 @@
 //! past it: the torus of radii 6 and 2, its axis parallel to y, slid without turning from center
 //! (11.5, 0, −9) up to (11.5, 0, 29), cut from the rod.
 //!
-//! cadrs has no sweep of a solid, so the wheel's sweep is built as what it is
+//! cadrs's sweep of a solid (`Kernel::sweep_solid`) meshes what a torus fills as it slides, so
+//! the wheel's sweep is built as what it is
 //! ([`torus_slid`]): the torus at each end and the stadium it covers seen along the slide,
-//! extruded along it. The kernel has no torus primitive: each torus is a circle revolved.
+//! extruded along it. Each torus is cadrs's torus primitive.
 use crate::bench::{cut_each, p3};
 use crate::shared::swept::{rod, torus_slid};
 use crate::Refusal;

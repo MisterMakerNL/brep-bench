@@ -1,7 +1,7 @@
 //! A block from (−10, −10, 0) to (10, 10, 10), united with a solid cone on the z axis whose apex
 //! is at the origin, the middle of the block's bottom face, and whose base is the disk of radius
 //! 5 in the plane z = 15: the tip touches the bottom face from inside at one point. The cone is
-//! its triangular section beside the axis revolved about z (the kernel has no cone primitive).
+//! cadrs's cone primitive.
 use crate::bench::{block, cone, p3, union, v3};
 use crate::Refusal;
 use cadrs_kernel::{BodyId, DefaultKernel};
