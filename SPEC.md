@@ -77,7 +77,9 @@ How a description is written:
   description that must forbid the direct construction ("do not use a box") to keep its case
   meaningful is asking about a path the grading cannot see, and is not a case. The geometry a
   solid is bounded by is part of its definition, not a path: a ball bounded by one NURBS face is
-  not a sphere primitive.
+  not a sphere primitive. The one exception is the direct edits of `edit/`, which move a finished
+  solid's faces by a distance: each states the solid it starts from, which faces move and how far,
+  and the solid that results.
 - **It must be unambiguous enough to have one answer.** If two careful readers could build
   different solids from it, that is a bug in the case.
 - **Where blends meet at a corner, it says what the corner is, as a composition.** Chamfers or
@@ -280,7 +282,8 @@ One entry per kernel:
 ## Versions
 
 - **1.12:** a case defines its solid directly, from its geometry and parameters, not as a path
-  through other solids that a direct construction of the result would skip. Grading is as in 1.9.
+  through other solids that a direct construction of the result would skip; the direct edits,
+  which move a solid's faces, are the one exception. Grading is as in 1.9.
 - **1.11:** families are removed, and with them a runner's PARAMS argument: twenty runs a case
   cost much CPU time for little coverage the cases they varied did not already give. Grading is as
   in 1.9.
